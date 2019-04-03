@@ -1,2 +1,2 @@
-# masters-project
-Kubernetes config files for my Masters' project.
+# Masters' Project
+Files for my Masters' project.
