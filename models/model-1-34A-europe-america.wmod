@@ -1,0 +1,1251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-34A-europe-america" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>=== Description ===
+
+This is based on "1-34" but models (very simply) the geographic distribution of the nodes. The nodes are either in "Europe" or "America", and the latency between them varies accordingly. One can also think of them as being in different places in a data-center, or co-located vs. not co-located. The important thing is modelling the time delay based on distribution.
+
+NOTE: Throughout I use "MS" in variable names to mean "MilliSeconds".
+
+
+
+=== SLA ===
+
+In this SLA, we allow only a certain number of violations of the maximum responsetime  (MAX_SLO_VIOLATIONS). Therefore the "slo_check" event has been made controllable, running once at the end of each loop in the "master" specification. If the SLO was violated the "max_response_time_slo" plant increases the variable SLO_VIOLATIONS.
+
+There is a separate plant for counting SLO violations (max_response_time_slo) and a condition for checking that the number of violations satisfies the SLA (sla). The "sla" condition ensures that the SLO_VIOLATIONS variable does not go above MAX_SLO_VIOLATIONS.
+
+
+
+=== Cloud ===
+
+This is a 3-tier application deployed to the cloud, consisting of a UI layer, Logic layer and Database layer. Each is deployed to its own node/container.
+
+Requests can come either from America (via event "user_request_am") or Europe (via event "user_request_eu"). These events are sent by the "user" plant. A request from America is routed to the American UI instance (ui_node_america). A request from Europe is routed to the Europe instance (ui_node_europe). We assume these UI nodes are always on.
+
+Initially:
+
+ui_node_america is ON
+logic_node_america is ON
+database_node_america is ON
+
+ui_node_europe is ON
+logic_node_europe is *OFF*
+database_node_europe is *OFF*
+
+So at first the UI node in Europe must route the request to the logic_node in America, which takes extra time. The time for the request to travel between Europe and America is given by "AM_TO_EU_MS". This is in addition for the (fixed) processing time "DB_TO_LOGIC_MS".
+
+1) It must route it to the logic node in America (logic_node_america) via event "ui_eu_to_logic_am".
+
+2) The American logic node then passes this to the American database node (database_node_america) via event "logic_am_to_db_am".
+
+3) The database node passes the result back via event "db_am_to_logic_am".
+
+4) Then logic_node_america passes this back to ui_node_europe via event "logic_am_to_ui_eu". This again takes extra time due to the latency between America and Europe (AM_TO_EU_MS).
+
+
+
+=== Self-Adaptive Strategy ===
+
+Once the response time reaches a threshold (SCALE_THRESHOLD_MS), the cloud creates instances (nodes) in Europe via the "create_eu_instances" event. This sets the variables DB_NODE_EU_ON and LOGIC_NODE_EU_ON to 1 (on). Then ui_node_eu knows it can send requests through them.
+
+We assume that the America nodes are always on and never go down (but in the future we can model taking them down).
+
+
+
+=== Analysis ===
+
+1) If the maximum possible response time is less than the SLO threshold, then no adaptation is required. That is, if:
+
+UI_TO_LOGIC_MS + LOGIC_TO_DB_MS + DB_TO_LOGIC_MS + LOGIC_TO_UI_MS + 2*AM_TO_EU_MS &lt;= MAX_RESPONSE_TIME
+
+...we do not need to adapt at all.
+
+
+2) Conversely, if the minimum possible response time is more than the SLO threshold, then we have no hope of meeting the SLA in the first place! That is, if:
+
+UI_TO_LOGIC_MS + LOGIC_TO_DB_MS + DB_TO_LOGIC_MS + LOGIC_TO_UI_MS &gt; MAX_RESPONSE_TIME
+
+...then we cannot possibly meet the SLA.
+
+
+3) In the intermediate case, then the master simply turns on the Europe database and logic nodes after the first SLO violation, and from then on everything is fine (there are no more violations). This is not so useful yet.
+
+
+
+=== Future Work ===
+
+We could create a scenario where the Europe database and logic nodes are turned off again after no "user_request_eu" events have been received for a while. Then, of course, we would have to reset the SLO violations (SLO_VIOLATIONS) for the "current window" to zero first.
+
+We could also make the American nodes shut down if there are no "user_request_am" events for a while. Then the worst case scenario becomes ui_node_eu --&gt; logic_node_am --&gt; db_node and back, which has a total of 4 trips from Europe to America (4*AM_TO_EU_MS).
+
+Also, it will certainly help to have a picture illustrating how this cloud works. I could make one in Dia.
+
+
+
+=== Other Notes ===
+
+Note in the "max_response_time_slo" plant, the bottom branch has a strange action (SLO_VIOLATIONS = SLO_VIOLATIONS). Without this action, the following error occurs:
+
+1) Do a property check.
+2) Note in the trace that the "max_response_time_slo" executed the bottom branch, and in doing so set "SLO_VIOLATIONS" to 2. I'm not sure why it does this - there is no action for it.
+
+Anyway, I fixed this by giving it the action SLO_VIOLATIONS = SLO_VIOLATIONS. I'm not sure why this works...
+</ns2:Comment>
+    <ConstantAliasList>
+        <ConstantAlias Name="AM_TO_EU_MS">
+            <ConstantAliasExpression>
+                <IntConstant Value="500"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="DB_TO_LOGIC_MS">
+            <ConstantAliasExpression>
+                <IntConstant Value="400"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="LOGIC_TO_DB_MS">
+            <ConstantAliasExpression>
+                <IntConstant Value="200"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="LOGIC_TO_UI_MS">
+            <ConstantAliasExpression>
+                <IntConstant Value="200"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="MAX_RESPONSE_TIME">
+            <ConstantAliasExpression>
+                <IntConstant Value="1000"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="MAX_SLO_VIOLATIONS">
+            <ConstantAliasExpression>
+                <IntConstant Value="1"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="SCALE_THRESHOLD_MS">
+            <ConstantAliasExpression>
+                <IntConstant Value="800"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="UI_TO_LOGIC_MS">
+            <ConstantAliasExpression>
+                <IntConstant Value="100"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+    </ConstantAliasList>
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="ui_am_to_logic_am"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="logic_am_to_db_am"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="db_am_to_logic_am"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="logic_am_to_ui_am"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request_am"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply_am"/>
+        <EventDecl Kind="CONTROLLABLE" Name="slo_check"/>
+        <EventDecl Kind="CONTROLLABLE" Name="check_threshold"/>
+        <EventDecl Kind="CONTROLLABLE" Name="reset"/>
+        <EventDecl Kind="PROPOSITION" Name=":accepting"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="ui_eu_to_logic_eu"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request_eu"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="logic_eu_to_ui_eu"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="logic_eu_to_db_eu"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="db_eu_to_logic_eu"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="ui_eu_to_logic_am"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="logic_am_to_ui_eu"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply_eu"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="sla_check"/>
+        <EventDecl Kind="CONTROLLABLE" Name="create_eu_instances"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="max_response_time_slo">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="128" Y="144"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-36" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="checked">
+                        <PointGeometry>
+                            <Point X="304" Y="144"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="checked">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="slo_check"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-38" Y="-23"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="217" Y="90"/>
+                        </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="304" Y="144"/>
+                        </EndPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;" Text="ELAPSED_TIME_MS &gt; MAX_RESPONSE_TIME">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="MAX_RESPONSE_TIME"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="SLO_VIOLATIONS += 1">
+                                    <SimpleIdentifier Name="SLO_VIOLATIONS"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-130" Y="-58"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="idle" Target="checked">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="slo_check"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-28" Y="9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="213" Y="200"/>
+                        </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="304" Y="144"/>
+                        </EndPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;=" Text="ELAPSED_TIME_MS &lt;= MAX_RESPONSE_TIME">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="MAX_RESPONSE_TIME"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="SLO_VIOLATIONS = SLO_VIOLATIONS">
+                                    <SimpleIdentifier Name="SLO_VIOLATIONS"/>
+                                    <SimpleIdentifier Name="SLO_VIOLATIONS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-118" Y="31"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="checked" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reset"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-18" Y="9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PROPERTY" Name="sla">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="checking">
+                        <PointGeometry>
+                            <Point X="128" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="checking" Target="checking">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="sla_check"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-39" Y="9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="127" Y="180"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;=" Text="SLO_VIOLATIONS &lt;= MAX_SLO_VIOLATIONS">
+                                    <SimpleIdentifier Name="SLO_VIOLATIONS"/>
+                                    <SimpleIdentifier Name="MAX_SLO_VIOLATIONS"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-115" Y="31"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="database_node_america">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting">
+                        <PointGeometry>
+                            <Point X="-400" Y="80"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="-400" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_am_to_db_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="13" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-390" Y="119"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="waiting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="db_am_to_logic_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-134" Y="-13"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-411" Y="120"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += DB_TO_LOGIC_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="DB_TO_LOGIC_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-263" Y="5"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="database_node_europe">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting">
+                        <PointGeometry>
+                            <Point X="-720" Y="-576"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="-720" Y="-464"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_eu_to_db_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="13" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-706" Y="-521"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="waiting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="db_eu_to_logic_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-126" Y="-13"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-735" Y="-520"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += DB_TO_LOGIC_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="DB_TO_LOGIC_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-263" Y="5"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="waiting" Target="waiting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_eu_instances"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-78" Y="-62"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-780" Y="-619"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="DB_NODE_EU_ON = 1">
+                                    <SimpleIdentifier Name="DB_NODE_EU_ON"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-78" Y="-40"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="logic_node_america">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting_for_ui">
+                        <PointGeometry>
+                            <Point X="-496" Y="288"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-107" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing_for_am">
+                        <PointGeometry>
+                            <Point X="-336" Y="320"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_db_am">
+                        <PointGeometry>
+                            <Point X="-336" Y="464"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="26" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="received_from_db_am">
+                        <PointGeometry>
+                            <Point X="-496" Y="464"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-157" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing_for_eu">
+                        <PointGeometry>
+                            <Point X="-336" Y="240"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-11"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_db_eu">
+                        <PointGeometry>
+                            <Point X="-336" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="received_from_db_eu">
+                        <PointGeometry>
+                            <Point X="-496" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-154" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting_for_ui" Target="processing_for_am">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_am_to_logic_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-63" Y="14"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-417" Y="328"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_for_am" Target="waiting_for_db_am">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_am_to_db_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="18" Y="-16"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-321" Y="392"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += LOGIC_TO_DB_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="LOGIC_TO_DB_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="17" Y="1"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="received_from_db_am" Target="waiting_for_ui">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_am_to_ui_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-133" Y="-1"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="-564" Y="478"/>
+                        </StartPointGeometry>
+                        <SplineGeometry>
+                            <Point X="-515" Y="375"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += LOGIC_TO_UI_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="LOGIC_TO_UI_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-261" Y="20"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="waiting_for_db_am" Target="received_from_db_am">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="db_am_to_logic_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-34" Y="11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-416" Y="480"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="waiting_for_ui" Target="processing_for_eu">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_eu_to_logic_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-56" Y="-34"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-418" Y="242"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_for_eu" Target="waiting_for_db_eu">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_am_to_db_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-23"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-325" Y="177"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += LOGIC_TO_DB_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="LOGIC_TO_DB_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="11" Y="-2"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="waiting_for_db_eu" Target="received_from_db_eu">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="db_am_to_logic_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-62" Y="-27"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-417" Y="92"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="received_from_db_eu" Target="waiting_for_ui">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_am_to_ui_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-127" Y="-46"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-518" Y="199"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += LOGIC_TO_UI_MS + AM_TO_EU_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <BinaryExpression Operator="+">
+                                        <SimpleIdentifier Name="LOGIC_TO_UI_MS"/>
+                                        <SimpleIdentifier Name="AM_TO_EU_MS"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-361" Y="-27"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="logic_node_europe">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting_for_ui">
+                        <PointGeometry>
+                            <Point X="304" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-107" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="464" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_db">
+                        <PointGeometry>
+                            <Point X="464" Y="336"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="26" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="received_from_db">
+                        <PointGeometry>
+                            <Point X="304" Y="336"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-131" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting_for_ui" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_eu_to_logic_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-30" Y="-35"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="383" Y="143"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="waiting_for_db">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_eu_to_db_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="18" Y="-18"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="483" Y="248"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += LOGIC_TO_DB_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="LOGIC_TO_DB_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="17" Y="1"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="received_from_db" Target="waiting_for_ui">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_eu_to_ui_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-122" Y="-14"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="-117" Y="206"/>
+                        </StartPointGeometry>
+                        <SplineGeometry>
+                            <Point X="285" Y="247"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += LOGIC_TO_UI_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="LOGIC_TO_UI_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-260" Y="5"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="waiting_for_db" Target="received_from_db">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="db_eu_to_logic_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-44" Y="10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="384" Y="352"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="waiting_for_ui" Target="waiting_for_ui">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_eu_instances"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-94" Y="-49"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="254" Y="99"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="LOGIC_NODE_EU_ON = 1">
+                                    <SimpleIdentifier Name="LOGIC_NODE_EU_ON"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-100" Y="-31"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="ui_node_america">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting_for_user_input">
+                        <PointGeometry>
+                            <Point X="-288" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-4"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_logic">
+                        <PointGeometry>
+                            <Point X="-288" Y="336"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="user_request_received">
+                        <PointGeometry>
+                            <Point X="-208" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="reply_ready">
+                        <PointGeometry>
+                            <Point X="-368" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-91" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="user_request_received" Target="waiting_for_logic">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_am_to_logic_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="20" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="-208" Y="224"/>
+                        </StartPointGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += UI_TO_LOGIC_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="UI_TO_LOGIC_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="21" Y="10"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="waiting_for_logic" Target="reply_ready">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_am_to_ui_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-129" Y="-6"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="-368" Y="224"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="waiting_for_user_input" Target="user_request_received">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-16"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="reply_ready" Target="waiting_for_user_input">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="send_reply_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-104" Y="-19"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="ui_node_europe">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting_for_user_input">
+                        <PointGeometry>
+                            <Point X="416" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-4"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_logic">
+                        <PointGeometry>
+                            <Point X="416" Y="672"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="user_request_received">
+                        <PointGeometry>
+                            <Point X="704" Y="352"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="reply_ready">
+                        <PointGeometry>
+                            <Point X="144" Y="352"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-91" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="user_request_received" Target="waiting_for_logic">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_eu_to_logic_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-53" Y="-86"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="160" Y="320"/>
+                        </StartPointGeometry>
+                        <SplineGeometry>
+                            <Point X="533" Y="475"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="==" Text="LOGIC_NODE_EU_ON == 1">
+                                    <SimpleIdentifier Name="LOGIC_NODE_EU_ON"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += UI_TO_LOGIC_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="UI_TO_LOGIC_MS"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-225" Y="-61"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="waiting_for_logic" Target="reply_ready">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_am_to_ui_eu"/>
+                            <SimpleIdentifier Name="logic_eu_to_ui_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-125" Y="0"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="-400" Y="320"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="waiting_for_user_input" Target="user_request_received">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="10" Y="-22"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="reply_ready" Target="waiting_for_user_input">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="send_reply_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-90" Y="-31"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="user_request_received" Target="waiting_for_logic">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_eu_to_logic_am"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="27" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="610" Y="545"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="==" Text="LOGIC_NODE_EU_ON == 0">
+                                    <SimpleIdentifier Name="LOGIC_NODE_EU_ON"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="ELAPSED_TIME_MS += UI_TO_LOGIC_MS + AM_TO_EU_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <BinaryExpression Operator="+">
+                                        <SimpleIdentifier Name="UI_TO_LOGIC_MS"/>
+                                        <SimpleIdentifier Name="AM_TO_EU_MS"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="26" Y="11"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="user">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="144" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_reply">
+                        <PointGeometry>
+                            <Point X="144" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="19" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="waiting_for_reply">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request_am"/>
+                            <SimpleIdentifier Name="user_request_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-118" Y="-18"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="116" Y="166"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="waiting_for_reply" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reset"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="10" Y="-21"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="171" Y="167"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="ELAPSED_TIME_MS = 0">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="11" Y="-1"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="208" Y="144"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-17"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="reply_sent">
+                        <PointGeometry>
+                            <Point X="208" Y="256"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="managing_done">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="208" Y="432"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="slo_checked">
+                        <PointGeometry>
+                            <Point X="208" Y="544"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="threshold_reached">
+                        <PointGeometry>
+                            <Point X="112" Y="352"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-134" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="reply_sent">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="send_reply_am"/>
+                            <SimpleIdentifier Name="send_reply_eu"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-107" Y="-1"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="reply_sent" Target="managing_done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="check_threshold"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-28"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="233" Y="344"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="ELAPSED_TIME_MS &lt; SCALE_THRESHOLD_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="SCALE_THRESHOLD_MS"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-9"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="reply_sent" Target="threshold_reached">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="check_threshold"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-123" Y="-29"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="112" Y="352"/>
+                        </EndPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="ELAPSED_TIME_MS &gt;= SCALE_THRESHOLD_MS">
+                                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                                    <SimpleIdentifier Name="SCALE_THRESHOLD_MS"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-309" Y="-12"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="slo_checked" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reset"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="13" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="208" Y="544"/>
+                        </StartPointGeometry>
+                        <SplineGeometry>
+                            <Point X="726" Y="340"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="managing_done" Target="slo_checked">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="slo_check"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-78" Y="-13"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="threshold_reached" Target="managing_done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_eu_instances"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-147" Y="-5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <VariableComponent Name="DB_NODE_EU_ON">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="1"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="DB_NODE_EU_ON == 0">
+                    <SimpleIdentifier Name="DB_NODE_EU_ON"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="ELAPSED_TIME_MS">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <BinaryExpression Operator="*">
+                        <SimpleIdentifier Name="MAX_RESPONSE_TIME"/>
+                        <IntConstant Value="2"/>
+                    </BinaryExpression>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="ELAPSED_TIME_MS == 0">
+                    <SimpleIdentifier Name="ELAPSED_TIME_MS"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="LOGIC_NODE_EU_ON">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="1"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="LOGIC_NODE_EU_ON == 0">
+                    <SimpleIdentifier Name="LOGIC_NODE_EU_ON"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="SLO_VIOLATIONS">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <BinaryExpression Operator="+">
+                        <SimpleIdentifier Name="MAX_SLO_VIOLATIONS"/>
+                        <IntConstant Value="1"/>
+                    </BinaryExpression>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="SLO_VIOLATIONS == 0">
+                    <SimpleIdentifier Name="SLO_VIOLATIONS"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="UI_NODE_EU_ON">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="1"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="UI_NODE_EU_ON == 1">
+                    <SimpleIdentifier Name="UI_NODE_EU_ON"/>
+                    <IntConstant Value="1"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+    </ComponentList>
+</Module>
