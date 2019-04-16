@@ -80,6 +80,7 @@ We could also make the American nodes shut down if there are no "user_request_am
 
 Also, it will certainly help to have a picture illustrating how this cloud works. I could make one in Dia.
 
+Reduce the state space by using seconds instead of milli-seconds.
 
 
 === Other Notes ===
@@ -90,6 +91,9 @@ Note in the "max_response_time_slo" plant, the bottom branch has a strange actio
 2) Note in the trace that the "max_response_time_slo" executed the bottom branch, and in doing so set "SLO_VIOLATIONS" to 2. I'm not sure why it does this - there is no action for it.
 
 Anyway, I fixed this by giving it the action SLO_VIOLATIONS = SLO_VIOLATIONS. I'm not sure why this works...
+
+UPDATE: Professor Malik mentioned that this is actually the agreed way for EFSM to function. Another alternative is to turn the normalizing compiler on (choose "Configure --&gt; Options...", open the "gui" tab and check "Use normalizing EFSM compiler". This may make it run slower, however. If that is the case then un-check the "Compile While Editing" check-box.
+
 </ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="AM_TO_EU_MS">

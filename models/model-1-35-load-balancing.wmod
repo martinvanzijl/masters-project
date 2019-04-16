@@ -32,7 +32,9 @@ Here we could possibly use arrays instead of "1" and "2". E.g. use QUEUE_LENGTH[
 
 === Other Notes ===
 
-In the "load_balancer" specification, the transition "give_request_to_node_1" has a guard which is always true (1 == 1) and "give_request_to_node_2" has a guard which is always false (0 == 1). So it must always use ""give_request_to_node_1". This was done to add "give_request_to_node_2" to the event alphabet of the specification so that it can be disallowed. Otherwise it would still be enabled (you can see this by deleting the transition ""give_request_to_node_2" and running a control check.)</ns2:Comment>
+In the "load_balancer" specification, the transition "give_request_to_node_1" has a guard which is always true (1 == 1) and "give_request_to_node_2" has a guard which is always false (0 == 1). So it must always use ""give_request_to_node_1". This was done to add "give_request_to_node_2" to the event alphabet of the specification so that it can be disallowed. Otherwise it would still be enabled (you can see this by deleting the transition ""give_request_to_node_2" and running a control check.)
+
+Another alternative is to Right-Click on the diagram and choose "Add Blocked Events List", then drag the event "give_request_to_node_2" under this list. This adds the event to the alphabet even though it is not used in any transition, which eliminates the need for the "always false" transition.</ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>

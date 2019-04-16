@@ -2,23 +2,21 @@
 <Module Name="model-1-28-scale-up-requests-handled" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
     <ns2:Comment>=== Description ===
 
-This is a model of scaling up to ensure availability in the cloud. This is based on "1-27" but scales up the requests handled per second instead of the queue capacity. I will only be noting the differences with respect to "1-27" here. The rest can be assumed to be the same.
+This is a model of scaling up/out to ensure availability in the cloud. This is based on "1-27" but scales up the requests handled per second instead of the queue capacity. I will only be noting the differences with respect to "1-27" here. The rest can be assumed to be the same.
 
 
 === Self-Adaptive Strategy ===
 
 The number of requests handled per second "REQ_HANDLED_PER_SEC" (perhaps one can think of this as the CPU) is scaled up by SCALE_AMOUNT once the queue length reaches a certain threshold. The threshold is given by (QUEUE_CAPACITY - SCALE_THRESHOLD). It can scale up to a maximum of "REQ_HANDLED_PER_SEC_MAX".
 
+This is also a crude way to model scaling out by another node, where the new node handles SCALE_AMOUNT requests per second; but for this it may be clearer if we added another "node" automaton instead.
+
 
 === Analysis ===
 
 1) As before, the cloud must ultimately be able to process requests as fast as (or faster than) the user can send them. That is, REQ_HANDLED_PER_SEC_MAX &gt;= MAX_REQUESTS_PER_SECOND.
 
-2) The SCALE_THRESHOLD must be higher than MAX_REQUESTS_PER_SECOND. Otherwise the queue length may reach (QUEUE_CAPACITY - MAX_REQUESTS_PER_SECOND + 1) or more during one second. The next second, it will overshoot the queue.
-
-This could be avoided by having the "scale" step done before the "node_processes_requests" step.
-
-3) The SCALE_AMOUNT is must be high enough:
+2) The SCALE_AMOUNT must be high enough that the cloud scales in time before the queue is exceeded:
 
 For example, try:
 MAX_REQUESTS_PER_SECOND = 10
@@ -30,10 +28,15 @@ SCALE_THRESHOLD = 11
 And compare with:
 SCALE_AMOUNT = 7
 
+I believe mathematically this means:
+SCALE_AMOUNT &gt;= MAX_REQUESTS_PER_SECOND - REQ_HANDLED_PER_SECOND (initial)
 
-=== Node ===
 
-"REQUESTS_HANDLED_PER_SECOND" has been shortened to "REQ_HANDLED_PER_SEC" so that the diagrams are more readable.</ns2:Comment>
+=== Other Notes ===
+
+"REQUESTS_HANDLED_PER_SECOND" has been shortened to "REQ_HANDLED_PER_SEC" so that the diagrams are more readable.
+
+In the master, the threshold check has been moved to before node_handles_requests, since this simplifies the calculation for the minimum SCALE_THRESHOLD. This also means the node performs scaling in the "idle" state instead of "working".</ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
@@ -197,16 +200,22 @@ SCALE_AMOUNT = 7
                             <Point X="832" Y="249"/>
                         </SplineGeometry>
                     </Edge>
-                    <Edge Source="working" Target="working">
+                    <Edge Source="idle" Target="idle">
                         <LabelBlock>
                             <SimpleIdentifier Name="scale"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-16" Y="20"/>
+                                <Point X="-57" Y="18"/>
                             </LabelGeometry>
                         </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="336" Y="176"/>
+                        </StartPointGeometry>
                         <SplineGeometry>
-                            <Point X="266" Y="401"/>
+                            <Point X="259" Y="119"/>
                         </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="336" Y="176"/>
+                        </EndPointGeometry>
                         <GuardActionBlock>
                             <Guards>
                                 <BinaryExpression Operator="&lt;" Text="REQ_HANDLED_PER_SEC &lt; (REQ_HANDLED_PER_SEC_MAX - SCALE_AMOUNT)">
@@ -224,20 +233,26 @@ SCALE_AMOUNT = 7
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-443" Y="38"/>
+                                <Point X="-480" Y="-14"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
-                    <Edge Source="working" Target="working">
+                    <Edge Source="idle" Target="idle">
                         <LabelBlock>
                             <SimpleIdentifier Name="scale"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-22" Y="18"/>
+                                <Point X="16" Y="21"/>
                             </LabelGeometry>
                         </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="336" Y="176"/>
+                        </StartPointGeometry>
                         <SplineGeometry>
-                            <Point X="397" Y="402"/>
+                            <Point X="415" Y="120"/>
                         </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="336" Y="176"/>
+                        </EndPointGeometry>
                         <GuardActionBlock>
                             <Guards>
                                 <BinaryExpression Operator="&gt;=" Text="REQ_HANDLED_PER_SEC &gt;= (REQ_HANDLED_PER_SEC_MAX - SCALE_AMOUNT)">
@@ -255,7 +270,7 @@ SCALE_AMOUNT = 7
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-26" Y="39"/>
+                                <Point X="16" Y="-17"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -275,7 +290,7 @@ SCALE_AMOUNT = 7
                     </SimpleNode>
                     <SimpleNode Name="requests_pending">
                         <PointGeometry>
-                            <Point X="320" Y="192"/>
+                            <Point X="320" Y="208"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="16" Y="-7"/>
@@ -283,7 +298,7 @@ SCALE_AMOUNT = 7
                     </SimpleNode>
                     <SimpleNode Name="requests_processed">
                         <PointGeometry>
-                            <Point X="320" Y="272"/>
+                            <Point X="320" Y="336"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="18" Y="-5"/>
@@ -291,7 +306,7 @@ SCALE_AMOUNT = 7
                     </SimpleNode>
                     <SimpleNode Name="threshold_reached">
                         <PointGeometry>
-                            <Point X="240" Y="368"/>
+                            <Point X="240" Y="272"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="-132" Y="-6"/>
@@ -315,21 +330,16 @@ SCALE_AMOUNT = 7
                             </LabelGeometry>
                         </LabelBlock>
                     </Edge>
-                    <Edge Source="requests_pending" Target="requests_processed">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="node_handles_requests"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="19" Y="-12"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="requests_processed" Target="threshold_reached">
+                    <Edge Source="requests_pending" Target="threshold_reached">
                         <LabelBlock>
                             <SimpleIdentifier Name="check_thresholds"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-124" Y="-16"/>
+                                <Point X="-172" Y="-41"/>
                             </LabelGeometry>
                         </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="320" Y="208"/>
+                        </StartPointGeometry>
                         <GuardActionBlock>
                             <Guards>
                                 <BinaryExpression Operator="&gt;=" Text="QUEUE_LENGTH &gt;= (QUEUE_CAPACITY - SCALE_THRESHOLD)">
@@ -341,19 +351,22 @@ SCALE_AMOUNT = 7
                                 </BinaryExpression>
                             </Guards>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-391" Y="1"/>
+                                <Point X="-387" Y="-19"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
-                    <Edge Source="requests_processed" Target="done">
+                    <Edge Source="requests_pending" Target="requests_processed">
                         <LabelBlock>
                             <SimpleIdentifier Name="check_thresholds"/>
                             <LabelGeometry Anchor="NW">
                                 <Point X="13" Y="-58"/>
                             </LabelGeometry>
                         </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="320" Y="208"/>
+                        </StartPointGeometry>
                         <EndPointGeometry>
-                            <Point X="320" Y="448"/>
+                            <Point X="320" Y="336"/>
                         </EndPointGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -370,13 +383,16 @@ SCALE_AMOUNT = 7
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
-                    <Edge Source="threshold_reached" Target="done">
+                    <Edge Source="threshold_reached" Target="requests_processed">
                         <LabelBlock>
                             <SimpleIdentifier Name="scale"/>
                             <LabelGeometry Anchor="NW">
                                 <Point X="-43" Y="4"/>
                             </LabelGeometry>
                         </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="320" Y="336"/>
+                        </EndPointGeometry>
                     </Edge>
                     <Edge Source="done" Target="waiting">
                         <LabelBlock>
@@ -388,6 +404,14 @@ SCALE_AMOUNT = 7
                         <SplineGeometry>
                             <Point X="848" Y="255"/>
                         </SplineGeometry>
+                    </Edge>
+                    <Edge Source="requests_processed" Target="done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_handles_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="10" Y="-20"/>
+                            </LabelGeometry>
+                        </LabelBlock>
                     </Edge>
                 </EdgeList>
             </Graph>
