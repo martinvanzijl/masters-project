@@ -7,12 +7,19 @@ A round-robin scaling with an arbitrary number of potential nodes. I used "1-35B
 But instead of having just two potential nodes, it has any number from MIN_NODES to MAX_NODES.
 
 
+=== Self-Adaptive Strategy ===
+
+Blind round robin.
+
+The way the load balancer is modelled may be a little confusing. Instead of a single automaton for "load_balancer", instead there is a "load_balancer" specification for each node. This will only fire its events when NODE_INDEX == NEXT_NODE (that is, if it is the node currently receiving the requests).
+
+This was done because it is not possible to have a single load_balancer outside of the loop which references and increments the NEXT_NODE variable.
+
 
 === Other Notes ===
 
-The "load_balancer" specification has a problem with its transition using the NEXT_NODE field. It says this is not defined.
-
-I think I must ask professor Malik about this.</ns2:Comment>
+The "\ite" is read "if-true-then". The first parameter is the condition, the second is the result if the condition is true, and the third is the result if the condition is false.
+</ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
@@ -71,104 +78,6 @@ I think I must ask professor Malik about this.</ns2:Comment>
         </EventDecl>
     </EventDeclList>
     <ComponentList>
-        <SimpleComponent Kind="SPEC" Name="load_balancer">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="idle">
-                        <PointGeometry>
-                            <Point X="-80" Y="96"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="-54" Y="-6"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="request_received">
-                        <PointGeometry>
-                            <Point X="-80" Y="272"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="-132" Y="-6"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="idle" Target="request_received">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-98" Y="-10"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="-119" Y="184"/>
-                        </SplineGeometry>
-                        <EndPointGeometry>
-                            <Point X="-80" Y="272"/>
-                        </EndPointGeometry>
-                    </Edge>
-                    <Edge Source="request_received" Target="idle">
-                        <LabelBlock>
-                            <IndexedIdentifier Name="give_request_to_node">
-                                <SimpleIdentifier Name="NEXT_NODE"/>
-                            </IndexedIdentifier>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="15" Y="-5"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="-39" Y="181"/>
-                        </SplineGeometry>
-                        <GuardActionBlock>
-                            <Guards>
-                                <BinaryExpression Operator="&lt;" Text="NEXT_NODE &lt; NODE_MAX">
-                                    <SimpleIdentifier Name="NEXT_NODE"/>
-                                    <SimpleIdentifier Name="NODE_MAX"/>
-                                </BinaryExpression>
-                            </Guards>
-                            <Actions>
-                                <BinaryExpression Operator="+=" Text="NEXT_NODE += 1">
-                                    <SimpleIdentifier Name="NEXT_NODE"/>
-                                    <IntConstant Value="1"/>
-                                </BinaryExpression>
-                            </Actions>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="16" Y="-39"/>
-                            </LabelGeometry>
-                        </GuardActionBlock>
-                    </Edge>
-                    <Edge Source="request_received" Target="idle">
-                        <LabelBlock>
-                            <IndexedIdentifier Name="give_request_to_node">
-                                <SimpleIdentifier Name="NEXT_NODE"/>
-                            </IndexedIdentifier>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="13" Y="-6"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="276" Y="184"/>
-                        </SplineGeometry>
-                        <GuardActionBlock>
-                            <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="NEXT_NODE &gt;= NODE_MAX">
-                                    <SimpleIdentifier Name="NEXT_NODE"/>
-                                    <SimpleIdentifier Name="NODE_MAX"/>
-                                </BinaryExpression>
-                            </Guards>
-                            <Actions>
-                                <BinaryExpression Operator="=" Text="NEXT_NODE = NODE_MIN">
-                                    <SimpleIdentifier Name="NEXT_NODE"/>
-                                    <SimpleIdentifier Name="NODE_MIN"/>
-                                </BinaryExpression>
-                            </Actions>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="16" Y="-45"/>
-                            </LabelGeometry>
-                        </GuardActionBlock>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
         <SimpleComponent Kind="SPEC" Name="master">
             <Graph>
                 <NodeList>
@@ -492,7 +401,7 @@ I think I must ask professor Malik about this.</ns2:Comment>
                                 <LabelBlock>
                                     <SimpleIdentifier Name="node_handles_requests"/>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="70" Y="31"/>
+                                        <Point X="73" Y="26"/>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
@@ -500,15 +409,19 @@ I think I must ask professor Malik about this.</ns2:Comment>
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&gt;=" Text="NODE_1_QUEUE_LENGTH &gt;= REQ_HANDLED_PER_SEC_NODE_1">
-                                            <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
-                                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_NODE_1"/>
+                                        <BinaryExpression Operator="&gt;=" Text="NODE_QUEUE_LENGTH[NODE_INDEX] &gt;= REQ_HANDLED_PER_SEC_NODE">
+                                            <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="NODE_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_NODE"/>
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="-=" Text="NODE_1_QUEUE_LENGTH -= REQ_HANDLED_PER_SEC_NODE_1">
-                                            <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
-                                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_NODE_1"/>
+                                        <BinaryExpression Operator="-=" Text="NODE_QUEUE_LENGTH[NODE_INDEX] -= REQ_HANDLED_PER_SEC_NODE">
+                                            <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="NODE_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_NODE"/>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
@@ -520,7 +433,7 @@ I think I must ask professor Malik about this.</ns2:Comment>
                                 <LabelBlock>
                                     <SimpleIdentifier Name="node_handles_requests"/>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-258" Y="31"/>
+                                        <Point X="-295" Y="31"/>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
@@ -528,19 +441,23 @@ I think I must ask professor Malik about this.</ns2:Comment>
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&lt;" Text="NODE_1_QUEUE_LENGTH &lt; REQ_HANDLED_PER_SEC_NODE_1">
-                                            <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
-                                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_NODE_1"/>
+                                        <BinaryExpression Operator="&lt;" Text="NODE_QUEUE_LENGTH[NODE_INDEX] &lt; REQ_HANDLED_PER_SEC_NODE">
+                                            <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="NODE_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_NODE"/>
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="NODE_1_QUEUE_LENGTH = 0">
-                                            <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
+                                        <BinaryExpression Operator="=" Text="NODE_QUEUE_LENGTH[NODE_INDEX] = 0">
+                                            <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="NODE_INDEX"/>
+                                            </IndexedIdentifier>
                                             <IntConstant Value="0"/>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-390" Y="-9"/>
+                                        <Point X="-446" Y="-12"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -552,7 +469,7 @@ I think I must ask professor Malik about this.</ns2:Comment>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
-                                    <Point X="617" Y="312"/>
+                                    <Point X="681" Y="312"/>
                                 </SplineGeometry>
                             </Edge>
                         </EdgeList>
@@ -588,13 +505,107 @@ I think I must ask professor Malik about this.</ns2:Comment>
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Actions>
-                                        <BinaryExpression Operator="+=" Text="NODE_1_QUEUE_LENGTH += 1">
-                                            <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
+                                        <BinaryExpression Operator="+=" Text="NODE_QUEUE_LENGTH[NODE_INDEX] += 1">
+                                            <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="NODE_INDEX"/>
+                                            </IndexedIdentifier>
                                             <IntConstant Value="1"/>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-82" Y="31"/>
+                                        <Point X="-111" Y="28"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                        </EdgeList>
+                    </Graph>
+                </SimpleComponent>
+                <SimpleComponent Kind="SPEC">
+                    <IndexedIdentifier Name="load_balancer">
+                        <SimpleIdentifier Name="NODE_INDEX"/>
+                    </IndexedIdentifier>
+                    <Graph>
+                        <NodeList>
+                            <SimpleNode Initial="true" Name="idle">
+                                <PointGeometry>
+                                    <Point X="-80" Y="96"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="-54" Y="-6"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                            <SimpleNode Name="request_received">
+                                <PointGeometry>
+                                    <Point X="-80" Y="272"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="-132" Y="-6"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                        </NodeList>
+                        <EdgeList>
+                            <Edge Source="idle" Target="request_received">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="user_request"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-98" Y="-10"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="-119" Y="184"/>
+                                </SplineGeometry>
+                                <EndPointGeometry>
+                                    <Point X="-80" Y="272"/>
+                                </EndPointGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="==">
+                                            <SimpleIdentifier Name="NODE_INDEX"/>
+                                            <SimpleIdentifier Name="NEXT_NODE"/>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-185" Y="-28"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="request_received" Target="idle">
+                                <LabelBlock>
+                                    <IndexedIdentifier Name="give_request_to_node">
+                                        <SimpleIdentifier Name="NODE_INDEX"/>
+                                    </IndexedIdentifier>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="15" Y="-5"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="-39" Y="181"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="==">
+                                            <SimpleIdentifier Name="NODE_INDEX"/>
+                                            <SimpleIdentifier Name="NEXT_NODE"/>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <Actions>
+                                        <BinaryExpression Operator="=" Text="NEXT_NODE = \ite(NEXT_NODE &lt; NODE_MAX,NEXT_NODE+1,NODE_MIN)">
+                                            <SimpleIdentifier Name="NEXT_NODE"/>
+                                            <FunctionCallExpression FunctionName="\ite">
+                                                <BinaryExpression Operator="&lt;">
+                                                    <SimpleIdentifier Name="NEXT_NODE"/>
+                                                    <SimpleIdentifier Name="NODE_MAX"/>
+                                                </BinaryExpression>
+                                                <BinaryExpression Operator="+">
+                                                    <SimpleIdentifier Name="NEXT_NODE"/>
+                                                    <IntConstant Value="1"/>
+                                                </BinaryExpression>
+                                                <SimpleIdentifier Name="NODE_MIN"/>
+                                            </FunctionCallExpression>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="16" Y="-39"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
