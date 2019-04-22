@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Module Name="model-1-35C-scalable-round-robin" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+<Module Name="model-1-35D-scalable-round-robin-debug" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
     <ns2:Comment>=== Description ===
 
-A round-robin scaling with an arbitrary number of potential nodes. I used "1-35B" as a starting point.
-
-But instead of having just two potential nodes, it has any number from MIN_NODES to MAX_NODES.
-
-
-=== Self-Adaptive Strategy ===
-
-Blind round robin.
-
-The way the load balancer is modelled may be a little confusing. Instead of a single automaton for "load_balancer", instead there is a "load_balancer" specification for each node. This will only fire its events when NODE_INDEX == NEXT_NODE (that is, if it is the node currently receiving the requests).
-
-This was done because it is not possible to have a single load_balancer outside of the loop which references and increments the NEXT_NODE variable.
+I used "1-35D" as a starting point. This is to debug the errors in it.
 
 
 === Other Notes ===
 
-The "\ite" is read "if-true-then". The first parameter is the condition, the second is the result if the condition is true, and the third is the result if the condition is false.
+The last parameter in the load_balancer "\ite" command is not to blame. I set this to "2" to check.
 
-The "node" plant action for the "node_handles_requests" event has been simplified. Instead of two potential transitions, there is one. It does the same thing - subtracts requests from the queue but makes sure the length never goes below zero. The built-in "\max" function is used for this.
+Let me check the trace. Well, well... In the simulator, it gives the option to run the event with *any value* from 1 to 10 for the NODE_INDEX. Why does it allow any value when we've clearly put a condition in the "load_balancer" specification?
 
-There is a controllability check failure, however. It says the final load_balancer specification (index 10) disables the "user_request" event. I better investigate this further.
-</ns2:Comment>
+Well, let me try the hack I did before! Nope, I added the "strange" action to the user_request event, but it still shows the same issue.
+
+Let me try the normalizing compiler. Nope, that doesn't help, either. What else shall I try?
+
+Let me remove the action from the second transition in load_balance entirely. Again, this does nothing!
+
+I think I'll park this model for now and come back to it later.</ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
@@ -537,7 +531,7 @@ There is a controllability check failure, however. It says the final load_balanc
                                         </BinaryExpression>
                                     </Guards>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-185" Y="-28"/>
+                                        <Point X="-184" Y="-28"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -560,24 +554,8 @@ There is a controllability check failure, however. It says the final load_balanc
                                             <SimpleIdentifier Name="NEXT_NODE"/>
                                         </BinaryExpression>
                                     </Guards>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="NEXT_NODE = \ite(NEXT_NODE &lt; NODE_MAX,NEXT_NODE+1,NODE_MIN)">
-                                            <SimpleIdentifier Name="NEXT_NODE"/>
-                                            <FunctionCallExpression FunctionName="\ite">
-                                                <BinaryExpression Operator="&lt;">
-                                                    <SimpleIdentifier Name="NEXT_NODE"/>
-                                                    <SimpleIdentifier Name="NODE_MAX"/>
-                                                </BinaryExpression>
-                                                <BinaryExpression Operator="+">
-                                                    <SimpleIdentifier Name="NEXT_NODE"/>
-                                                    <IntConstant Value="1"/>
-                                                </BinaryExpression>
-                                                <SimpleIdentifier Name="NODE_MIN"/>
-                                            </FunctionCallExpression>
-                                        </BinaryExpression>
-                                    </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="16" Y="-39"/>
+                                        <Point X="17" Y="-25"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
