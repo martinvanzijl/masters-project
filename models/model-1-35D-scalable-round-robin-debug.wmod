@@ -17,7 +17,9 @@ Let me try the normalizing compiler. Nope, that doesn't help, either. What else 
 
 Let me remove the action from the second transition in load_balance entirely. Again, this does nothing!
 
-I think I'll park this model for now and come back to it later.</ns2:Comment>
+I change the NODE_MAX named constant to "2". This does not help. The controllability check says that the load_balancer[2] disables user_request with NEXT_NODE==1 in the state "idle". But that does not make sense, since load_balancer[2] should only be interested in the case where NEXT_NODE == 1. I have an idea! That did it - I added a dummy transition back to the same state when the NODE_INDEX != NEXT_NODE. OK, let's take this further.
+
+</ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
@@ -31,7 +33,7 @@ I think I'll park this model for now and come back to it later.</ns2:Comment>
         </ConstantAlias>
         <ConstantAlias Name="NODE_MAX">
             <ConstantAliasExpression>
-                <IntConstant Value="10"/>
+                <IntConstant Value="2"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Name="NODE_QUEUE_CAPACITY">
@@ -494,7 +496,7 @@ I think I'll park this model for now and come back to it later.</ns2:Comment>
                         <NodeList>
                             <SimpleNode Initial="true" Name="idle">
                                 <PointGeometry>
-                                    <Point X="-80" Y="96"/>
+                                    <Point X="-1040" Y="-336"/>
                                 </PointGeometry>
                                 <LabelGeometry Anchor="NW">
                                     <Point X="-54" Y="-6"/>
@@ -502,7 +504,7 @@ I think I'll park this model for now and come back to it later.</ns2:Comment>
                             </SimpleNode>
                             <SimpleNode Name="request_received">
                                 <PointGeometry>
-                                    <Point X="-80" Y="272"/>
+                                    <Point X="-1040" Y="-160"/>
                                 </PointGeometry>
                                 <LabelGeometry Anchor="NW">
                                     <Point X="-132" Y="-6"/>
@@ -518,10 +520,10 @@ I think I'll park this model for now and come back to it later.</ns2:Comment>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
-                                    <Point X="-119" Y="184"/>
+                                    <Point X="-1079" Y="-248"/>
                                 </SplineGeometry>
                                 <EndPointGeometry>
-                                    <Point X="-80" Y="272"/>
+                                    <Point X="-1040" Y="-160"/>
                                 </EndPointGeometry>
                                 <GuardActionBlock>
                                     <Guards>
@@ -545,7 +547,7 @@ I think I'll park this model for now and come back to it later.</ns2:Comment>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
-                                    <Point X="-39" Y="181"/>
+                                    <Point X="-999" Y="-251"/>
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
@@ -556,6 +558,28 @@ I think I'll park this model for now and come back to it later.</ns2:Comment>
                                     </Guards>
                                     <LabelGeometry Anchor="NW">
                                         <Point X="17" Y="-25"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="idle" Target="idle">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="user_request"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-96" Y="-12"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="-1136" Y="-339"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="!=" Text="NODE_INDEX != NEXT_NODE">
+                                            <SimpleIdentifier Name="NODE_INDEX"/>
+                                            <SimpleIdentifier Name="NEXT_NODE"/>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-185" Y="-32"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>

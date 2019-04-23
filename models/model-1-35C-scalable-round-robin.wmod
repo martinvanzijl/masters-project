@@ -2,18 +2,57 @@
 <Module Name="model-1-35C-scalable-round-robin" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
     <ns2:Comment>=== Description ===
 
-A round-robin scaling with an arbitrary number of potential nodes. I used "1-35B" as a starting point.
+A round-robin load balancer with an arbitrary number of potential nodes. I used "1-35B" as a starting point.
 
 But instead of having just two potential nodes, it has any number from MIN_NODES to MAX_NODES.
 
 
 === Self-Adaptive Strategy ===
 
-Blind round robin.
+This uses "blind" round robin. That is, it does not take each node's queue length into account, so it may distribute a request to a node even when that node's queue is already full.
 
-The way the load balancer is modelled may be a little confusing. Instead of a single automaton for "load_balancer", instead there is a "load_balancer" specification for each node. This will only fire its events when NODE_INDEX == NEXT_NODE (that is, if it is the node currently receiving the requests).
+The way the load balancer is modelled may be a little confusing. Instead of a single automaton for "load_balancer", instead there is a "load_balancer" specification for each node. This will only fire its events when NODE_INDEX == NEXT_NODE (that is, if it is the node currently receiving the requests). This was done because it is not possible to have a single load_balancer outside of the loop which references and increments the NEXT_NODE variable.
 
-This was done because it is not possible to have a single load_balancer outside of the loop which references and increments the NEXT_NODE variable.
+The load balancer has a "dummy" transition in the idle state for the "user_request" event when NODE_INDEX != NEXT_NODE. This is to avoid a controllability check failure, which says the final load_balancer specification (index 10) disables the "user_request" event for when NEXT_NODE == 1.
+
+
+=== Analysis ===
+
+1) The nodes must be able to store at least MAX_REQUESTS_PER_SECOND requests. That means:
+
+NODE_MAX * NODE_QUEUE_CAPACITY &gt;= MAX_REQUESTS_PER_SECOND
+
+Try:
+MAX_REQUESTS_PER_SECOND = 35
+NODE_MIN = 1
+NODE_MAX = 10
+NODE_QUEUE_CAPACITY = 4
+REQUESTS_HANDLED_PER_SEC_PER_NODE = 6
+
+Compare with:
+NODE_QUEUE_CAPACITY = 3
+
+NOTE: I should point out this scenario is somewhat inefficient, since each node can handle more requests per second (6) than its queue can store (4 or 3).
+
+
+2) As usual, the nodes must process the requests at least as fast as they arrive. That means:
+
+NODE_MAX * REQ_HANDLED_PER_SEC_PER_NODE &gt;= MAX_REQUESTS_PER_SECOND
+
+Try:
+MAX_REQUESTS_PER_SECOND = 35
+NODE_MIN = 1
+NODE_MAX = 10
+NODE_QUEUE_CAPACITY = 4
+REQUESTS_HANDLED_PER_SEC_PER_NODE = 6
+
+Compare with:
+REQUESTS_HANDLED_PER_SEC_PER_NODE = 3
+
+
+=== Future Work ===
+
+Make the master scale out instead of having a fixed number of nodes.
 
 
 === Other Notes ===
@@ -21,13 +60,11 @@ This was done because it is not possible to have a single load_balancer outside 
 The "\ite" is read "if-true-then". The first parameter is the condition, the second is the result if the condition is true, and the third is the result if the condition is false.
 
 The "node" plant action for the "node_handles_requests" event has been simplified. Instead of two potential transitions, there is one. It does the same thing - subtracts requests from the queue but makes sure the length never goes below zero. The built-in "\max" function is used for this.
-
-There is a controllability check failure, however. It says the final load_balancer specification (index 10) disables the "user_request" event. I better investigate this further.
 </ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
-                <IntConstant Value="10"/>
+                <IntConstant Value="35"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Name="NODE_MIN">
@@ -45,23 +82,16 @@ There is a controllability check failure, however. It says the final load_balanc
                 <IntConstant Value="4"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="REQ_HANDLED_PER_SEC_NODE">
+        <ConstantAlias Name="REQ_HANDLED_PER_SEC_PER_NODE">
             <ConstantAliasExpression>
-                <IntConstant Value="6"/>
+                <IntConstant Value="3"/>
             </ConstantAliasExpression>
         </ConstantAlias>
     </ConstantAliasList>
     <EventDeclList>
         <EventDecl Kind="CONTROLLABLE" Name="user_submits_requests"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
-        <EventDecl Kind="CONTROLLABLE" Name="node_handles_requests">
-            <RangeList>
-                <BinaryExpression Operator="..">
-                    <SimpleIdentifier Name="NODE_MIN"/>
-                    <SimpleIdentifier Name="NODE_MAX"/>
-                </BinaryExpression>
-            </RangeList>
-        </EventDecl>
+        <EventDecl Kind="CONTROLLABLE" Name="node_handles_requests"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="one_second"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="slo_check">
             <RangeList>
@@ -101,7 +131,7 @@ There is a controllability check failure, however. It says the final load_balanc
                             <Point X="16" Y="-7"/>
                         </LabelGeometry>
                     </SimpleNode>
-                    <SimpleNode Name="node_2_done">
+                    <SimpleNode Name="done">
                         <PointGeometry>
                             <Point X="400" Y="336"/>
                         </PointGeometry>
@@ -119,7 +149,7 @@ There is a controllability check failure, however. It says the final load_balanc
                             </LabelGeometry>
                         </LabelBlock>
                     </Edge>
-                    <Edge Source="node_2_done" Target="waiting">
+                    <Edge Source="done" Target="waiting">
                         <LabelBlock>
                             <SimpleIdentifier Name="one_second"/>
                             <LabelGeometry Anchor="NW">
@@ -133,7 +163,7 @@ There is a controllability check failure, however. It says the final load_balanc
                             <Point X="664" Y="236"/>
                         </SplineGeometry>
                     </Edge>
-                    <Edge Source="requests_pending" Target="node_2_done">
+                    <Edge Source="requests_pending" Target="done">
                         <LabelBlock>
                             <SimpleIdentifier Name="node_handles_requests"/>
                             <LabelGeometry Anchor="NW">
@@ -385,7 +415,7 @@ There is a controllability check failure, however. It says the final load_balanc
                         <NodeList>
                             <SimpleNode Initial="true" Name="idle">
                                 <PointGeometry>
-                                    <Point X="176" Y="144"/>
+                                    <Point X="160" Y="144"/>
                                 </PointGeometry>
                                 <LabelGeometry Anchor="NW">
                                     <Point X="23" Y="-15"/>
@@ -393,7 +423,7 @@ There is a controllability check failure, however. It says the final load_balanc
                             </SimpleNode>
                             <SimpleNode Name="working">
                                 <PointGeometry>
-                                    <Point X="176" Y="464"/>
+                                    <Point X="160" Y="464"/>
                                 </PointGeometry>
                                 <LabelGeometry Anchor="NW">
                                     <Point X="-76" Y="-8"/>
@@ -409,11 +439,11 @@ There is a controllability check failure, however. It says the final load_balanc
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
-                                    <Point X="150" Y="311"/>
+                                    <Point X="124" Y="312"/>
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="NODE_QUEUE_LENGTH[NODE_INDEX] = \max(NODE_QUEUE_LENGTH[NODE_INDEX] - REQ_HANDLED_PER_SEC_NODE, 0)">
+                                        <BinaryExpression Operator="=" Text="NODE_QUEUE_LENGTH[NODE_INDEX] = \max(NODE_QUEUE_LENGTH[NODE_INDEX] - REQ_HANDLED_PER_SEC_PER_NODE, 0)">
                                             <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
                                                 <SimpleIdentifier Name="NODE_INDEX"/>
                                             </IndexedIdentifier>
@@ -422,14 +452,14 @@ There is a controllability check failure, however. It says the final load_balanc
                                                     <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
                                                         <SimpleIdentifier Name="NODE_INDEX"/>
                                                     </IndexedIdentifier>
-                                                    <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_NODE"/>
+                                                    <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_NODE"/>
                                                 </BinaryExpression>
                                                 <IntConstant Value="0"/>
                                             </FunctionCallExpression>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-746" Y="-5"/>
+                                        <Point X="-775" Y="-5"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -441,7 +471,7 @@ There is a controllability check failure, however. It says the final load_balanc
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
-                                    <Point X="681" Y="312"/>
+                                    <Point X="208" Y="310"/>
                                 </SplineGeometry>
                             </Edge>
                         </EdgeList>
@@ -578,6 +608,28 @@ There is a controllability check failure, however. It says the final load_balanc
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
                                         <Point X="16" Y="-39"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="idle" Target="idle">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="user_request"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-95" Y="-6"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="-175" Y="95"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="!=" Text="NODE_INDEX != NEXT_NODE">
+                                            <SimpleIdentifier Name="NODE_INDEX"/>
+                                            <SimpleIdentifier Name="NEXT_NODE"/>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-191" Y="-26"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
