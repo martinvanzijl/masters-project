@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-3-n-tier-application" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>This models an N Tier application in a cloud system.
+
+Below I wrote the SLA, but I think this is better implemented as separate modules!
+
+SLA:
+The communication between the UI, Logic and Database systems must have at least 90% success.
+
+SLOs:
+1) The failure rate between the ui_node and logic_node must be less than 10%.
+2) The failure rate between the logic_node and database_node must be less than 10%.
+
+SLIs:
+1) Failure rate between UI and Logic.
+2) Failure rate between Logic and Database.</ns2:Comment>
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="ui_to_logic"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="logic_to_db"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="db_to_logic"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="logic_to_ui"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="ui_node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting_for_user_input">
+                        <PointGeometry>
+                            <Point X="-288" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-4"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_logic">
+                        <PointGeometry>
+                            <Point X="-288" Y="192"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting_for_user_input" Target="waiting_for_logic">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_to_logic"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="17" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-277" Y="152"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="waiting_for_logic" Target="waiting_for_user_input">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_to_ui"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-84" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-298" Y="151"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="logic_node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting_for_ui">
+                        <PointGeometry>
+                            <Point X="69" Y="67"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-107" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="164" Y="69"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_db">
+                        <PointGeometry>
+                            <Point X="162" Y="163"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="26" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="received_from_db">
+                        <PointGeometry>
+                            <Point X="68" Y="162"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-131" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting_for_ui" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_to_logic"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-30" Y="-35"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="116" Y="58"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="waiting_for_db">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_to_db"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="16" Y="-2"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="173" Y="116"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="received_from_db" Target="waiting_for_ui">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_to_ui"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-83" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="0" Y="176"/>
+                        </StartPointGeometry>
+                        <SplineGeometry>
+                            <Point X="58" Y="114"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="waiting_for_db" Target="received_from_db">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="db_to_logic"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-34" Y="11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="115" Y="172"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="database_node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting">
+                        <PointGeometry>
+                            <Point X="-400" Y="80"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="-400" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="logic_to_db"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="13" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-390" Y="119"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="waiting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="db_to_logic"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-87" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-411" Y="120"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="start_here">
+                        <PointGeometry>
+                            <Point X="64" Y="80"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

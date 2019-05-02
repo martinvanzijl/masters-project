@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-9-availability-as-time" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>This aims to model availability as the percentage of time the cloud system was available (i.e. responded to requests).</ns2:Comment>
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="responded_to"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="dropped"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PROPERTY" Name="availability_99999_percent">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="available">
+                        <PointGeometry>
+                            <Point X="-848" Y="64"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="unavailable">
+                        <PointGeometry>
+                            <Point X="-848" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="available" Target="unavailable">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="dropped"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="13" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-834" Y="112"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="unavailable" Target="available">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="responded_to"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-98" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-862" Y="112"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="available" Target="available">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="responded_to"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-40" Y="-28"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-846" Y="10"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="unavailable" Target="unavailable">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="dropped"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-29" Y="12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-845" Y="216"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

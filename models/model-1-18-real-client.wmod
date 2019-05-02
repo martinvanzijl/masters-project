@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-18-real-client" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="client">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="using_cloud">
+                        <PointGeometry>
+                            <Point X="96" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="12" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="using_cloud" Target="using_cloud">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <SimpleIdentifier Name="send_reply"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-43" Y="-40"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="99" Y="62"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

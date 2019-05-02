@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-15-load-balancing" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+        <EventDecl Kind="CONTROLLABLE" Name="delegate_to_node_1"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="node_1_busy_signal"/>
+        <EventDecl Kind="CONTROLLABLE" Name="delegate_to_node_2"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="node_1_ok">
+                        <PointGeometry>
+                            <Point X="112" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="12" Y="-27"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="request_received_1">
+                        <PointGeometry>
+                            <Point X="112" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="21" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="node_1_busy">
+                        <PointGeometry>
+                            <Point X="448" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-25"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="request_received_2">
+                        <PointGeometry>
+                            <Point X="448" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="29" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="node_1_ok" Target="request_received_1">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="10" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="128" Y="80"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="request_received_1" Target="node_1_ok">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="delegate_to_node_1"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-136" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="96" Y="80"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="node_1_ok" Target="node_1_busy">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_1_busy_signal"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-45" Y="-25"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="node_1_busy" Target="request_received_2">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="464" Y="80"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="request_received_2" Target="node_1_busy">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="delegate_to_node_2"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-135" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="432" Y="80"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_1">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="-320" Y="80"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="-320" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="delegate_to_node_1"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-302" Y="121"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="send_reply"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-84" Y="-5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-336" Y="120"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_2">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="160" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="160" Y="176"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="delegate_to_node_2"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="178" Y="137"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="send_reply"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-84" Y="-5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="144" Y="136"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

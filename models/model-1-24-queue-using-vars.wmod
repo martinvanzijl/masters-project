@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-24-queue-using-vars" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>This uses variables to model failures and requests, with a queue between the client and the node.
+
+This does not work well - the main problem is representing the amount of work a node can do. This is inherently represented by the queue, but I think it is simpler to have them within the same model.</ns2:Comment>
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+        <EventDecl Kind="CONTROLLABLE" Name="send_reply"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="check"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_up"/>
+        <EventDecl Kind="CONTROLLABLE" Name="get_from_queue"/>
+        <EventDecl Kind="CONTROLLABLE" Name="get_stats"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="client">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="using_cloud">
+                        <PointGeometry>
+                            <Point X="176" Y="144"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="19" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="using_cloud" Target="using_cloud">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-37" Y="8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="175" Y="219"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="REQUESTS_SENT &lt; 5">
+                                    <SimpleIdentifier Name="REQUESTS_SENT"/>
+                                    <IntConstant Value="5"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="REQUESTS_SENT += 1">
+                                    <SimpleIdentifier Name="REQUESTS_SENT"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-56" Y="25"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="-128" Y="128"/>
+                        </PointGeometry>
+                        <InitialArrowGeometry>
+                            <Point X="-24" Y="0"/>
+                        </InitialArrowGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-23"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="-128" Y="240"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="get_from_queue"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="10" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-114" Y="186"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="send_reply"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-85" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-144" Y="184"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="queue">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="working">
+                        <PointGeometry>
+                            <Point X="16" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-64" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-37" Y="10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="15" Y="298"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="REQUESTS_IN_QUEUE &lt; 10">
+                                    <SimpleIdentifier Name="REQUESTS_IN_QUEUE"/>
+                                    <IntConstant Value="10"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="REQUESTS_IN_QUEUE += 1">
+                                    <SimpleIdentifier Name="REQUESTS_IN_QUEUE"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-75" Y="31"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-40" Y="-26"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="18" Y="149"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="REQUESTS_IN_QUEUE &gt;= 10">
+                                    <SimpleIdentifier Name="REQUESTS_IN_QUEUE"/>
+                                    <IntConstant Value="10"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="FAILURES = 1">
+                                    <SimpleIdentifier Name="FAILURES"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-82" Y="-59"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="get_from_queue"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="22" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="85" Y="225"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="-=" Text="REQUESTS_IN_QUEUE -= 1">
+                                    <SimpleIdentifier Name="REQUESTS_IN_QUEUE"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="5" Y="10"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="112" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-8" Y="-29"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <SimpleIdentifier Name="send_reply"/>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="10" Y="-25"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="189" Y="97"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PROPERTY" Name="no_failures">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="checking">
+                        <PointGeometry>
+                            <Point X="96" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="checking" Target="checking">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="check"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="11" Y="-13"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="144" Y="58"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="==" Text="FAILURES == 0">
+                                    <SimpleIdentifier Name="FAILURES"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-2" Y="-29"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <VariableComponent Name="CPU_USAGE">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="420"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="CPU_USAGE == 0">
+                    <SimpleIdentifier Name="CPU_USAGE"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="CPU_LIMIT">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="400"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="CPU_LIMIT == 100">
+                    <SimpleIdentifier Name="CPU_LIMIT"/>
+                    <IntConstant Value="100"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="FAILURES">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="1"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="FAILURES == 0">
+                    <SimpleIdentifier Name="FAILURES"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="REQUESTS_SENT">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="5"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="REQUESTS_SENT == 0">
+                    <SimpleIdentifier Name="REQUESTS_SENT"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="REQUESTS_IN_QUEUE">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="10"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="REQUESTS_IN_QUEUE == 0">
+                    <SimpleIdentifier Name="REQUESTS_IN_QUEUE"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+    </ComponentList>
+</Module>

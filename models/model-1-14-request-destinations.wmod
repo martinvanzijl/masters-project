@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-14-request-destinations" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="request_for_login"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="request_for_db"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="reply_from_login"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="reply_from_db"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="login_service">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="-288" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="19" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="-288" Y="192"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="22" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="request_for_login"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-272" Y="144"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reply_from_login"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-119" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-304" Y="144"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="db_service">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="176" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="19" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="176" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="22" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="request_for_db"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="192" Y="176"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reply_from_db"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-107" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="160" Y="176"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="client">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="using_cloud">
+                        <PointGeometry>
+                            <Point X="112" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="using_cloud" Target="using_cloud">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="request_for_db"/>
+                            <SimpleIdentifier Name="request_for_login"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-59" Y="-44"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="114" Y="76"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

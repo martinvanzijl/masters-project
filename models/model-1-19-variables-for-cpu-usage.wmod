@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-19-variables-for-cpu-usage" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="drop_request"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="192" Y="160"/>
+                        </PointGeometry>
+                        <InitialArrowGeometry>
+                            <Point X="-24" Y="0"/>
+                        </InitialArrowGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing">
+                        <PointGeometry>
+                            <Point X="192" Y="272"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="saturated">
+                        <PointGeometry>
+                            <Point X="192" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="processing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="10" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="214" Y="216"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="CPU_USAGE += 20">
+                                    <SimpleIdentifier Name="CPU_USAGE"/>
+                                    <IntConstant Value="20"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="6" Y="7"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="processing" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="send_reply"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-84" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="170" Y="216"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="idle" Target="saturated">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="15" Y="-1"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="214" Y="103"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="CPU_USAGE &gt;= 100">
+                                    <SimpleIdentifier Name="CPU_USAGE"/>
+                                    <IntConstant Value="100"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="11" Y="-20"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="saturated" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="drop_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-95" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="169" Y="105"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <VariableComponent Name="CPU_USAGE">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="100"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="CPU_USAGE == 0">
+                    <SimpleIdentifier Name="CPU_USAGE"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+    </ComponentList>
+</Module>

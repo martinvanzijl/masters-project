@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-26-scaling-up-final" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <EventDeclList>
+        <EventDecl Kind="CONTROLLABLE" Name="user_submits_requests"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+        <EventDecl Kind="CONTROLLABLE" Name="node_handles_requests"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale"/>
+        <EventDecl Kind="CONTROLLABLE" Name="check_thresholds"/>
+        <EventDecl Kind="CONTROLLABLE" Name="one_second"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="slo_check"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PROPERTY" Name="availability">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="checking">
+                        <PointGeometry>
+                            <Point X="112" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="checking" Target="checking">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="slo_check"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-35" Y="6"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="113" Y="174"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="DROPPED_REQUESTS &lt; 1">
+                                    <SimpleIdentifier Name="DROPPED_REQUESTS"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-73" Y="26"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="336" Y="176"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-23"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="working">
+                        <PointGeometry>
+                            <Point X="336" Y="336"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_handles_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="18" Y="9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="363" Y="256"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="QUEUE_LENGTH &gt;= REQUESTS_HANDLED_PER_SECOND">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <SimpleIdentifier Name="REQUESTS_HANDLED_PER_SECOND"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="-=" Text="QUEUE_LENGTH -= REQUESTS_HANDLED_PER_SECOND">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <SimpleIdentifier Name="REQUESTS_HANDLED_PER_SECOND"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="20" Y="-28"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="idle" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_handles_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-162" Y="5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="309" Y="256"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="QUEUE_LENGTH &lt; REQUESTS_HANDLED_PER_SECOND">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <SimpleIdentifier Name="REQUESTS_HANDLED_PER_SECOND"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="QUEUE_LENGTH = 0">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-345" Y="-30"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="working" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-6"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="832" Y="249"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting">
+                        <PointGeometry>
+                            <Point X="320" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-22"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="requests_pending">
+                        <PointGeometry>
+                            <Point X="320" Y="192"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="requests_processed">
+                        <PointGeometry>
+                            <Point X="320" Y="272"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="threshold_reached">
+                        <PointGeometry>
+                            <Point X="240" Y="368"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-132" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="done">
+                        <PointGeometry>
+                            <Point X="320" Y="448"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting" Target="requests_pending">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_submits_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="15" Y="-6"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="requests_pending" Target="requests_processed">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_handles_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="19" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="requests_processed" Target="threshold_reached">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="check_thresholds"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-124" Y="-16"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="QUEUE_LENGTH &gt;= SCALE_THRESHOLD">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <SimpleIdentifier Name="SCALE_THRESHOLD"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-265" Y="0"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="requests_processed" Target="done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="check_thresholds"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="11" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="320" Y="448"/>
+                        </EndPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="QUEUE_LENGTH &lt; SCALE_THRESHOLD">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <SimpleIdentifier Name="SCALE_THRESHOLD"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="27" Y="5"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="threshold_reached" Target="done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-43" Y="4"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="done" Target="waiting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="8" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="848" Y="255"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="queue">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="working">
+                        <PointGeometry>
+                            <Point X="288" Y="208"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-34" Y="6"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="285" Y="297"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="QUEUE_LENGTH &lt; QUEUE_CAPACITY">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <SimpleIdentifier Name="QUEUE_CAPACITY"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="QUEUE_LENGTH += 1">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-71" Y="28"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-38" Y="-26"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="289" Y="111"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="QUEUE_LENGTH &gt;= QUEUE_CAPACITY">
+                                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                                    <SimpleIdentifier Name="QUEUE_CAPACITY"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="DROPPED_REQUESTS += 1">
+                                    <SimpleIdentifier Name="DROPPED_REQUESTS"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-95" Y="-61"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-45" Y="-25"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="196" Y="207"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="QUEUE_CAPACITY += SCALE_AMOUNT">
+                                    <SimpleIdentifier Name="QUEUE_CAPACITY"/>
+                                    <SimpleIdentifier Name="SCALE_AMOUNT"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-243" Y="-6"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="user">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="-128" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-22"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="submitting">
+                        <PointGeometry>
+                            <Point X="-128" Y="192"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="25" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="submitting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_submits_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="23" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-112" Y="144"/>
+                        </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="-128" Y="192"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="submitting" Target="submitting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-32" Y="66"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-129" Y="248"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="SUBMITTED_THIS_SECOND &lt; MAX_REQUESTS_PER_SECOND">
+                                    <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="SUBMITTED_THIS_SECOND += 1">
+                                    <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-190" Y="15"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="submitting" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-91" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-144" Y="144"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="SUBMITTED_THIS_SECOND = 0">
+                                    <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-204" Y="9"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <VariableComponent Name="DROPPED_REQUESTS">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="10"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="DROPPED_REQUESTS == 0">
+                    <SimpleIdentifier Name="DROPPED_REQUESTS"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="MAX_REQUESTS_PER_SECOND">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="10"/>
+                    <IntConstant Value="10"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="MAX_REQUESTS_PER_SECOND == 10">
+                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                    <IntConstant Value="10"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="QUEUE_CAPACITY">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="100"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="QUEUE_CAPACITY == 10">
+                    <SimpleIdentifier Name="QUEUE_CAPACITY"/>
+                    <IntConstant Value="10"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="QUEUE_LENGTH">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="100"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="QUEUE_LENGTH == 0">
+                    <SimpleIdentifier Name="QUEUE_LENGTH"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="REQUESTS_HANDLED_PER_SECOND">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="10"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="REQUESTS_HANDLED_PER_SECOND == 5">
+                    <SimpleIdentifier Name="REQUESTS_HANDLED_PER_SECOND"/>
+                    <IntConstant Value="5"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="SCALE_AMOUNT">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="10"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="SCALE_AMOUNT == 5">
+                    <SimpleIdentifier Name="SCALE_AMOUNT"/>
+                    <IntConstant Value="5"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="SCALE_THRESHOLD">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="100"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="SCALE_THRESHOLD == 8">
+                    <SimpleIdentifier Name="SCALE_THRESHOLD"/>
+                    <IntConstant Value="8"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="SUBMITTED_THIS_SECOND">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="10"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="SUBMITTED_THIS_SECOND == 0">
+                    <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+    </ComponentList>
+</Module>

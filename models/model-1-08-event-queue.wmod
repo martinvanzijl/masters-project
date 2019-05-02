@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-8-event-queue" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>The purpose of this module is to model the event queue of the cloud system. In this case, it is the queue for the Kubernetes "Hello World" default server.
+
+Failure rate (drop rate) is the applicable KPI here.
+
+I could use one queue per node or one queue for the cloud system as a whole. The problem with the latter is that I must then build in the logic for directing the request to the right node! One per node is better.
+
+Four was chosen as an arbitrary limit for queue size, which would certainly not be enough in a real system.
+
+The specification here should model the way in which the queue is adapted to meet SLA requirements. The SLA should specify something about the maximum requests per unit of time allowed from the client. Then we can try to handle this in the specification!</ns2:Comment>
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="receive_request"/>
+        <EventDecl Kind="CONTROLLABLE" Name="process_request"/>
+        <EventDecl Kind="CONTROLLABLE" Observable="false" Name="db_access"/>
+        <EventDecl Kind="CONTROLLABLE" Observable="false" Name="return"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="request_queue">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="no_requests">
+                        <PointGeometry>
+                            <Point X="176" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="one_pending">
+                        <PointGeometry>
+                            <Point X="176" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="two_pending">
+                        <PointGeometry>
+                            <Point X="176" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="three_pending">
+                        <PointGeometry>
+                            <Point X="176" Y="320"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="four_pending_SATURATED">
+                        <PointGeometry>
+                            <Point X="176" Y="432"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="11" Y="-4"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="no_requests" Target="one_pending">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="receive_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="17" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="192" Y="88"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="one_pending" Target="two_pending">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="receive_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="20" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="192" Y="176"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="two_pending" Target="three_pending">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="receive_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="19" Y="-5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="192" Y="272"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="three_pending" Target="four_pending_SATURATED">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="receive_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="18" Y="-5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="192" Y="376"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="four_pending_SATURATED" Target="three_pending">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="process_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-115" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="160" Y="376"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="three_pending" Target="two_pending">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="process_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-117" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="160" Y="272"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="two_pending" Target="one_pending">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="process_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-115" Y="-1"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="160" Y="176"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="one_pending" Target="no_requests">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="process_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-116" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="160" Y="88"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_js_server">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="received">
+                        <PointGeometry>
+                            <Point X="48" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-69" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="accessed">
+                        <PointGeometry>
+                            <Point X="48" Y="176"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-74" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="returning">
+                        <PointGeometry>
+                            <Point X="48" Y="240"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-74" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="received">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="receive_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-114" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="received" Target="accessed">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="db_access"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-80" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="accessed" Target="returning">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="return"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-57" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="returning" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="process_request"/>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="113" Y="140"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-21-polling" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="do_work"/>
+        <EventDecl Kind="CONTROLLABLE" Name="poll_nodes"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="threshold_met"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="cpu_ok"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_up"/>
+        <EventDecl Kind="CONTROLLABLE" Name="do_nothing"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="176" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-13"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="time_to_poll">
+                        <PointGeometry>
+                            <Point X="176" Y="208"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_node_response">
+                        <PointGeometry>
+                            <Point X="176" Y="288"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="need_to_scale">
+                        <PointGeometry>
+                            <Point X="256" Y="384"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="all_ok">
+                        <PointGeometry>
+                            <Point X="96" Y="384"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="time_to_poll">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="do_work"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="13" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="time_to_poll" Target="waiting_for_node_response">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="poll_nodes"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="waiting_for_node_response" Target="need_to_scale">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="threshold_met"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="3" Y="-18"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="waiting_for_node_response" Target="all_ok">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_ok"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-45" Y="-20"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="all_ok" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="do_nothing"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-85" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="96" Y="240"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="need_to_scale" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="13" Y="2"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="390" Y="238"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="208" Y="144"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="working">
+                        <PointGeometry>
+                            <Point X="208" Y="208"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="21" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="S2">
+                        <PointGeometry>
+                            <Point X="208" Y="272"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="do_work"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-67" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="working" Target="S2">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="poll_nodes"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-80" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="S2" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_ok"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-59" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="85" Y="205"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="CPU_USAGE &lt; 80">
+                                    <SimpleIdentifier Name="CPU_USAGE"/>
+                                    <IntConstant Value="80"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-101" Y="-33"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="S2" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="threshold_met"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="325" Y="206"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="CPU_USAGE &gt;= 80">
+                                    <SimpleIdentifier Name="CPU_USAGE"/>
+                                    <IntConstant Value="80"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="3" Y="-29"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <VariableComponent Name="CPU_USAGE">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <IntConstant Value="100"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="CPU_USAGE == 0">
+                    <SimpleIdentifier Name="CPU_USAGE"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+    </ComponentList>
+</Module>

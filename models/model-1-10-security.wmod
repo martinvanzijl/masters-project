@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-10-security" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>This is a basic model for security; specifically, for confidentiality. Only authorized users should have access to data in this system. That is the SLO.
+
+This is mostly applicable to PaaS and SaaS, and not IaaS.
+
+The difficult part here is modelling the access level of the user, and modelling the scenario in which a list of users is all logged in at the same time.</ns2:Comment>
+    <EventDeclList>
+        <EventDecl Kind="CONTROLLABLE" Name="log_in"/>
+        <EventDecl Kind="CONTROLLABLE" Name="access_data"/>
+        <EventDecl Kind="CONTROLLABLE" Name="log_out"/>
+        <EventDecl Kind="CONTROLLABLE" Name="failed_login"/>
+        <EventDecl Kind="CONTROLLABLE" Name="hack"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="login_server">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="logged_out">
+                        <PointGeometry>
+                            <Point X="176" Y="64"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="logged_in">
+                        <PointGeometry>
+                            <Point X="176" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="data_accessed">
+                        <PointGeometry>
+                            <Point X="176" Y="192"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="logged_out" Target="logged_in">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="log_in"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="192" Y="96"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="logged_in" Target="data_accessed">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="access_data"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="11" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="data_accessed" Target="logged_out">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="log_out"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-61" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="77" Y="121"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="logged_in" Target="logged_out">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="log_out"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-54" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="160" Y="96"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="noone_logged_in">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="user">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="out">
+                        <PointGeometry>
+                            <Point X="96" Y="80"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="in">
+                        <PointGeometry>
+                            <Point X="96" Y="144"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="21" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="data_accessed">
+                        <PointGeometry>
+                            <Point X="96" Y="208"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="out" Target="out">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="failed_login"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="31" Y="12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="94" Y="21"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="out" Target="in">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="log_in"/>
+                            <SimpleIdentifier Name="hack"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="13" Y="-15"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="in" Target="data_accessed">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="access_data"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="15" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PROPERTY" Name="no_unauthorized_access">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="logged_out">
+                        <PointGeometry>
+                            <Point X="208" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="user_logged_in">
+                        <PointGeometry>
+                            <Point X="288" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="11" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="hacker_logged_in">
+                        <PointGeometry>
+                            <Point X="128" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-117" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="logged_out" Target="hacker_logged_in">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="hack"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-16" Y="10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="178" Y="140"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="logged_out" Target="user_logged_in">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="log_in"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="14" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="user_logged_in" Target="user_logged_in">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="access_data"/>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="293" Y="226"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="logged_out" Target="logged_out">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="failed_login"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-40" Y="-29"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="209" Y="40"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="hacker_logged_in" Target="logged_out">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="log_out"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-57" Y="-15"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="158" Y="116"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

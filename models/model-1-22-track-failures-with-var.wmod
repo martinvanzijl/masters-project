@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-22-track-failures-with-var" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>This is a model for scaling up RAM. Actually, the scaling up ensures that the node can handle two requests instead of one.
+
+I debated whether to make the send_reply event controllable or not. It is controllable from the point of view of the software running on the node... But it is uncontrollable from the view of the master node (i.e. the master node does not have direct control over when a node finishes processing a request). So I decided to make it an uncontrollable event, since the master node is the controller (the specification).</ns2:Comment>
+    <ConstantAliasList>
+        <ConstantAlias Name="MAX_FAULTS">
+            <ConstantAliasExpression>
+                <IntConstant Value="5"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+    </ConstantAliasList>
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_up"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_down"/>
+        <EventDecl Kind="PROPOSITION" Name=":accepting"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="check_limit"/>
+    </EventDeclList>
+    <ComponentList>
+        <VariableComponent Name="NUMBER_OF_FAULTS">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <SimpleIdentifier Name="MAX_FAULTS"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==">
+                    <SimpleIdentifier Name="NUMBER_OF_FAULTS"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <SimpleComponent Kind="PROPERTY" Name="limit_faults">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="working">
+                        <PointGeometry>
+                            <Point X="112" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-26" Y="21"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="check_limit"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="9" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="167" Y="97"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;=">
+                                    <SimpleIdentifier Name="NUMBER_OF_FAULTS"/>
+                                    <IntConstant Value="5"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="6" Y="-27"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

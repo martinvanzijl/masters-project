@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-12-scaling-up-cpu" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>This represents the operation of scaling up of CPU. 
+
+As a node is scaled up it can handle requests faster. The maximum queue size stays the same.</ns2:Comment>
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+        <EventDecl Kind="CONTROLLABLE" Name="send_reply"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_up"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_down"/>
+        <EventDecl Kind="CONTROLLABLE" Name="cpu_cycle"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle_normal">
+                        <PointGeometry>
+                            <Point X="64" Y="80"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-103" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="idle_up">
+                        <PointGeometry>
+                            <Point X="368" Y="80"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing_1_up">
+                        <PointGeometry>
+                            <Point X="368" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="17" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing_2_up">
+                        <PointGeometry>
+                            <Point X="368" Y="352"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing_2">
+                        <PointGeometry>
+                            <Point X="64" Y="368"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-106" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing_1">
+                        <PointGeometry>
+                            <Point X="64" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-103" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle_up" Target="processing_1_up">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-92" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="314" Y="152"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_1_up" Target="processing_2_up">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-90" Y="0"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="312" Y="288"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="idle_normal" Target="idle_up">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-23" Y="-26"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="216" Y="64"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="idle_up" Target="idle_normal">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_down"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-41" Y="7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="216" Y="96"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="idle_normal" Target="processing_1">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-96" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="20" Y="152"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_1" Target="idle_normal">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_cycle"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-6"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="110" Y="152"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_1" Target="processing_1_up">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-38" Y="-27"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="216" Y="208"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_2_up" Target="processing_2">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_down"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-26" Y="20"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="205" Y="408"/>
+                        </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="64" Y="368"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="processing_1_up" Target="processing_1">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_down"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-52" Y="7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="216" Y="240"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_1" Target="processing_2">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_request"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-93" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="12" Y="298"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_2" Target="processing_1">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_cycle"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="6" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="113" Y="296"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_2" Target="processing_2_up">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-30" Y="-29"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="208" Y="347"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_2_up" Target="idle_up">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_cycle"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="16" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="561" Y="216"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_1_up" Target="idle_up">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_cycle"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="9" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="408" Y="156"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="cpu">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="running">
+                        <PointGeometry>
+                            <Point X="128" Y="96"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="running" Target="running">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_cycle"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-30" Y="-25"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="130" Y="36"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

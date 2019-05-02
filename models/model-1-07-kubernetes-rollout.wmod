@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-7-kubernetes-rollout" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>This models Kubernetes which ensures that at least 75% of the desired number of nodes are up in a roll-out.
+
+https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+
+"Deployment can ensure that only a certain number of Pods may be down while they are being updated. By default, it ensures that at least 25% less than the desired number of Pods are up (25% max unavailable)."
+
+Technically, the nodes going down are un-controllable events. But modelling this will take some effort, I'm sure!</ns2:Comment>
+    <EventDeclList>
+        <EventDecl Kind="CONTROLLABLE" Name="take_down_node_1"/>
+        <EventDecl Kind="CONTROLLABLE" Name="take_down_node_2"/>
+        <EventDecl Kind="CONTROLLABLE" Name="take_down_node_3"/>
+        <EventDecl Kind="CONTROLLABLE" Name="take_down_node_4"/>
+        <EventDecl Kind="CONTROLLABLE" Name="create_node_5"/>
+        <EventDecl Kind="CONTROLLABLE" Name="create_node_6"/>
+        <EventDecl Kind="CONTROLLABLE" Name="create_node_7"/>
+        <EventDecl Kind="CONTROLLABLE" Name="create_node_8"/>
+        <EventDecl Kind="PROPOSITION" Name=":accepting"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="start_rollout">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="10" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="up_75_percent">
+                        <PointGeometry>
+                            <Point X="48" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="10" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="up_100_percent">
+                        <PointGeometry>
+                            <Point X="48" Y="208"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="10" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="up_75_percent_2">
+                        <PointGeometry>
+                            <Point X="48" Y="288"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-4"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="up_100_percent_2">
+                        <PointGeometry>
+                            <Point X="48" Y="368"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="21" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="up_75_percent_3">
+                        <PointGeometry>
+                            <Point X="48" Y="448"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="23" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="up_100_percent_3">
+                        <PointGeometry>
+                            <Point X="48" Y="528"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="up_75_percent_4">
+                        <PointGeometry>
+                            <Point X="48" Y="592"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="23" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="rollout_completed">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="48" Y="672"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-4"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="start_rollout" Target="up_75_percent">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_1"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="7" Y="0"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="up_75_percent" Target="up_100_percent">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_5"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="7" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="up_100_percent" Target="up_75_percent_2">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_2"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="8" Y="-5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="up_75_percent_2" Target="up_100_percent_2">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_6"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="17" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="up_100_percent_2" Target="up_75_percent_3">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_3"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="up_75_percent_3" Target="up_100_percent_3">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_7"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="15" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="up_100_percent_3" Target="up_75_percent_4">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_4"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="15" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="up_75_percent_4" Target="rollout_completed">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_8"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PROPERTY" Name="always_75_percent_up">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="up_100_percent">
+                        <PointGeometry>
+                            <Point X="176" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="up_75_percent">
+                        <PointGeometry>
+                            <Point X="176" Y="160"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="19" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="up_100_percent" Target="up_75_percent">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_1"/>
+                            <SimpleIdentifier Name="take_down_node_2"/>
+                            <SimpleIdentifier Name="take_down_node_3"/>
+                            <SimpleIdentifier Name="take_down_node_4"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="26" Y="-38"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="192" Y="104"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="up_75_percent" Target="up_100_percent">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_5"/>
+                            <SimpleIdentifier Name="create_node_7"/>
+                            <SimpleIdentifier Name="create_node_8"/>
+                            <SimpleIdentifier Name="create_node_6"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-117" Y="-32"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="157" Y="100"/>
+                        </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="176" Y="48"/>
+                        </EndPointGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_1">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="32" Y="32"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="off">
+                        <PointGeometry>
+                            <Point X="32" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="off">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_1"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_2">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="off">
+                        <PointGeometry>
+                            <Point X="48" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="off">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_2"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_3">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="off">
+                        <PointGeometry>
+                            <Point X="48" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="off">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_3"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_4">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="off">
+                        <PointGeometry>
+                            <Point X="48" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="off">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="take_down_node_4"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_5">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="off">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="idle">
+                        <PointGeometry>
+                            <Point X="48" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="off" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_5"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_6">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="off">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="idle">
+                        <PointGeometry>
+                            <Point X="48" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="off" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_6"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_7">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="off">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="idle">
+                        <PointGeometry>
+                            <Point X="48" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="off" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_7"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="node_8">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="off">
+                        <PointGeometry>
+                            <Point X="48" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="idle">
+                        <PointGeometry>
+                            <Point X="48" Y="128"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-3"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="off" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="create_node_8"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>

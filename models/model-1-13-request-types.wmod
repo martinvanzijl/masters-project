@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-1-13-request-types" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>This represents two different request types:
+
+request_short takes one CPU cycle to finish.
+request_long takes two CPU cycles to finish.
+
+This is one method we can use.</ns2:Comment>
+    <EventDeclList>
+        <EventDecl Kind="UNCONTROLLABLE" Name="request_short"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="request_long"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="cpu_cycle"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="PLANT" Name="node">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <PointGeometry>
+                            <Point X="160" Y="80"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing_1">
+                        <PointGeometry>
+                            <Point X="160" Y="176"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="processing_2">
+                        <PointGeometry>
+                            <Point X="160" Y="288"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="processing_1">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="request_short"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-97" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="106" Y="130"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_1" Target="processing_2">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="request_short"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-97" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="100" Y="230"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="idle" Target="processing_2">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="request_long"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-95" Y="-13"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-80" Y="185"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_2" Target="processing_1">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_cycle"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="9" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="207" Y="231"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="processing_1" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="cpu_cycle"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="11" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="200" Y="128"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+    </ComponentList>
+</Module>
