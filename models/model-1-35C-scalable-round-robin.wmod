@@ -61,52 +61,28 @@ NODES_INITIALLY_ON * NODE_QUEUE_CAPACITY &gt;= MAX_REQUESTS_PER_SECOND
 
 (NODES_INITIALLY_ON + SCALE_AMOUNT) * NODE_QUEUE_CAPACITY &gt;= ...
 
+Try:
+MAX_REQUESTS_PER_SECOND = 35
+NODE_MIN = 1
+NODE_MAX = 10
+NODE_QUEUE_CAPACITY = 4
+REQUESTS_HANDLED_PER_SEC_PER_NODE = 6
+
+
+=== Future Work ===
+
+Add scaling down.
 
 
 === Other Notes ===
 
+*** You need the latest version of WATERS to run this: version 2.4.1. *** 
+
+Otherwise it will show an error in the "master" specification when evaluating "NODE_QUEUE_LENGTH[NODES_CURRENTLY_ON]".
+
 The "\ite" is read "if-true-then". The first parameter is the condition, the second is the result if the condition is true, and the third is the result if the condition is false.
 
 The "node" plant action for the "node_handles_requests" event has been simplified. Instead of two potential transitions, there is one. It does the same thing - subtracts requests from the queue but makes sure the length never goes below zero. The built-in "\max" function is used for this.
-
-The simulator takes a few seconds to respond (try clicking on the "Simulator" tab to see this). I guess that is because it has to instantiate all the automata in the "For Loop".
-
-
-Below is a running log of things I tried to get this working...
-
-There was a problem when I compared to a variable in the load_balancer "give_request_to_node" transition:
-
-NEXT_NODE = \ite(NEXT_NODE &lt; NODES_CURRENTLY_ON,NEXT_NODE+1,NODE_MIN)
-
-When comparing to NODE_MAX (a named constant), this is fine, but when comparing to NODES_CURRENTLY_ON (a variable), it caused a Java exception...
-
-Exception in thread "BackgroundCompilation-model-1-35C-scalable-round-robin" java.lang.NullPointerException
-	at net.sourceforge.waters.model.compiler.constraint.SplitComputer$OneVariableFinder.visitBinaryExpressionProxy(SplitComputer.java:685)
-
-I must assume this is a bug within WATERS itself. I saved this version as "1-35G".
-
-Anyway, I resolved this by breaking the transition into two events - "give_request_to_node" and "increment_counter". This removes the need to check one variable against another inside the "\ite" command. This is reflected in the "user" plant, too, which is rather artificial.
-
-There is now a separate "counter" plant purely to increment the counter used by the load balancer.
-
-To check the thresholds, I cannot use a variable with a parameter such as:
-
-NODE_QUEUE_LENGTH[NODES_CURRENTLY_ON] &lt; SCALE_THRESHOLD_LAST_NODE
-
-...in the master. So I had to find another way. The following does not work either:
-
-\min(NODE_QUEUE_LENGTH) &gt;= SCALE_THRESHOLD_LAST_NODE
-
-So I introduced a new variable called LAST_NODE_QUEUE_LENGTH. This is set by the last active node.
-
-I tried the following action in the node_queue plant, but got a Java exeption:
-
-LAST_NODE_QUEUE_LENGTH = \ite(NODE_INDEX == NODES_CURRENTLY_ON, NODE_QUEUE_LENGTH[NODE_INDEX], LAST_NODE_QUEUE_LENGTH)
-
-So I broke this into two paths for the same event, which works.
-
-But after further editing there was a problem with the timing of events between the user and the queue automata. So I edited the design again. Now it is blocking. I better check how I can reliably pass a variable between the master and the "for-each" loop.
-
 </ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
@@ -116,7 +92,7 @@ But after further editing there was a problem with the timing of events between 
         </ConstantAlias>
         <ConstantAlias Name="NODES_INITIALLY_ON">
             <ConstantAliasExpression>
-                <IntConstant Value="4"/>
+                <IntConstant Value="5"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Name="NODE_MIN">
@@ -175,7 +151,6 @@ But after further editing there was a problem with the timing of events between 
         <EventDecl Kind="CONTROLLABLE" Name="increment_counter"/>
         <EventDecl Kind="CONTROLLABLE" Name="scale_up"/>
         <EventDecl Kind="CONTROLLABLE" Name="check_thresholds"/>
-        <EventDecl Kind="CONTROLLABLE" Name="update_last_node_queue_length"/>
     </EventDeclList>
     <ComponentList>
         <SimpleComponent Kind="SPEC" Name="master">
@@ -183,7 +158,7 @@ But after further editing there was a problem with the timing of events between 
                 <NodeList>
                     <SimpleNode Initial="true" Name="waiting">
                         <PointGeometry>
-                            <Point X="592" Y="208"/>
+                            <Point X="592" Y="304"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="15" Y="-22"/>
@@ -221,17 +196,9 @@ But after further editing there was a problem with the timing of events between 
                             <Point X="19" Y="-9"/>
                         </LabelGeometry>
                     </SimpleNode>
-                    <SimpleNode Name="requests_submitted">
-                        <PointGeometry>
-                            <Point X="592" Y="304"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="21" Y="-6"/>
-                        </LabelGeometry>
-                    </SimpleNode>
                 </NodeList>
                 <EdgeList>
-                    <Edge Source="waiting" Target="requests_submitted">
+                    <Edge Source="waiting" Target="variable_updated">
                         <LabelBlock>
                             <SimpleIdentifier Name="user_submits_requests"/>
                             <LabelGeometry Anchor="NW">
@@ -239,7 +206,7 @@ But after further editing there was a problem with the timing of events between 
                             </LabelGeometry>
                         </LabelBlock>
                         <EndPointGeometry>
-                            <Point X="592" Y="304"/>
+                            <Point X="592" Y="400"/>
                         </EndPointGeometry>
                     </Edge>
                     <Edge Source="done" Target="waiting">
@@ -253,7 +220,7 @@ But after further editing there was a problem with the timing of events between 
                             <Point X="592" Y="640"/>
                         </StartPointGeometry>
                         <SplineGeometry>
-                            <Point X="1298" Y="415"/>
+                            <Point X="1141" Y="465"/>
                         </SplineGeometry>
                     </Edge>
                     <Edge Source="managing_done" Target="done">
@@ -279,13 +246,15 @@ But after further editing there was a problem with the timing of events between 
                         </LabelBlock>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="LAST_NODE_QUEUE_LENGTH &gt;= SCALE_THRESHOLD_LAST_NODE">
-                                    <SimpleIdentifier Name="LAST_NODE_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="&gt;=" Text="NODE_QUEUE_LENGTH[NODES_CURRENTLY_ON] &gt;= SCALE_THRESHOLD_LAST_NODE">
+                                    <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
+                                        <SimpleIdentifier Name="NODES_CURRENTLY_ON"/>
+                                    </IndexedIdentifier>
                                     <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_NODE"/>
                                 </BinaryExpression>
                             </Guards>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-417" Y="-36"/>
+                                <Point X="-504" Y="-42"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -306,8 +275,10 @@ But after further editing there was a problem with the timing of events between 
                         </LabelBlock>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="LAST_NODE_QUEUE_LENGTH &lt; SCALE_THRESHOLD_LAST_NODE">
-                                    <SimpleIdentifier Name="LAST_NODE_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="&lt;" Text="NODE_QUEUE_LENGTH[NODES_CURRENTLY_ON] &lt; SCALE_THRESHOLD_LAST_NODE">
+                                    <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
+                                        <SimpleIdentifier Name="NODES_CURRENTLY_ON"/>
+                                    </IndexedIdentifier>
                                     <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_NODE"/>
                                 </BinaryExpression>
                             </Guards>
@@ -315,14 +286,6 @@ But after further editing there was a problem with the timing of events between 
                                 <Point X="14" Y="-31"/>
                             </LabelGeometry>
                         </GuardActionBlock>
-                    </Edge>
-                    <Edge Source="requests_submitted" Target="variable_updated">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="update_last_node_queue_length"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="20" Y="-12"/>
-                            </LabelGeometry>
-                        </LabelBlock>
                     </Edge>
                 </EdgeList>
             </Graph>
@@ -516,9 +479,9 @@ But after further editing there was a problem with the timing of events between 
                     </Edge>
                     <Edge Source="submitting" Target="waiting">
                         <LabelBlock>
-                            <SimpleIdentifier Name="update_last_node_queue_length"/>
+                            <SimpleIdentifier Name="check_thresholds"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-101" Y="6"/>
+                                <Point X="-61" Y="10"/>
                             </LabelGeometry>
                         </LabelBlock>
                     </Edge>
@@ -547,23 +510,6 @@ But after further editing there was a problem with the timing of events between 
                 </EdgeList>
             </Graph>
         </SimpleComponent>
-        <VariableComponent Name="LAST_NODE_QUEUE_LENGTH">
-            <VariableRange>
-                <BinaryExpression Operator="..">
-                    <IntConstant Value="0"/>
-                    <BinaryExpression Operator="+">
-                        <SimpleIdentifier Name="NODE_QUEUE_CAPACITY"/>
-                        <IntConstant Value="1"/>
-                    </BinaryExpression>
-                </BinaryExpression>
-            </VariableRange>
-            <VariableInitial>
-                <BinaryExpression Operator="==" Text="LAST_NODE_QUEUE_LENGTH == 0">
-                    <SimpleIdentifier Name="LAST_NODE_QUEUE_LENGTH"/>
-                    <IntConstant Value="0"/>
-                </BinaryExpression>
-            </VariableInitial>
-        </VariableComponent>
         <VariableComponent Name="NEXT_NODE">
             <VariableRange>
                 <BinaryExpression Operator="..">
@@ -794,70 +740,6 @@ But after further editing there was a problem with the timing of events between 
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
                                         <Point X="-153" Y="30"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                            <Edge Source="working" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="update_last_node_queue_length"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-349" Y="-35"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <StartPointGeometry>
-                                    <Point X="608" Y="464"/>
-                                </StartPointGeometry>
-                                <SplineGeometry>
-                                    <Point X="484" Y="474"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="==" Text="NODE_INDEX == NODES_CURRENTLY_ON">
-                                            <SimpleIdentifier Name="NODE_INDEX"/>
-                                            <SimpleIdentifier Name="NODES_CURRENTLY_ON"/>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="LAST_NODE_QUEUE_LENGTH = NODE_QUEUE_LENGTH[NODE_INDEX]">
-                                            <SimpleIdentifier Name="LAST_NODE_QUEUE_LENGTH"/>
-                                            <IndexedIdentifier Name="NODE_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="NODE_INDEX"/>
-                                            </IndexedIdentifier>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-435" Y="-13"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                            <Edge Source="working" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="update_last_node_queue_length"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="22" Y="-36"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <StartPointGeometry>
-                                    <Point X="608" Y="464"/>
-                                </StartPointGeometry>
-                                <SplineGeometry>
-                                    <Point X="737" Y="473"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="!=" Text="NODE_INDEX != NODES_CURRENTLY_ON">
-                                            <SimpleIdentifier Name="NODE_INDEX"/>
-                                            <SimpleIdentifier Name="NODES_CURRENTLY_ON"/>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="LAST_NODE_QUEUE_LENGTH = LAST_NODE_QUEUE_LENGTH">
-                                            <SimpleIdentifier Name="LAST_NODE_QUEUE_LENGTH"/>
-                                            <SimpleIdentifier Name="LAST_NODE_QUEUE_LENGTH"/>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="21" Y="-15"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
