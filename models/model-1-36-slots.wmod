@@ -9,10 +9,14 @@ This models requests going into "slots" on the nodes. The slots are either 1) em
 
 Here we modify the queue for each node to have a number of slots (NODE_1_QUEUE_LENGTH and NODE_2_QUEUE_LENGTH). Each slot starts as "EMPTY". Once the node starts handling a request, the first slot goes to "PROCESSING". Once it is done processing, the slot goes to EMPTY again.
 
+Actually, the key is that "SLOTS_PROCESSING" must not go to more than the QUEUE_CAPACITY. Perhaps I can remove the QUEUE_LENGTH variable.
 
-=== Future Work ===
+I have brokenthe "handles_requests" events into two events "starts_handling_requests" and "finishes_handling_requests". A certain number of requests are started and finished (and removed from the queue) after the latter event.
 
-So far it makes the transition is made from EMPTY to PROCESSING, but not back to EMPTY again. For that I could break the "handles_requests" events into two events "starts_handling_requests" and "finishes_handling_requests". Then a certain number of requests and finished (and removed from the queue) after the latter event.</ns2:Comment>
+
+=== Other Notes ===
+
+I could not use the "\max" trick in node_1 since this causes a Java exception. Thus I had to use the "manual" two-branch method.</ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
@@ -34,23 +38,35 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                 <IntConstant Value="6"/>
             </ConstantAliasExpression>
         </ConstantAlias>
+        <ConstantAlias Name="REQ_FINISHED_PER_SEC_NODE_1">
+            <ConstantAliasExpression>
+                <IntConstant Value="4"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
         <ConstantAlias Name="REQ_STARTED_PER_SEC_NODE_2">
             <ConstantAliasExpression>
                 <IntConstant Value="12"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="REQ_FINISHED_PER_SEC_NODE_2">
+            <ConstantAliasExpression>
+                <IntConstant Value="8"/>
             </ConstantAliasExpression>
         </ConstantAlias>
     </ConstantAliasList>
     <EventDeclList>
         <EventDecl Kind="CONTROLLABLE" Name="user_submits_requests"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
-        <EventDecl Kind="CONTROLLABLE" Name="node_1_handles_requests"/>
+        <EventDecl Kind="CONTROLLABLE" Name="node_1_starts_handling_requests"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="one_second"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="slo_check_1"/>
         <EventDecl Kind="PROPOSITION" Name=":accepting"/>
-        <EventDecl Kind="CONTROLLABLE" Name="node_2_handles_requests"/>
+        <EventDecl Kind="CONTROLLABLE" Name="node_2_starts_handling_requests"/>
         <EventDecl Kind="CONTROLLABLE" Name="give_request_to_node_1"/>
         <EventDecl Kind="CONTROLLABLE" Name="give_request_to_node_2"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="slo_check_2"/>
+        <EventDecl Kind="CONTROLLABLE" Name="node_1_finishes_handling_requests"/>
+        <EventDecl Kind="CONTROLLABLE" Name="node_2_finishes_handling_requests"/>
     </EventDeclList>
     <ComponentList>
         <SimpleComponent Kind="PROPERTY" Name="availability">
@@ -270,6 +286,9 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
             <Graph>
                 <NodeList>
                     <SimpleNode Initial="true" Name="idle">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
                         <PointGeometry>
                             <Point X="176" Y="144"/>
                         </PointGeometry>
@@ -277,26 +296,34 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                             <Point X="23" Y="-15"/>
                         </LabelGeometry>
                     </SimpleNode>
-                    <SimpleNode Name="working">
+                    <SimpleNode Name="done_finishing">
                         <PointGeometry>
-                            <Point X="176" Y="464"/>
+                            <Point X="192" Y="528"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
-                            <Point X="-76" Y="-8"/>
+                            <Point X="-109" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="done_starting">
+                        <PointGeometry>
+                            <Point X="112" Y="304"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-102" Y="-11"/>
                         </LabelGeometry>
                     </SimpleNode>
                 </NodeList>
                 <EdgeList>
-                    <Edge Source="idle" Target="working">
+                    <Edge Source="idle" Target="done_starting">
                         <LabelBlock>
-                            <SimpleIdentifier Name="node_1_handles_requests"/>
+                            <SimpleIdentifier Name="node_1_starts_handling_requests"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-315" Y="9"/>
+                                <Point X="-223" Y="-30"/>
                             </LabelGeometry>
                         </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="150" Y="311"/>
-                        </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="112" Y="304"/>
+                        </EndPointGeometry>
                         <GuardActionBlock>
                             <Actions>
                                 <BinaryExpression Operator="+=" Text="NODE_1_SLOTS_PROCESSING += REQ_STARTED_PER_SEC_NODE_1">
@@ -309,7 +336,7 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
-                    <Edge Source="working" Target="idle">
+                    <Edge Source="done_finishing" Target="idle">
                         <LabelBlock>
                             <SimpleIdentifier Name="one_second"/>
                             <LabelGeometry Anchor="NW">
@@ -317,8 +344,64 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="617" Y="312"/>
+                            <Point X="714" Y="324"/>
                         </SplineGeometry>
+                    </Edge>
+                    <Edge Source="done_starting" Target="done_finishing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_1_finishes_handling_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="27" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="159" Y="407"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="NODE_1_SLOTS_PROCESSING &gt;= REQ_FINISHED_PER_SEC_NODE_1">
+                                    <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
+                                    <SimpleIdentifier Name="REQ_FINISHED_PER_SEC_NODE_1"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="-=" Text="NODE_1_SLOTS_PROCESSING -=  REQ_FINISHED_PER_SEC_NODE_1">
+                                    <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
+                                    <SimpleIdentifier Name="REQ_FINISHED_PER_SEC_NODE_1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="26" Y="-45"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="done_starting" Target="done_finishing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_1_finishes_handling_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-236" Y="-24"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="85" Y="431"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="NODE_1_SLOTS_PROCESSING &lt; REQ_FINISHED_PER_SEC_NODE_1">
+                                    <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
+                                    <SimpleIdentifier Name="REQ_FINISHED_PER_SEC_NODE_1"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="NODE_1_SLOTS_PROCESSING = 0">
+                                    <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-418" Y="-59"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
                     </Edge>
                 </EdgeList>
             </Graph>
@@ -327,33 +410,44 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
             <Graph>
                 <NodeList>
                     <SimpleNode Initial="true" Name="idle">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
                         <PointGeometry>
-                            <Point X="208" Y="128"/>
+                            <Point X="48" Y="272"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
-                            <Point X="-42" Y="-11"/>
+                            <Point X="23" Y="-15"/>
                         </LabelGeometry>
                     </SimpleNode>
-                    <SimpleNode Name="working">
+                    <SimpleNode Name="done_finishing">
                         <PointGeometry>
-                            <Point X="208" Y="448"/>
+                            <Point X="64" Y="656"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
-                            <Point X="-76" Y="-8"/>
+                            <Point X="-109" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="done_starting">
+                        <PointGeometry>
+                            <Point X="-16" Y="432"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-102" Y="-11"/>
                         </LabelGeometry>
                     </SimpleNode>
                 </NodeList>
                 <EdgeList>
-                    <Edge Source="idle" Target="working">
+                    <Edge Source="idle" Target="done_starting">
                         <LabelBlock>
-                            <SimpleIdentifier Name="node_2_handles_requests"/>
+                            <SimpleIdentifier Name="node_2_starts_handling_requests"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-281" Y="31"/>
+                                <Point X="-221" Y="-31"/>
                             </LabelGeometry>
                         </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="182" Y="295"/>
-                        </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="16" Y="240"/>
+                        </EndPointGeometry>
                         <GuardActionBlock>
                             <Actions>
                                 <BinaryExpression Operator="+=" Text="NODE_2_SLOTS_PROCESSING += REQ_STARTED_PER_SEC_NODE_2">
@@ -362,11 +456,11 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-415" Y="8"/>
+                                <Point X="-424" Y="-12"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
-                    <Edge Source="working" Target="idle">
+                    <Edge Source="done_finishing" Target="idle">
                         <LabelBlock>
                             <SimpleIdentifier Name="one_second"/>
                             <LabelGeometry Anchor="NW">
@@ -374,8 +468,64 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="670" Y="296"/>
+                            <Point X="586" Y="452"/>
                         </SplineGeometry>
+                    </Edge>
+                    <Edge Source="done_starting" Target="done_finishing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_2_finishes_handling_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="27" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="31" Y="535"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="NODE_2_SLOTS_PROCESSING &gt;= REQ_FINISHED_PER_SEC_NODE_2">
+                                    <SimpleIdentifier Name="NODE_2_SLOTS_PROCESSING"/>
+                                    <SimpleIdentifier Name="REQ_FINISHED_PER_SEC_NODE_2"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="-=" Text="NODE_2_SLOTS_PROCESSING -=  REQ_FINISHED_PER_SEC_NODE_2">
+                                    <SimpleIdentifier Name="NODE_2_SLOTS_PROCESSING"/>
+                                    <SimpleIdentifier Name="REQ_FINISHED_PER_SEC_NODE_2"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="26" Y="-45"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="done_starting" Target="done_finishing">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_2_finishes_handling_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-236" Y="-24"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="-43" Y="559"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="NODE_2_SLOTS_PROCESSING &lt; REQ_FINISHED_PER_SEC_NODE_2">
+                                    <SimpleIdentifier Name="NODE_2_SLOTS_PROCESSING"/>
+                                    <SimpleIdentifier Name="REQ_FINISHED_PER_SEC_NODE_2"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="NODE_2_SLOTS_PROCESSING = 0">
+                                    <SimpleIdentifier Name="NODE_2_SLOTS_PROCESSING"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-418" Y="-59"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
                     </Edge>
                 </EdgeList>
             </Graph>
@@ -384,8 +534,11 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
             <Graph>
                 <NodeList>
                     <SimpleNode Initial="true" Name="waiting">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
                         <PointGeometry>
-                            <Point X="320" Y="96"/>
+                            <Point X="496" Y="96"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="15" Y="-22"/>
@@ -393,7 +546,7 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                     </SimpleNode>
                     <SimpleNode Name="requests_pending">
                         <PointGeometry>
-                            <Point X="320" Y="192"/>
+                            <Point X="496" Y="192"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="16" Y="-7"/>
@@ -401,7 +554,7 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                     </SimpleNode>
                     <SimpleNode Name="node_1_done">
                         <PointGeometry>
-                            <Point X="320" Y="272"/>
+                            <Point X="496" Y="352"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="17" Y="-7"/>
@@ -409,10 +562,26 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                     </SimpleNode>
                     <SimpleNode Name="node_2_done">
                         <PointGeometry>
-                            <Point X="320" Y="352"/>
+                            <Point X="496" Y="544"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="21" Y="1"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="node_1_done_starting">
+                        <PointGeometry>
+                            <Point X="496" Y="272"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="node_2_done_starting">
+                        <PointGeometry>
+                            <Point X="496" Y="432"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-4"/>
                         </LabelGeometry>
                     </SimpleNode>
                 </NodeList>
@@ -433,28 +602,50 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="320" Y="352"/>
+                            <Point X="496" Y="544"/>
                         </StartPointGeometry>
                         <SplineGeometry>
-                            <Point X="672" Y="219"/>
+                            <Point X="1112" Y="311"/>
                         </SplineGeometry>
                     </Edge>
-                    <Edge Source="requests_pending" Target="node_1_done">
+                    <Edge Source="requests_pending" Target="node_1_done_starting">
                         <LabelBlock>
-                            <SimpleIdentifier Name="node_1_handles_requests"/>
+                            <SimpleIdentifier Name="node_1_starts_handling_requests"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="10" Y="-20"/>
+                                <Point X="17" Y="-6"/>
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="320" Y="192"/>
+                            <Point X="496" Y="192"/>
                         </StartPointGeometry>
+                        <EndPointGeometry>
+                            <Point X="496" Y="272"/>
+                        </EndPointGeometry>
                     </Edge>
-                    <Edge Source="node_1_done" Target="node_2_done">
+                    <Edge Source="node_1_done" Target="node_2_done_starting">
                         <LabelBlock>
-                            <SimpleIdentifier Name="node_2_handles_requests"/>
+                            <SimpleIdentifier Name="node_2_starts_handling_requests"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="13" Y="-24"/>
+                                <Point X="17" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="496" Y="432"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="node_1_done_starting" Target="node_1_done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_1_finishes_handling_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="16" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="node_2_done_starting" Target="node_2_done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="node_2_finishes_handling_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="17" Y="-22"/>
                             </LabelGeometry>
                         </LabelBlock>
                     </Edge>
@@ -558,7 +749,7 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                     </SimpleNode>
                     <SimpleNode Name="waiting">
                         <PointGeometry>
-                            <Point X="-336" Y="192"/>
+                            <Point X="-400" Y="192"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="-61" Y="-8"/>
@@ -627,7 +818,7 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="-336" Y="192"/>
+                            <Point X="-400" Y="192"/>
                         </StartPointGeometry>
                         <GuardActionBlock>
                             <Actions>
@@ -643,7 +834,7 @@ So far it makes the transition is made from EMPTY to PROCESSING, but not back to
                     </Edge>
                     <Edge Source="submitting" Target="waiting">
                         <LabelBlock>
-                            <SimpleIdentifier Name="node_1_handles_requests"/>
+                            <SimpleIdentifier Name="node_1_starts_handling_requests"/>
                             <LabelGeometry Anchor="NW">
                                 <Point X="-90" Y="8"/>
                             </LabelGeometry>
