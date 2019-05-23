@@ -9,68 +9,81 @@ This model represents the NGNIX cloud deployed using Kubernetes and Vagrant on t
 
 There are two worker nodes, which are virtual machines. Within these, there are pods, and each pod has a container. The containers run NGINX.
 
+There is a minimum of 2 pods and a maximum of 4 pods, so PODS_INITIALLY_ON constant is set to 2, and POD_MAX is set to 4.
+
+The resource limit for CPU and RAM is set for these pods to 40 milli-cpus.
+
+REQ_HANDLED_PER_SEC_PER_POD is set to 200 - but I have yet to find the exact value.
+
 
 === Self-Adaptive Strategy ===
 
-This uses the default Kubernetes scaling strategy... I believe this is to scale out by one container when CPU utilization of any existing container reaches 80%. I have modelled this by setting SCALE_THRESHOLD_LAST_CONTAINER to CONTAINER_QUEUE_CAPACITY * 80/100 (i.e. 80%). Now this is scaling based on queue length and not CPU usage. But they are related.
+This scales per the Kubernetes strategy: add a node if the CPU utilization reaches 50%.
 
-The CONTAINERS_INITIALLY_ON constant is set to 2, to model 1 container in each node.
 
-The CONTAINER_MAX constant is set to 100, since Kubernetes can scale out as much as it likes; it is really only limited by the resources of the virtual machines (nodes).
+=== Workload ===
 
-For CONTAINER_QUEUE_CAPACITY, perhaps we can make use of Vladimir's paper on determining micro-service capacity experimentally. It is set to 10 for now. We can also use Vladimir's papaer to determine REQ_HANDLED_PER_SEC_PER_CONTAINER. However, I could not find reference to "nginx" in the paper itself.
+MAX_REQUESTS_PER_SECOND should match the constant throughput timer in the JMeter test plan (it should be the timer / 60).
 
 
 === Analysis ===
 
-For testing:
+When testing with the JMeter GUI, using 400 requests per second is OK (no response times over 10 seconds, I believe).
 
-MAX_REQUESTS_PER_SECOND should match the thread group settings in JMETER. I.e. it should match hte number of HTTP_Request samplers which fire per second in the Test Plan.
+Using 500 requests per second violates the SLO (it gives response times of over 10 seconds consistently).
 
 
 === Future Work ===
+
+*** The key is this: every one of the input fields in WATERS must be tested and compared with the same in Kubernetes. That means I need a good test plan. ***
+
+Add scaling down operations.
 
 Test the scenario where worker node 2 goes down entirely with "vagrant worker2 down" or similar.
 
 I wonder whether WATERS can compute the "Analysis" for us automatically?
 
+Make the scaling only happen when the Horizontal Autoscaler checks for it.
+
 
 === Other Notes ===
 
-The "1" series are theoretical models.
+The "1" series are theoretical models. 
 
 The "2" series are models of actual cloud systems being tested.
 
-The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAINERS_INITIALLY_ON". This is because in Kubernetes, a "node" means a machine, and a "container" is what does the actual work. A node can have multiple containers.</ns2:Comment>
+The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIALLY_ON". This is because the Kubernetes Horizontal Autoscaler scales by pods, not nodes. A node is a machine, a pod has containers and the containers run the application. There can be multiple pods on a node. E.g. Node_1 --&gt; Pod_1 --&gt; Container_1 --&gt; NGINX application.
+
+You can see "nginx.yaml" for the full Kubernetes specification.</ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
-                <IntConstant Value="35"/>
+                <IntConstant Value="500"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="CONTAINERS_INITIALLY_ON">
+        <ConstantAlias Name="PODS_INITIALLY_ON">
             <ConstantAliasExpression>
                 <IntConstant Value="2"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="CONTAINER_MIN">
+        <ConstantAlias Name="POD_MIN">
             <ConstantAliasExpression>
                 <IntConstant Value="1"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="CONTAINER_MAX">
+        <ConstantAlias Name="POD_MAX">
             <ConstantAliasExpression>
-                <IntConstant Value="100"/>
+                <IntConstant Value="4"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="CONTAINER_QUEUE_CAPACITY">
+        <ConstantAlias Name="POD_QUEUE_CAPACITY">
             <ConstantAliasExpression>
-                <IntConstant Value="10"/>
+                <IntConstant Value="200"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="REQ_HANDLED_PER_SEC_PER_CONTAINER">
+        <ConstantAlias Name="REQ_HANDLED_PER_SEC_PER_POD">
             <ConstantAliasExpression>
-                <IntConstant Value="8"/>
+                <IntConstant Value="200"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Name="SCALE_AMOUNT">
@@ -78,12 +91,17 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                 <IntConstant Value="1"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="SCALE_THRESHOLD_LAST_CONTAINER">
+        <ConstantAlias Name="SCALE_CPU_THRESHOLD">
+            <ConstantAliasExpression>
+                <IntConstant Value="50"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="SCALE_THRESHOLD_LAST_POD">
             <ConstantAliasExpression>
                 <BinaryExpression Operator="/">
                     <BinaryExpression Operator="*">
-                        <SimpleIdentifier Name="CONTAINER_QUEUE_CAPACITY"/>
-                        <IntConstant Value="80"/>
+                        <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
+                        <SimpleIdentifier Name="SCALE_CPU_THRESHOLD"/>
                     </BinaryExpression>
                     <IntConstant Value="100"/>
                 </BinaryExpression>
@@ -93,22 +111,22 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
     <EventDeclList>
         <EventDecl Kind="CONTROLLABLE" Name="user_submits_requests"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
-        <EventDecl Kind="CONTROLLABLE" Name="containers_handle_requests"/>
+        <EventDecl Kind="CONTROLLABLE" Name="pods_handle_requests"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="one_second"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="slo_check">
             <RangeList>
                 <BinaryExpression Operator="..">
-                    <SimpleIdentifier Name="CONTAINER_MIN"/>
-                    <SimpleIdentifier Name="CONTAINER_MAX"/>
+                    <SimpleIdentifier Name="POD_MIN"/>
+                    <SimpleIdentifier Name="POD_MAX"/>
                 </BinaryExpression>
             </RangeList>
         </EventDecl>
         <EventDecl Kind="PROPOSITION" Name=":accepting"/>
-        <EventDecl Kind="CONTROLLABLE" Name="give_request_to_container">
+        <EventDecl Kind="CONTROLLABLE" Name="give_request_to_pod">
             <RangeList>
                 <BinaryExpression Operator="..">
-                    <SimpleIdentifier Name="CONTAINER_MIN"/>
-                    <SimpleIdentifier Name="CONTAINER_MAX"/>
+                    <SimpleIdentifier Name="POD_MIN"/>
+                    <SimpleIdentifier Name="POD_MAX"/>
                 </BinaryExpression>
             </RangeList>
         </EventDecl>
@@ -189,7 +207,7 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                     </Edge>
                     <Edge Source="managing_done" Target="done">
                         <LabelBlock>
-                            <SimpleIdentifier Name="containers_handle_requests"/>
+                            <SimpleIdentifier Name="pods_handle_requests"/>
                             <LabelGeometry Anchor="NW">
                                 <Point X="10" Y="-20"/>
                             </LabelGeometry>
@@ -210,15 +228,15 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         </LabelBlock>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="CONTAINER_QUEUE_LENGTH[CONTAINERS_CURRENTLY_ON] &gt;= SCALE_THRESHOLD_LAST_CONTAINER">
-                                    <IndexedIdentifier Name="CONTAINER_QUEUE_LENGTH">
-                                        <SimpleIdentifier Name="CONTAINERS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="&gt;=" Text="POD_QUEUE_LENGTH[PODS_CURRENTLY_ON] &gt;= SCALE_THRESHOLD_LAST_POD">
+                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
                                     </IndexedIdentifier>
-                                    <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_CONTAINER"/>
+                                    <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
                                 </BinaryExpression>
                             </Guards>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-637" Y="-39"/>
+                                <Point X="-505" Y="-38"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -226,7 +244,7 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         <LabelBlock>
                             <SimpleIdentifier Name="scale_up"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-77" Y="-3"/>
+                                <Point X="-73" Y="0"/>
                             </LabelGeometry>
                         </LabelBlock>
                     </Edge>
@@ -239,11 +257,11 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         </LabelBlock>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="CONTAINER_QUEUE_LENGTH[CONTAINERS_CURRENTLY_ON] &lt; SCALE_THRESHOLD_LAST_CONTAINER">
-                                    <IndexedIdentifier Name="CONTAINER_QUEUE_LENGTH">
-                                        <SimpleIdentifier Name="CONTAINERS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="&lt;" Text="POD_QUEUE_LENGTH[PODS_CURRENTLY_ON] &lt; SCALE_THRESHOLD_LAST_POD">
+                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
                                     </IndexedIdentifier>
-                                    <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_CONTAINER"/>
+                                    <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
                                 </BinaryExpression>
                             </Guards>
                             <LabelGeometry Anchor="NW">
@@ -271,7 +289,7 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         <LabelBlock>
                             <SimpleIdentifier Name="increment_counter"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="12" Y="-5"/>
+                                <Point X="16" Y="-5"/>
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
@@ -279,14 +297,14 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="NEXT_CONTAINER &lt; CONTAINERS_CURRENTLY_ON">
-                                    <SimpleIdentifier Name="NEXT_CONTAINER"/>
-                                    <SimpleIdentifier Name="CONTAINERS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="&lt;" Text="NEXT_POD &lt; PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="NEXT_POD"/>
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
                                 </BinaryExpression>
                             </Guards>
                             <Actions>
-                                <BinaryExpression Operator="+=" Text="NEXT_CONTAINER += 1">
-                                    <SimpleIdentifier Name="NEXT_CONTAINER"/>
+                                <BinaryExpression Operator="+=" Text="NEXT_POD += 1">
+                                    <SimpleIdentifier Name="NEXT_POD"/>
                                     <IntConstant Value="1"/>
                                 </BinaryExpression>
                             </Actions>
@@ -299,7 +317,7 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         <LabelBlock>
                             <SimpleIdentifier Name="increment_counter"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-212" Y="-3"/>
+                                <Point X="-197" Y="2"/>
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
@@ -307,19 +325,19 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="NEXT_CONTAINER &gt;= CONTAINERS_CURRENTLY_ON">
-                                    <SimpleIdentifier Name="NEXT_CONTAINER"/>
-                                    <SimpleIdentifier Name="CONTAINERS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="&gt;=" Text="NEXT_POD &gt;= PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="NEXT_POD"/>
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
                                 </BinaryExpression>
                             </Guards>
                             <Actions>
-                                <BinaryExpression Operator="=" Text="NEXT_CONTAINER = CONTAINER_MIN">
-                                    <SimpleIdentifier Name="NEXT_CONTAINER"/>
-                                    <SimpleIdentifier Name="CONTAINER_MIN"/>
+                                <BinaryExpression Operator="=" Text="NEXT_POD = POD_MIN">
+                                    <SimpleIdentifier Name="NEXT_POD"/>
+                                    <SimpleIdentifier Name="POD_MIN"/>
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-323" Y="-39"/>
+                                <Point X="-241" Y="-37"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -451,7 +469,7 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                     </Edge>
                     <Edge Source="request_sent" Target="request_delegated">
                         <LabelBlock>
-                            <SimpleIdentifier Name="give_request_to_container"/>
+                            <SimpleIdentifier Name="give_request_to_pod"/>
                             <LabelGeometry Anchor="NW">
                                 <Point X="-153" Y="-7"/>
                             </LabelGeometry>
@@ -474,31 +492,31 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                 </EdgeList>
             </Graph>
         </SimpleComponent>
-        <VariableComponent Name="NEXT_CONTAINER">
+        <VariableComponent Name="NEXT_POD">
             <VariableRange>
                 <BinaryExpression Operator="..">
-                    <SimpleIdentifier Name="CONTAINER_MIN"/>
-                    <SimpleIdentifier Name="CONTAINER_MAX"/>
+                    <SimpleIdentifier Name="POD_MIN"/>
+                    <SimpleIdentifier Name="POD_MAX"/>
                 </BinaryExpression>
             </VariableRange>
             <VariableInitial>
-                <BinaryExpression Operator="==" Text="NEXT_CONTAINER == CONTAINER_MIN">
-                    <SimpleIdentifier Name="NEXT_CONTAINER"/>
-                    <SimpleIdentifier Name="CONTAINER_MIN"/>
+                <BinaryExpression Operator="==" Text="NEXT_POD == POD_MIN">
+                    <SimpleIdentifier Name="NEXT_POD"/>
+                    <SimpleIdentifier Name="POD_MIN"/>
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
-        <VariableComponent Name="CONTAINERS_CURRENTLY_ON">
+        <VariableComponent Name="PODS_CURRENTLY_ON">
             <VariableRange>
                 <BinaryExpression Operator="..">
-                    <SimpleIdentifier Name="CONTAINER_MIN"/>
-                    <SimpleIdentifier Name="CONTAINER_MAX"/>
+                    <SimpleIdentifier Name="POD_MIN"/>
+                    <SimpleIdentifier Name="POD_MAX"/>
                 </BinaryExpression>
             </VariableRange>
             <VariableInitial>
-                <BinaryExpression Operator="==" Text="CONTAINERS_CURRENTLY_ON == CONTAINERS_INITIALLY_ON">
-                    <SimpleIdentifier Name="CONTAINERS_CURRENTLY_ON"/>
-                    <SimpleIdentifier Name="CONTAINERS_INITIALLY_ON"/>
+                <BinaryExpression Operator="==" Text="PODS_CURRENTLY_ON == PODS_INITIALLY_ON">
+                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                    <SimpleIdentifier Name="PODS_INITIALLY_ON"/>
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
@@ -516,15 +534,15 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
-        <ForeachComponent Name="CONTAINER_INDEX">
+        <ForeachComponent Name="POD_INDEX">
             <BinaryExpression Operator="..">
-                <SimpleIdentifier Name="CONTAINER_MIN"/>
-                <SimpleIdentifier Name="CONTAINER_MAX"/>
+                <SimpleIdentifier Name="POD_MIN"/>
+                <SimpleIdentifier Name="POD_MAX"/>
             </BinaryExpression>
             <ComponentList>
                 <SimpleComponent Kind="PROPERTY">
                     <IndexedIdentifier Name="availability">
-                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                        <SimpleIdentifier Name="POD_INDEX"/>
                     </IndexedIdentifier>
                     <Graph>
                         <NodeList>
@@ -541,7 +559,7 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                             <Edge Source="checking" Target="checking">
                                 <LabelBlock>
                                     <IndexedIdentifier Name="slo_check">
-                                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                                        <SimpleIdentifier Name="POD_INDEX"/>
                                     </IndexedIdentifier>
                                     <LabelGeometry Anchor="NW">
                                         <Point X="-74" Y="10"/>
@@ -552,15 +570,15 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&lt;=" Text="CONTAINER_QUEUE_LENGTH[CONTAINER_INDEX] &lt;= CONTAINER_QUEUE_CAPACITY">
-                                            <IndexedIdentifier Name="CONTAINER_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                                        <BinaryExpression Operator="&lt;=" Text="POD_QUEUE_LENGTH[POD_INDEX] &lt;= POD_QUEUE_CAPACITY">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
                                             </IndexedIdentifier>
-                                            <SimpleIdentifier Name="CONTAINER_QUEUE_CAPACITY"/>
+                                            <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
                                         </BinaryExpression>
                                     </Guards>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-212" Y="31"/>
+                                        <Point X="-175" Y="30"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -568,30 +586,30 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                     </Graph>
                 </SimpleComponent>
                 <VariableComponent>
-                    <IndexedIdentifier Name="CONTAINER_QUEUE_LENGTH">
-                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                        <SimpleIdentifier Name="POD_INDEX"/>
                     </IndexedIdentifier>
                     <VariableRange>
                         <BinaryExpression Operator="..">
                             <IntConstant Value="0"/>
                             <BinaryExpression Operator="+">
-                                <SimpleIdentifier Name="CONTAINER_QUEUE_CAPACITY"/>
+                                <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
                                 <IntConstant Value="1"/>
                             </BinaryExpression>
                         </BinaryExpression>
                     </VariableRange>
                     <VariableInitial>
-                        <BinaryExpression Operator="==" Text="CONTAINER_QUEUE_LENGTH[CONTAINER_INDEX] == 0">
-                            <IndexedIdentifier Name="CONTAINER_QUEUE_LENGTH">
-                                <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                        <BinaryExpression Operator="==" Text="POD_QUEUE_LENGTH[POD_INDEX] == 0">
+                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                <SimpleIdentifier Name="POD_INDEX"/>
                             </IndexedIdentifier>
                             <IntConstant Value="0"/>
                         </BinaryExpression>
                     </VariableInitial>
                 </VariableComponent>
                 <SimpleComponent Kind="PLANT">
-                    <IndexedIdentifier Name="container">
-                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                    <IndexedIdentifier Name="pod">
+                        <SimpleIdentifier Name="POD_INDEX"/>
                     </IndexedIdentifier>
                     <Graph>
                         <NodeList>
@@ -615,7 +633,7 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         <EdgeList>
                             <Edge Source="idle" Target="working">
                                 <LabelBlock>
-                                    <SimpleIdentifier Name="containers_handle_requests"/>
+                                    <SimpleIdentifier Name="pods_handle_requests"/>
                                     <LabelGeometry Anchor="NW">
                                         <Point X="-478" Y="20"/>
                                     </LabelGeometry>
@@ -625,23 +643,23 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="CONTAINER_QUEUE_LENGTH[CONTAINER_INDEX] = \max(CONTAINER_QUEUE_LENGTH[CONTAINER_INDEX] - REQ_HANDLED_PER_SEC_PER_CONTAINER, 0)">
-                                            <IndexedIdentifier Name="CONTAINER_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \max(POD_QUEUE_LENGTH[POD_INDEX] - REQ_HANDLED_PER_SEC_PER_POD, 0)">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
                                             </IndexedIdentifier>
                                             <FunctionCallExpression FunctionName="\max">
                                                 <BinaryExpression Operator="-">
-                                                    <IndexedIdentifier Name="CONTAINER_QUEUE_LENGTH">
-                                                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                        <SimpleIdentifier Name="POD_INDEX"/>
                                                     </IndexedIdentifier>
-                                                    <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_CONTAINER"/>
+                                                    <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD"/>
                                                 </BinaryExpression>
                                                 <IntConstant Value="0"/>
                                             </FunctionCallExpression>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-948" Y="-8"/>
+                                        <Point X="-722" Y="-9"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -660,8 +678,8 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                     </Graph>
                 </SimpleComponent>
                 <SimpleComponent Kind="PLANT">
-                    <IndexedIdentifier Name="container_queue">
-                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                    <IndexedIdentifier Name="pod_queue">
+                        <SimpleIdentifier Name="POD_INDEX"/>
                     </IndexedIdentifier>
                     <Graph>
                         <NodeList>
@@ -680,11 +698,11 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                         <EdgeList>
                             <Edge Source="working" Target="working">
                                 <LabelBlock>
-                                    <IndexedIdentifier Name="give_request_to_container">
-                                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                                    <IndexedIdentifier Name="give_request_to_pod">
+                                        <SimpleIdentifier Name="POD_INDEX"/>
                                     </IndexedIdentifier>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-139" Y="11"/>
+                                        <Point X="-102" Y="10"/>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
@@ -695,15 +713,15 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                                 </EndPointGeometry>
                                 <GuardActionBlock>
                                     <Actions>
-                                        <BinaryExpression Operator="+=" Text="CONTAINER_QUEUE_LENGTH[CONTAINER_INDEX] += 1">
-                                            <IndexedIdentifier Name="CONTAINER_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                                        <BinaryExpression Operator="+=" Text="POD_QUEUE_LENGTH[POD_INDEX] += 1">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
                                             </IndexedIdentifier>
                                             <IntConstant Value="1"/>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-159" Y="30"/>
+                                        <Point X="-120" Y="28"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -712,7 +730,7 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                 </SimpleComponent>
                 <SimpleComponent Kind="SPEC">
                     <IndexedIdentifier Name="load_balancer">
-                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                        <SimpleIdentifier Name="POD_INDEX"/>
                     </IndexedIdentifier>
                     <Graph>
                         <NodeList>
@@ -749,13 +767,13 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                                 </EndPointGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="==" Text="CONTAINER_INDEX == NEXT_CONTAINER">
-                                            <SimpleIdentifier Name="CONTAINER_INDEX"/>
-                                            <SimpleIdentifier Name="NEXT_CONTAINER"/>
+                                        <BinaryExpression Operator="==" Text="POD_INDEX == NEXT_POD">
+                                            <SimpleIdentifier Name="POD_INDEX"/>
+                                            <SimpleIdentifier Name="NEXT_POD"/>
                                         </BinaryExpression>
                                     </Guards>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-266" Y="-28"/>
+                                        <Point X="-182" Y="-28"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -771,20 +789,20 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="!=" Text="CONTAINER_INDEX != NEXT_CONTAINER">
-                                            <SimpleIdentifier Name="CONTAINER_INDEX"/>
-                                            <SimpleIdentifier Name="NEXT_CONTAINER"/>
+                                        <BinaryExpression Operator="!=" Text="POD_INDEX != NEXT_POD">
+                                            <SimpleIdentifier Name="POD_INDEX"/>
+                                            <SimpleIdentifier Name="NEXT_POD"/>
                                         </BinaryExpression>
                                     </Guards>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-263" Y="-27"/>
+                                        <Point X="-170" Y="-25"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
                             <Edge Source="request_received" Target="idle">
                                 <LabelBlock>
-                                    <IndexedIdentifier Name="give_request_to_container">
-                                        <SimpleIdentifier Name="CONTAINER_INDEX"/>
+                                    <IndexedIdentifier Name="give_request_to_pod">
+                                        <SimpleIdentifier Name="POD_INDEX"/>
                                     </IndexedIdentifier>
                                     <LabelGeometry Anchor="NW">
                                         <Point X="14" Y="-5"/>
@@ -798,9 +816,9 @@ The "NODE" automata and variables have been renamed to "CONTAINER", e.g. "CONTAI
                                 </EndPointGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="==" Text="CONTAINER_INDEX == NEXT_CONTAINER">
-                                            <SimpleIdentifier Name="CONTAINER_INDEX"/>
-                                            <SimpleIdentifier Name="NEXT_CONTAINER"/>
+                                        <BinaryExpression Operator="==" Text="POD_INDEX == NEXT_POD">
+                                            <SimpleIdentifier Name="POD_INDEX"/>
+                                            <SimpleIdentifier Name="NEXT_POD"/>
                                         </BinaryExpression>
                                     </Guards>
                                     <LabelGeometry Anchor="NW">

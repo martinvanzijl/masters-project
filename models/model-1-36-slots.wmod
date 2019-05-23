@@ -11,12 +11,14 @@ Here we modify the queue for each node to have a number of slots (NODE_1_QUEUE_L
 
 Actually, the key is that "SLOTS_PROCESSING" must not go to more than the QUEUE_CAPACITY. Perhaps I can remove the QUEUE_LENGTH variable.
 
-I have brokenthe "handles_requests" events into two events "starts_handling_requests" and "finishes_handling_requests". A certain number of requests are started and finished (and removed from the queue) after the latter event.
+I have split the "handles_requests" events into two events "starts_handling_requests" and "finishes_handling_requests". A certain number of requests are started and finished (and removed from the queue) after the latter event.
 
 
 === Other Notes ===
 
-I could not use the "\max" trick in node_1 since this causes a Java exception. Thus I had to use the "manual" two-branch method.</ns2:Comment>
+I could not use the "\max" trick in node_1 since this causes a Java exception. Thus I had to use the "manual" two-branch method.
+
+Hmm... This is quite combersome. Let me instead try representing the slots themselves as plants!</ns2:Comment>
     <ConstantAliasList>
         <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
@@ -94,8 +96,8 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;=" Text="NODE_1_QUEUE_LENGTH &lt;= NODE_1_QUEUE_CAPACITY">
-                                    <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="&lt;=" Text="NODE_1_SLOTS_PROCESSING &lt;= NODE_1_QUEUE_CAPACITY">
+                                    <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
                                     <SimpleIdentifier Name="NODE_1_QUEUE_CAPACITY"/>
                                 </BinaryExpression>
                             </Guards>
@@ -116,8 +118,8 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;=" Text="NODE_2_QUEUE_LENGTH &lt;= NODE_2_QUEUE_CAPACITY">
-                                    <SimpleIdentifier Name="NODE_2_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="&lt;=" Text="NODE_2_SLOTS_PROCESSING &lt;= NODE_2_QUEUE_CAPACITY">
+                                    <SimpleIdentifier Name="NODE_2_SLOTS_PROCESSING"/>
                                     <SimpleIdentifier Name="NODE_2_QUEUE_CAPACITY"/>
                                 </BinaryExpression>
                             </Guards>
@@ -150,7 +152,7 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                     </SimpleNode>
                     <SimpleNode Name="idle_2">
                         <PointGeometry>
-                            <Point X="752" Y="272"/>
+                            <Point X="784" Y="272"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="18" Y="-7"/>
@@ -158,7 +160,7 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                     </SimpleNode>
                     <SimpleNode Name="request_received_2">
                         <PointGeometry>
-                            <Point X="752" Y="96"/>
+                            <Point X="784" Y="96"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="15" Y="-9"/>
@@ -188,17 +190,17 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                             </LabelGeometry>
                         </LabelBlock>
                         <EndPointGeometry>
-                            <Point X="752" Y="272"/>
+                            <Point X="784" Y="272"/>
                         </EndPointGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="NODE_1_QUEUE_LENGTH &lt; NODE_1_QUEUE_CAPACITY">
-                                    <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="&lt;" Text="NODE_1_SLOTS_PROCESSING &lt; NODE_1_QUEUE_CAPACITY">
+                                    <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
                                     <SimpleIdentifier Name="NODE_1_QUEUE_CAPACITY"/>
                                 </BinaryExpression>
                             </Guards>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-147" Y="25"/>
+                                <Point X="-172" Y="26"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -210,17 +212,17 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="752" Y="96"/>
+                            <Point X="784" Y="96"/>
                         </StartPointGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="NODE_2_QUEUE_LENGTH &lt; NODE_2_QUEUE_CAPACITY">
-                                    <SimpleIdentifier Name="NODE_2_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="&lt;" Text="NODE_2_SLOTS_PROCESSING &lt; NODE_2_QUEUE_CAPACITY">
+                                    <SimpleIdentifier Name="NODE_2_SLOTS_PROCESSING"/>
                                     <SimpleIdentifier Name="NODE_2_QUEUE_CAPACITY"/>
                                 </BinaryExpression>
                             </Guards>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-145" Y="-48"/>
+                                <Point X="-166" Y="-47"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -232,7 +234,7 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="786" Y="180"/>
+                            <Point X="818" Y="180"/>
                         </SplineGeometry>
                     </Edge>
                     <Edge Source="request_received_1" Target="idle_1">
@@ -247,8 +249,8 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="NODE_1_QUEUE_LENGTH &gt;= NODE_1_QUEUE_CAPACITY">
-                                    <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="&gt;=" Text="NODE_1_SLOTS_PROCESSING &gt;= NODE_1_QUEUE_CAPACITY">
+                                    <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
                                     <SimpleIdentifier Name="NODE_1_QUEUE_CAPACITY"/>
                                 </BinaryExpression>
                             </Guards>
@@ -265,17 +267,17 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="712" Y="180"/>
+                            <Point X="744" Y="180"/>
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="NODE_2_QUEUE_LENGTH &gt;= NODE_2_QUEUE_CAPACITY">
-                                    <SimpleIdentifier Name="NODE_2_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="&gt;=" Text="NODE_2_SLOTS_PROCESSING &gt;= NODE_2_QUEUE_CAPACITY">
+                                    <SimpleIdentifier Name="NODE_2_SLOTS_PROCESSING"/>
                                     <SimpleIdentifier Name="NODE_2_QUEUE_CAPACITY"/>
                                 </BinaryExpression>
                             </Guards>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-354" Y="-14"/>
+                                <Point X="-381" Y="-17"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -677,8 +679,8 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Actions>
-                                <BinaryExpression Operator="+=" Text="NODE_1_QUEUE_LENGTH += 1">
-                                    <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="+=" Text="NODE_1_SLOTS_PROCESSING += 1">
+                                    <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
                                     <IntConstant Value="1"/>
                                 </BinaryExpression>
                             </Actions>
@@ -715,8 +717,8 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Actions>
-                                <BinaryExpression Operator="+=" Text="NODE_2_QUEUE_LENGTH += 1">
-                                    <SimpleIdentifier Name="NODE_2_QUEUE_LENGTH"/>
+                                <BinaryExpression Operator="+=" Text="NODE_2_SLOTS_PROCESSING += 1">
+                                    <SimpleIdentifier Name="NODE_2_SLOTS_PROCESSING"/>
                                     <IntConstant Value="1"/>
                                 </BinaryExpression>
                             </Actions>
@@ -855,23 +857,6 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
                 </EdgeList>
             </Graph>
         </SimpleComponent>
-        <VariableComponent Name="NODE_1_QUEUE_LENGTH">
-            <VariableRange>
-                <BinaryExpression Operator="..">
-                    <IntConstant Value="0"/>
-                    <BinaryExpression Operator="+">
-                        <SimpleIdentifier Name="NODE_1_QUEUE_CAPACITY"/>
-                        <IntConstant Value="1"/>
-                    </BinaryExpression>
-                </BinaryExpression>
-            </VariableRange>
-            <VariableInitial>
-                <BinaryExpression Operator="==" Text="NODE_1_QUEUE_LENGTH == 0">
-                    <SimpleIdentifier Name="NODE_1_QUEUE_LENGTH"/>
-                    <IntConstant Value="0"/>
-                </BinaryExpression>
-            </VariableInitial>
-        </VariableComponent>
         <VariableComponent Name="NODE_1_SLOTS_EMPTY">
             <VariableRange>
                 <BinaryExpression Operator="..">
@@ -896,23 +881,6 @@ I could not use the "\max" trick in node_1 since this causes a Java exception. T
             <VariableInitial>
                 <BinaryExpression Operator="==" Text="NODE_1_SLOTS_PROCESSING == 0">
                     <SimpleIdentifier Name="NODE_1_SLOTS_PROCESSING"/>
-                    <IntConstant Value="0"/>
-                </BinaryExpression>
-            </VariableInitial>
-        </VariableComponent>
-        <VariableComponent Name="NODE_2_QUEUE_LENGTH">
-            <VariableRange>
-                <BinaryExpression Operator="..">
-                    <IntConstant Value="0"/>
-                    <BinaryExpression Operator="+">
-                        <SimpleIdentifier Name="NODE_2_QUEUE_CAPACITY"/>
-                        <IntConstant Value="1"/>
-                    </BinaryExpression>
-                </BinaryExpression>
-            </VariableRange>
-            <VariableInitial>
-                <BinaryExpression Operator="==" Text="NODE_2_QUEUE_LENGTH == 0">
-                    <SimpleIdentifier Name="NODE_2_QUEUE_LENGTH"/>
                     <IntConstant Value="0"/>
                 </BinaryExpression>
             </VariableInitial>
