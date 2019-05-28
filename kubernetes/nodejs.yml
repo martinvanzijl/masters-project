@@ -1,0 +1,53 @@
+#--- RESOURCE QUOTA
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: nodejs-quota
+spec:
+  hard:
+    pods: "4"	# Use a maximum of 4 pods.
+#--- DEPLOYMENT
+apiVersion: apps/v1	# Kubernetes API version.
+kind: Deployment	# This is a deployment.
+metadata:
+  name: nodejs-deployment	# Deployment name.
+  labels:
+    app: nodejs	# Apply the label "nodejs" to this deployment.
+spec:
+  replicas: 2	# Use two replicas (one on each worker node).
+  selector:
+    matchLabels:
+      app: nodejs	# Match the label "nodejs" for the selector.
+  template:
+    metadata:
+      labels:
+        app: nodejs	# Match the label "nodejs" for this template.
+    spec:
+      containers:
+        - name: nodejs		# Container name.
+          image: martinvanzijl/test	# Image (application).
+          resources:
+            requests:
+              cpu: "25m"		# Use a minimum of 25 milli-CPUs.
+              memory: "25Mi"	# Use a minimum of 25 MB memory.
+            limits:
+              cpu: "40m"		# Use a maximum of 40 milli-CPUs.
+              memory: "50Mi"	# Use a maximum of 50 MB memory.
+          ports:
+            - containerPort: 8080
+              name: nodejs
+#--- SERVICE
+apiVersion: v1	# Kubernetes API version.
+kind: Service	# This is a service.
+metadata:
+  name: nodejs-service	# Service name.
+  labels:
+    app: nodejs	# Apply the "nodejs" label to this service.
+spec:
+  ports:
+    - port: 8080		# The service runs on port 8080.
+      targetPort: 8080	# What is a "target port"?
+  selector:
+    app: nodejs		# What is a "selector"?
+  type: NodePort	# Use a fixed port. "LoadBalancer" does not seem to work.
+
