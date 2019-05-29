@@ -1,4 +1,4 @@
-# Install node.js version 6.4.2?
+# Install node.js version 6.14.2
 FROM node:6.14.2
 
 # Expose the port 8080

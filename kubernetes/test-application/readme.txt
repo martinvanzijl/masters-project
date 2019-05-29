@@ -1,10 +1,7 @@
 TEST APPLICATION
 ================
 
-This is a simple test application for Kubernetes.
+This is a simple test application for Kubernetes. It runs a node.js program which waits for a while, then seconds a "hello-world" response.
 
-Create this in Kubernetes running the following command:
+The response actually has some variable data (e.g. a counter) to avoid sending "304" responses.
 
-  kubectl create deployment hello-node --image=https://github.com/martinvanzijl/masters-project/tree/master/kubernetes/test-application
-  
-TODO: It seems like I have to make a "Docker Build" of the application first, then refer to that built file in the "create" command. I'll have to try this in Kubernetes itself and see.
