@@ -1,5 +1,5 @@
-# Install node.js version 6.14.2
-FROM node:6.14.2
+# Install node.js version 8.10.0
+FROM node:8.10.0
 
 # Expose the port 8080
 EXPOSE 8080
