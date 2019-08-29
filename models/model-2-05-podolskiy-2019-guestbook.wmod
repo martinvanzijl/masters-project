@@ -121,6 +121,8 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
         <EventDecl Kind="CONTROLLABLE" Name="do_vertical_scaling_ram"/>
         <EventDecl Kind="CONTROLLABLE" Name="do_vertical_scaling_cpu"/>
         <EventDecl Kind="CONTROLLABLE" Name="finish_submitting_requests"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="ui_pods_finished"/>
+        <EventDecl Kind="CONTROLLABLE" Name="ui_pods_decrease_queue"/>
     </EventDeclList>
     <ComponentList>
         <SimpleComponent Kind="SPEC" Name="master">
@@ -144,7 +146,7 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                     </SimpleNode>
                     <SimpleNode Name="logic_pods_done">
                         <PointGeometry>
-                            <Point X="592" Y="736"/>
+                            <Point X="592" Y="784"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="21" Y="1"/>
@@ -160,7 +162,7 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                     </SimpleNode>
                     <SimpleNode Name="ui_pods_done">
                         <PointGeometry>
-                            <Point X="592" Y="656"/>
+                            <Point X="592" Y="720"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="20" Y="-5"/>
@@ -190,6 +192,14 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                             <Point X="20" Y="-5"/>
                         </LabelGeometry>
                     </SimpleNode>
+                    <SimpleNode Name="ui_pods_busy">
+                        <PointGeometry>
+                            <Point X="592" Y="656"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="24" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
                 </NodeList>
                 <EdgeList>
                     <Edge Source="waiting" Target="requests_submitting">
@@ -211,13 +221,13 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="592" Y="736"/>
+                            <Point X="592" Y="784"/>
                         </StartPointGeometry>
                         <SplineGeometry>
-                            <Point X="1423" Y="503"/>
+                            <Point X="1515" Y="525"/>
                         </SplineGeometry>
                     </Edge>
-                    <Edge Source="vertical_scaling_ram_done" Target="ui_pods_done">
+                    <Edge Source="vertical_scaling_ram_done" Target="ui_pods_busy">
                         <LabelBlock>
                             <SimpleIdentifier Name="ui_pods_handle_requests"/>
                             <LabelGeometry Anchor="NW">
@@ -274,6 +284,14 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                             <SimpleIdentifier Name="finish_submitting_requests"/>
                             <LabelGeometry Anchor="NW">
                                 <Point X="18" Y="-6"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="ui_pods_busy" Target="ui_pods_done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="ui_pods_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="22" Y="-8"/>
                             </LabelGeometry>
                         </LabelBlock>
                     </Edge>
@@ -345,7 +363,7 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                         <LabelBlock>
                             <SimpleIdentifier Name="do_horizontal_scaling"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-29" Y="10"/>
+                                <Point X="-58" Y="10"/>
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
@@ -353,9 +371,10 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="UI_POD_QUEUE_LENGTH[REPLICAS_CURRENTLY_ON] &gt;= SCALE_THRESHOLD_LAST_POD">
-                                    <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
+                                <BinaryExpression Operator="&gt;=" Text="QUEUE_LENGTH[REPLICAS_CURRENTLY_ON][UI] &gt;= SCALE_THRESHOLD_LAST_POD">
+                                    <IndexedIdentifier Name="QUEUE_LENGTH">
                                         <SimpleIdentifier Name="REPLICAS_CURRENTLY_ON"/>
+                                        <SimpleIdentifier Name="UI"/>
                                     </IndexedIdentifier>
                                     <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
                                 </BinaryExpression>
@@ -381,7 +400,7 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                         <LabelBlock>
                             <SimpleIdentifier Name="do_horizontal_scaling"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-32" Y="-28"/>
+                                <Point X="-56" Y="-27"/>
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
@@ -389,9 +408,10 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="UI_POD_QUEUE_LENGTH[REPLICAS_CURRENTLY_ON] &lt; SCALE_THRESHOLD_LAST_POD">
-                                    <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
+                                <BinaryExpression Operator="&lt;" Text="QUEUE_LENGTH[REPLICAS_CURRENTLY_ON][UI] &lt; SCALE_THRESHOLD_LAST_POD">
+                                    <IndexedIdentifier Name="QUEUE_LENGTH">
                                         <SimpleIdentifier Name="REPLICAS_CURRENTLY_ON"/>
+                                        <SimpleIdentifier Name="UI"/>
                                     </IndexedIdentifier>
                                     <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
                                 </BinaryExpression>
@@ -403,7 +423,7 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-221" Y="-64"/>
+                                <Point X="-226" Y="-64"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -606,292 +626,6 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                 <SimpleIdentifier Name="REPLICA_MAX"/>
             </BinaryExpression>
             <ComponentList>
-                <SimpleComponent Kind="PROPERTY">
-                    <IndexedIdentifier Name="availability_logic_pod">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <Graph>
-                        <NodeList>
-                            <SimpleNode Initial="true" Name="checking">
-                                <PointGeometry>
-                                    <Point X="160" Y="208"/>
-                                </PointGeometry>
-                                <LabelGeometry Anchor="NW">
-                                    <Point X="16" Y="-8"/>
-                                </LabelGeometry>
-                            </SimpleNode>
-                        </NodeList>
-                        <EdgeList>
-                            <Edge Source="checking" Target="checking">
-                                <LabelBlock>
-                                    <IndexedIdentifier Name="slo_check">
-                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                    </IndexedIdentifier>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-74" Y="10"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="161" Y="286"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="&lt;=" Text="LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX] &lt;= LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX]">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-268" Y="31"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                        </EdgeList>
-                    </Graph>
-                </SimpleComponent>
-                <SimpleComponent Kind="PROPERTY">
-                    <IndexedIdentifier Name="availability_ui_pod">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <Graph>
-                        <NodeList>
-                            <SimpleNode Initial="true" Name="checking">
-                                <PointGeometry>
-                                    <Point X="128" Y="208"/>
-                                </PointGeometry>
-                                <LabelGeometry Anchor="NW">
-                                    <Point X="16" Y="-8"/>
-                                </LabelGeometry>
-                            </SimpleNode>
-                        </NodeList>
-                        <EdgeList>
-                            <Edge Source="checking" Target="checking">
-                                <LabelBlock>
-                                    <IndexedIdentifier Name="slo_check">
-                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                    </IndexedIdentifier>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-74" Y="10"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="129" Y="286"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="&lt;=" Text="UI_POD_QUEUE_LENGTH[REPLICA_INDEX] &lt;= UI_POD_QUEUE_CAPACITY[REPLICA_INDEX]">
-                                            <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <IndexedIdentifier Name="UI_POD_QUEUE_CAPACITY">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-237" Y="32"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                        </EdgeList>
-                    </Graph>
-                </SimpleComponent>
-                <VariableComponent>
-                    <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <VariableRange>
-                        <BinaryExpression Operator="..">
-                            <IntConstant Value="0"/>
-                            <SimpleIdentifier Name="POD_QUEUE_CAPACITY_MAX"/>
-                        </BinaryExpression>
-                    </VariableRange>
-                    <VariableInitial>
-                        <BinaryExpression Operator="==" Text="LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] == POD_QUEUE_CAPACITY_INITIAL">
-                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                            </IndexedIdentifier>
-                            <SimpleIdentifier Name="POD_QUEUE_CAPACITY_INITIAL"/>
-                        </BinaryExpression>
-                    </VariableInitial>
-                </VariableComponent>
-                <VariableComponent>
-                    <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <VariableRange>
-                        <BinaryExpression Operator="..">
-                            <IntConstant Value="0"/>
-                            <BinaryExpression Operator="+">
-                                <SimpleIdentifier Name="POD_QUEUE_CAPACITY_MAX"/>
-                                <IntConstant Value="1"/>
-                            </BinaryExpression>
-                        </BinaryExpression>
-                    </VariableRange>
-                    <VariableInitial>
-                        <BinaryExpression Operator="==" Text="LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX] == 0">
-                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                            </IndexedIdentifier>
-                            <IntConstant Value="0"/>
-                        </BinaryExpression>
-                    </VariableInitial>
-                </VariableComponent>
-                <VariableComponent>
-                    <IndexedIdentifier Name="UI_POD_QUEUE_CAPACITY">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <VariableRange>
-                        <BinaryExpression Operator="..">
-                            <IntConstant Value="0"/>
-                            <SimpleIdentifier Name="POD_QUEUE_CAPACITY_MAX"/>
-                        </BinaryExpression>
-                    </VariableRange>
-                    <VariableInitial>
-                        <BinaryExpression Operator="==">
-                            <IndexedIdentifier Name="UI_POD_QUEUE_CAPACITY">
-                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                            </IndexedIdentifier>
-                            <SimpleIdentifier Name="POD_QUEUE_CAPACITY_INITIAL"/>
-                        </BinaryExpression>
-                    </VariableInitial>
-                </VariableComponent>
-                <VariableComponent>
-                    <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <VariableRange>
-                        <BinaryExpression Operator="..">
-                            <IntConstant Value="0"/>
-                            <BinaryExpression Operator="+">
-                                <SimpleIdentifier Name="POD_QUEUE_CAPACITY_MAX"/>
-                                <IntConstant Value="1"/>
-                            </BinaryExpression>
-                        </BinaryExpression>
-                    </VariableRange>
-                    <VariableInitial>
-                        <BinaryExpression Operator="==" Text="UI_POD_QUEUE_LENGTH[REPLICA_INDEX] == 0">
-                            <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
-                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                            </IndexedIdentifier>
-                            <IntConstant Value="0"/>
-                        </BinaryExpression>
-                    </VariableInitial>
-                </VariableComponent>
-                <VariableComponent>
-                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <VariableRange>
-                        <BinaryExpression Operator="..">
-                            <IntConstant Value="0"/>
-                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD_MAX"/>
-                        </BinaryExpression>
-                    </VariableRange>
-                    <VariableInitial>
-                        <BinaryExpression Operator="==">
-                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                            </IndexedIdentifier>
-                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD_INITIAL"/>
-                        </BinaryExpression>
-                    </VariableInitial>
-                </VariableComponent>
-                <VariableComponent>
-                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_UI_POD">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <VariableRange>
-                        <BinaryExpression Operator="..">
-                            <IntConstant Value="0"/>
-                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD_MAX"/>
-                        </BinaryExpression>
-                    </VariableRange>
-                    <VariableInitial>
-                        <BinaryExpression Operator="==">
-                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_UI_POD">
-                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                            </IndexedIdentifier>
-                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD_INITIAL"/>
-                        </BinaryExpression>
-                    </VariableInitial>
-                </VariableComponent>
-                <SimpleComponent Kind="PLANT">
-                    <IndexedIdentifier Name="logic_pod">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <Graph>
-                        <NodeList>
-                            <SimpleNode Initial="true" Name="idle">
-                                <PointGeometry>
-                                    <Point X="608" Y="176"/>
-                                </PointGeometry>
-                                <LabelGeometry Anchor="NW">
-                                    <Point X="23" Y="-15"/>
-                                </LabelGeometry>
-                            </SimpleNode>
-                            <SimpleNode Name="working">
-                                <PointGeometry>
-                                    <Point X="608" Y="496"/>
-                                </PointGeometry>
-                                <LabelGeometry Anchor="NW">
-                                    <Point X="-76" Y="-8"/>
-                                </LabelGeometry>
-                            </SimpleNode>
-                        </NodeList>
-                        <EdgeList>
-                            <Edge Source="idle" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="logic_pods_handle_requests"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-190" Y="14"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="572" Y="344"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX] = \max(LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX] - REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX], 0)">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <FunctionCallExpression FunctionName="\max">
-                                                <BinaryExpression Operator="-">
-                                                    <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                </BinaryExpression>
-                                                <IntConstant Value="0"/>
-                                            </FunctionCallExpression>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-1004" Y="-11"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                            <Edge Source="working" Target="idle">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="one_second"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="12" Y="-6"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="645" Y="344"/>
-                                </SplineGeometry>
-                            </Edge>
-                        </EdgeList>
-                    </Graph>
-                </SimpleComponent>
                 <SimpleComponent Kind="PLANT">
                     <IndexedIdentifier Name="logic_pod_queue">
                         <SimpleIdentifier Name="REPLICA_INDEX"/>
@@ -913,9 +647,9 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                         <EdgeList>
                             <Edge Source="working" Target="working">
                                 <LabelBlock>
-                                    <SimpleIdentifier Name="ui_pods_handle_requests"/>
+                                    <SimpleIdentifier Name="ui_pods_finished"/>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-73" Y="10"/>
+                                        <Point X="-47" Y="10"/>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
@@ -925,347 +659,36 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                                     <Point X="896" Y="592"/>
                                 </EndPointGeometry>
                                 <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="&gt;=" Text="LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] &gt;= LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] + \min(UI_POD_QUEUE_LENGTH[REPLICA_INDEX], REQ_HANDLED_PER_SEC_BY_UI_POD[REPLICA_INDEX])">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <BinaryExpression Operator="+">
-                                                <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                </IndexedIdentifier>
-                                                <FunctionCallExpression FunctionName="\min">
-                                                    <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_UI_POD">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                </FunctionCallExpression>
-                                            </BinaryExpression>
-                                        </BinaryExpression>
-                                    </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="+=" Text="LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX] += \min(UI_POD_QUEUE_LENGTH[REPLICA_INDEX], REQ_HANDLED_PER_SEC_BY_UI_POD[REPLICA_INDEX])">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
+                                        <BinaryExpression Operator="=" Text="QUEUE_LENGTH[REPLICA_INDEX][LOGIC] = \min(QUEUE_LENGTH[REPLICA_INDEX][LOGIC] + REQUESTS_SENT_TO_LOGIC_POD[REPLICA_INDEX], QUEUE_CAPACITY[REPLICA_INDEX][LOGIC]  + 1)">
+                                            <IndexedIdentifier Name="QUEUE_LENGTH">
                                                 <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <FunctionCallExpression FunctionName="\min">
-                                                <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
-                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                </IndexedIdentifier>
-                                                <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_UI_POD">
-                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                </IndexedIdentifier>
-                                            </FunctionCallExpression>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-366" Y="34"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                            <Edge Source="working" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="ui_pods_handle_requests"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-74" Y="-24"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="512" Y="275"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="&lt;" Text="LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] &lt; LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] + \min(UI_POD_QUEUE_LENGTH[REPLICA_INDEX], REQ_HANDLED_PER_SEC_BY_UI_POD[REPLICA_INDEX])">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <BinaryExpression Operator="+">
-                                                <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                </IndexedIdentifier>
-                                                <FunctionCallExpression FunctionName="\min">
-                                                    <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_UI_POD">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                </FunctionCallExpression>
-                                            </BinaryExpression>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX] = LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] + 1">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <BinaryExpression Operator="+">
-                                                <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                </IndexedIdentifier>
-                                                <IntConstant Value="1"/>
-                                            </BinaryExpression>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-379" Y="-66"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                        </EdgeList>
-                    </Graph>
-                </SimpleComponent>
-                <SimpleComponent Kind="PLANT">
-                    <IndexedIdentifier Name="logic_pod_vertical_autoscaler">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <Graph>
-                        <NodeList>
-                            <SimpleNode Initial="true" Name="working">
-                                <PointGeometry>
-                                    <Point X="304" Y="160"/>
-                                </PointGeometry>
-                                <LabelGeometry Anchor="NW">
-                                    <Point X="17" Y="-6"/>
-                                </LabelGeometry>
-                            </SimpleNode>
-                        </NodeList>
-                        <EdgeList>
-                            <Edge Source="working" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="do_vertical_scaling_ram"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-50" Y="13"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="301" Y="245"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="&lt;" Text="LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] &lt; LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX] - 1">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <BinaryExpression Operator="-">
-                                                <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                </IndexedIdentifier>
-                                                <IntConstant Value="1"/>
-                                            </BinaryExpression>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] = \min(LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] + 1, POD_QUEUE_CAPACITY_MAX)">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                <SimpleIdentifier Name="LOGIC"/>
                                             </IndexedIdentifier>
                                             <FunctionCallExpression FunctionName="\min">
                                                 <BinaryExpression Operator="+">
-                                                    <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
+                                                    <IndexedIdentifier Name="QUEUE_LENGTH">
+                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                        <SimpleIdentifier Name="LOGIC"/>
+                                                    </IndexedIdentifier>
+                                                    <IndexedIdentifier Name="REQUESTS_SENT_TO_LOGIC_POD">
                                                         <SimpleIdentifier Name="REPLICA_INDEX"/>
                                                     </IndexedIdentifier>
-                                                    <IntConstant Value="1"/>
                                                 </BinaryExpression>
-                                                <SimpleIdentifier Name="POD_QUEUE_CAPACITY_MAX"/>
-                                            </FunctionCallExpression>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-280" Y="34"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                            <Edge Source="working" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="do_vertical_scaling_cpu"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-66" Y="-25"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="308" Y="73"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="&lt;" Text="REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX] &lt; LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX]">
-                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX] = \min(REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX] + 1, REQ_HANDLED_PER_SEC_PER_POD_MAX)">
-                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <FunctionCallExpression FunctionName="\min">
                                                 <BinaryExpression Operator="+">
-                                                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
+                                                    <IndexedIdentifier Name="QUEUE_CAPACITY">
                                                         <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                        <SimpleIdentifier Name="LOGIC"/>
                                                     </IndexedIdentifier>
                                                     <IntConstant Value="1"/>
                                                 </BinaryExpression>
-                                                <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD_MAX"/>
                                             </FunctionCallExpression>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-296" Y="-65"/>
+                                        <Point X="-372" Y="34"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
-                            </Edge>
-                            <Edge Source="working" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="do_vertical_scaling_cpu"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="12" Y="6"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="398" Y="164"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="&gt;=" Text="REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX] &gt;= LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX]">
-                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX] = REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX]">
-                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="10" Y="-34"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                            <Edge Source="working" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="do_vertical_scaling_ram"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-178" Y="8"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="220" Y="166"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Guards>
-                                        <BinaryExpression Operator="&gt;=" Text="LOGIC_POD_QUEUE_CAPACITY[REPLICA_INDEX] &gt;= LOGIC_POD_QUEUE_LENGTH[REPLICA_INDEX] - 1">
-                                            <IndexedIdentifier Name="LOGIC_POD_QUEUE_CAPACITY">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <BinaryExpression Operator="-">
-                                                <IndexedIdentifier Name="LOGIC_POD_QUEUE_LENGTH">
-                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                </IndexedIdentifier>
-                                                <IntConstant Value="1"/>
-                                            </BinaryExpression>
-                                        </BinaryExpression>
-                                    </Guards>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX] = REQ_HANDLED_PER_SEC_BY_LOGIC_POD[REPLICA_INDEX]">
-                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_LOGIC_POD">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-738" Y="-33"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                        </EdgeList>
-                    </Graph>
-                </SimpleComponent>
-                <SimpleComponent Kind="PLANT">
-                    <IndexedIdentifier Name="ui_pod">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
-                    <Graph>
-                        <NodeList>
-                            <SimpleNode Initial="true" Name="idle">
-                                <PointGeometry>
-                                    <Point X="272" Y="144"/>
-                                </PointGeometry>
-                                <LabelGeometry Anchor="NW">
-                                    <Point X="23" Y="-15"/>
-                                </LabelGeometry>
-                            </SimpleNode>
-                            <SimpleNode Name="working">
-                                <PointGeometry>
-                                    <Point X="272" Y="464"/>
-                                </PointGeometry>
-                                <LabelGeometry Anchor="NW">
-                                    <Point X="-76" Y="-8"/>
-                                </LabelGeometry>
-                            </SimpleNode>
-                        </NodeList>
-                        <EdgeList>
-                            <Edge Source="idle" Target="working">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="ui_pods_handle_requests"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-179" Y="15"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="236" Y="312"/>
-                                </SplineGeometry>
-                                <GuardActionBlock>
-                                    <Actions>
-                                        <BinaryExpression Operator="=" Text="UI_POD_QUEUE_LENGTH[REPLICA_INDEX] = \max(UI_POD_QUEUE_LENGTH[REPLICA_INDEX] - REQ_HANDLED_PER_SEC_BY_UI_POD[REPLICA_INDEX], 0)">
-                                            <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                            </IndexedIdentifier>
-                                            <FunctionCallExpression FunctionName="\max">
-                                                <BinaryExpression Operator="-">
-                                                    <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_UI_POD">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                </BinaryExpression>
-                                                <IntConstant Value="0"/>
-                                            </FunctionCallExpression>
-                                        </BinaryExpression>
-                                    </Actions>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="-934" Y="-9"/>
-                                    </LabelGeometry>
-                                </GuardActionBlock>
-                            </Edge>
-                            <Edge Source="working" Target="idle">
-                                <LabelBlock>
-                                    <SimpleIdentifier Name="one_second"/>
-                                    <LabelGeometry Anchor="NW">
-                                        <Point X="12" Y="-6"/>
-                                    </LabelGeometry>
-                                </LabelBlock>
-                                <SplineGeometry>
-                                    <Point X="309" Y="312"/>
-                                </SplineGeometry>
                             </Edge>
                         </EdgeList>
                     </Graph>
@@ -1306,98 +729,207 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                                 </EndPointGeometry>
                                 <GuardActionBlock>
                                     <Actions>
-                                        <BinaryExpression Operator="+=" Text="UI_POD_QUEUE_LENGTH[REPLICA_INDEX] += 1">
-                                            <IndexedIdentifier Name="UI_POD_QUEUE_LENGTH">
+                                        <BinaryExpression Operator="+=" Text="QUEUE_LENGTH[REPLICA_INDEX][UI] += 1">
+                                            <IndexedIdentifier Name="QUEUE_LENGTH">
                                                 <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                <SimpleIdentifier Name="UI"/>
                                             </IndexedIdentifier>
                                             <IntConstant Value="1"/>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-120" Y="28"/>
+                                        <Point X="-109" Y="28"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
                         </EdgeList>
                     </Graph>
                 </SimpleComponent>
-                <SimpleComponent Kind="PLANT">
-                    <IndexedIdentifier Name="ui_pod_vertical_autoscaler">
-                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                    </IndexedIdentifier>
+                <SimpleComponent Kind="PLANT" Name="logic_pod">
                     <Graph>
                         <NodeList>
-                            <SimpleNode Initial="true" Name="working">
+                            <SimpleNode Initial="true" Name="idle">
                                 <PointGeometry>
-                                    <Point X="256" Y="208"/>
+                                    <Point X="896" Y="96"/>
                                 </PointGeometry>
                                 <LabelGeometry Anchor="NW">
-                                    <Point X="17" Y="-6"/>
+                                    <Point X="23" Y="-15"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                            <SimpleNode Name="working">
+                                <PointGeometry>
+                                    <Point X="896" Y="416"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="-76" Y="-8"/>
                                 </LabelGeometry>
                             </SimpleNode>
                         </NodeList>
                         <EdgeList>
-                            <Edge Source="working" Target="working">
+                            <Edge Source="idle" Target="working">
                                 <LabelBlock>
-                                    <SimpleIdentifier Name="do_vertical_scaling_ram"/>
+                                    <SimpleIdentifier Name="logic_pods_handle_requests"/>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-50" Y="13"/>
+                                        <Point X="-215" Y="5"/>
                                     </LabelGeometry>
                                 </LabelBlock>
+                                <StartPointGeometry>
+                                    <Point X="896" Y="96"/>
+                                </StartPointGeometry>
                                 <SplineGeometry>
-                                    <Point X="253" Y="293"/>
+                                    <Point X="851" Y="263"/>
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="UI_POD_QUEUE_CAPACITY[REPLICA_INDEX] = \min(UI_POD_QUEUE_CAPACITY[REPLICA_INDEX] + 1, POD_QUEUE_CAPACITY_MAX)">
-                                            <IndexedIdentifier Name="UI_POD_QUEUE_CAPACITY">
+                                        <BinaryExpression Operator="=" Text="QUEUE_LENGTH[REPLICA_INDEX][LOGIC] = \max(QUEUE_LENGTH[REPLICA_INDEX][LOGIC] - REQ_HANDLED_PER_SEC[REPLICA_INDEX][LOGIC], 0)">
+                                            <IndexedIdentifier Name="QUEUE_LENGTH">
                                                 <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                <SimpleIdentifier Name="LOGIC"/>
                                             </IndexedIdentifier>
-                                            <FunctionCallExpression FunctionName="\min">
-                                                <BinaryExpression Operator="+">
-                                                    <IndexedIdentifier Name="UI_POD_QUEUE_CAPACITY">
+                                            <FunctionCallExpression FunctionName="\max">
+                                                <BinaryExpression Operator="-">
+                                                    <IndexedIdentifier Name="QUEUE_LENGTH">
                                                         <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                        <SimpleIdentifier Name="LOGIC"/>
                                                     </IndexedIdentifier>
-                                                    <IntConstant Value="1"/>
+                                                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC">
+                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                        <SimpleIdentifier Name="LOGIC"/>
+                                                    </IndexedIdentifier>
                                                 </BinaryExpression>
-                                                <SimpleIdentifier Name="POD_QUEUE_CAPACITY_MAX"/>
+                                                <IntConstant Value="0"/>
                                             </FunctionCallExpression>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-280" Y="34"/>
+                                        <Point X="-923" Y="-23"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
-                            <Edge Source="working" Target="working">
+                            <Edge Source="working" Target="idle">
                                 <LabelBlock>
-                                    <SimpleIdentifier Name="do_vertical_scaling_cpu"/>
+                                    <SimpleIdentifier Name="one_second"/>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-66" Y="-25"/>
+                                        <Point X="12" Y="-6"/>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
-                                    <Point X="260" Y="121"/>
+                                    <Point X="933" Y="264"/>
                                 </SplineGeometry>
+                            </Edge>
+                        </EdgeList>
+                    </Graph>
+                </SimpleComponent>
+                <SimpleComponent Kind="PLANT" Name="ui_pod">
+                    <Graph>
+                        <NodeList>
+                            <SimpleNode Initial="true" Name="idle">
+                                <PointGeometry>
+                                    <Point X="1024" Y="96"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="23" Y="-15"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                            <SimpleNode Name="working">
+                                <PointGeometry>
+                                    <Point X="1024" Y="448"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="-76" Y="-8"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                            <SimpleNode Name="amount_calculated">
+                                <PointGeometry>
+                                    <Point X="896" Y="240"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="15" Y="-8"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                            <SimpleNode Name="queue_decreased">
+                                <PointGeometry>
+                                    <Point X="896" Y="336"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="14" Y="-10"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                        </NodeList>
+                        <EdgeList>
+                            <Edge Source="idle" Target="amount_calculated">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="ui_pods_handle_requests"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-204" Y="-3"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <EndPointGeometry>
+                                    <Point X="896" Y="240"/>
+                                </EndPointGeometry>
                                 <GuardActionBlock>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="REQ_HANDLED_PER_SEC_BY_UI_POD[REPLICA_INDEX] = \min(REQ_HANDLED_PER_SEC_BY_UI_POD[REPLICA_INDEX] + 1, REQ_HANDLED_PER_SEC_PER_POD_MAX)">
-                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_UI_POD">
+                                        <BinaryExpression Operator="=" Text="REQUESTS_SENT_TO_LOGIC_POD[REPLICA_INDEX] = \min(QUEUE_LENGTH[REPLICA_INDEX][UI], REQ_HANDLED_PER_SEC[REPLICA_INDEX][UI])">
+                                            <IndexedIdentifier Name="REQUESTS_SENT_TO_LOGIC_POD">
                                                 <SimpleIdentifier Name="REPLICA_INDEX"/>
                                             </IndexedIdentifier>
                                             <FunctionCallExpression FunctionName="\min">
-                                                <BinaryExpression Operator="+">
-                                                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC_BY_UI_POD">
-                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                    </IndexedIdentifier>
-                                                    <IntConstant Value="1"/>
-                                                </BinaryExpression>
-                                                <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD_MAX"/>
+                                                <IndexedIdentifier Name="QUEUE_LENGTH">
+                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                    <SimpleIdentifier Name="UI"/>
+                                                </IndexedIdentifier>
+                                                <IndexedIdentifier Name="REQ_HANDLED_PER_SEC">
+                                                    <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                    <SimpleIdentifier Name="UI"/>
+                                                </IndexedIdentifier>
                                             </FunctionCallExpression>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-296" Y="-51"/>
+                                        <Point X="-892" Y="-29"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="working" Target="idle">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="one_second"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="12" Y="-6"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="1065" Y="281"/>
+                                </SplineGeometry>
+                            </Edge>
+                            <Edge Source="queue_decreased" Target="working">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="ui_pods_finished"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-139" Y="-16"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                            </Edge>
+                            <Edge Source="amount_calculated" Target="queue_decreased">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="ui_pods_decrease_queue"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-171" Y="-8"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <GuardActionBlock>
+                                    <Actions>
+                                        <BinaryExpression Operator="-=" Text="QUEUE_LENGTH[REPLICA_INDEX][UI] -= REQUESTS_SENT_TO_LOGIC_POD[REPLICA_INDEX]">
+                                            <IndexedIdentifier Name="QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                <SimpleIdentifier Name="UI"/>
+                                            </IndexedIdentifier>
+                                            <IndexedIdentifier Name="REQUESTS_SENT_TO_LOGIC_POD">
+                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                            </IndexedIdentifier>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-563" Y="-29"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -1481,7 +1013,7 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                                         <SimpleIdentifier Name="REPLICA_INDEX"/>
                                     </IndexedIdentifier>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="14" Y="-5"/>
+                                        <Point X="18" Y="-10"/>
                                     </LabelGeometry>
                                 </LabelBlock>
                                 <SplineGeometry>
@@ -1498,95 +1030,197 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                                         </BinaryExpression>
                                     </Guards>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="14" Y="-26"/>
+                                        <Point X="16" Y="-30"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
                         </EdgeList>
                     </Graph>
                 </SimpleComponent>
+                <VariableComponent>
+                    <IndexedIdentifier Name="REQUESTS_SENT_TO_LOGIC_POD">
+                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                    </IndexedIdentifier>
+                    <VariableRange>
+                        <BinaryExpression Operator="..">
+                            <IntConstant Value="0"/>
+                            <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD_MAX"/>
+                        </BinaryExpression>
+                    </VariableRange>
+                    <VariableInitial>
+                        <BinaryExpression Operator="==" Text="REQUESTS_SENT_TO_LOGIC_POD[REPLICA_INDEX] == 0">
+                            <IndexedIdentifier Name="REQUESTS_SENT_TO_LOGIC_POD">
+                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                            </IndexedIdentifier>
+                            <IntConstant Value="0"/>
+                        </BinaryExpression>
+                    </VariableInitial>
+                </VariableComponent>
                 <ForeachComponent Name="POD_TYPE">
                     <EnumSetExpression>
                         <SimpleIdentifier Name="UI"/>
                         <SimpleIdentifier Name="LOGIC"/>
                     </EnumSetExpression>
                     <ComponentList>
-                        <SimpleComponent Kind="PLANT">
-                            <IndexedIdentifier Name="pod">
+                        <SimpleComponent Kind="PROPERTY">
+                            <IndexedIdentifier Name="availability">
                                 <SimpleIdentifier Name="REPLICA_INDEX"/>
                                 <SimpleIdentifier Name="POD_TYPE"/>
                             </IndexedIdentifier>
                             <Graph>
                                 <NodeList>
-                                    <SimpleNode Initial="true" Name="idle">
+                                    <SimpleNode Initial="true" Name="checking">
                                         <PointGeometry>
-                                            <Point X="208" Y="256"/>
+                                            <Point X="320" Y="176"/>
                                         </PointGeometry>
                                         <LabelGeometry Anchor="NW">
-                                            <Point X="23" Y="-15"/>
-                                        </LabelGeometry>
-                                    </SimpleNode>
-                                    <SimpleNode Name="working">
-                                        <PointGeometry>
-                                            <Point X="208" Y="576"/>
-                                        </PointGeometry>
-                                        <LabelGeometry Anchor="NW">
-                                            <Point X="-76" Y="-8"/>
+                                            <Point X="16" Y="-8"/>
                                         </LabelGeometry>
                                     </SimpleNode>
                                 </NodeList>
                                 <EdgeList>
-                                    <Edge Source="idle" Target="working">
+                                    <Edge Source="checking" Target="checking">
                                         <LabelBlock>
-                                            <SimpleIdentifier Name="logic_pods_handle_requests"/>
+                                            <IndexedIdentifier Name="slo_check">
+                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                            </IndexedIdentifier>
                                             <LabelGeometry Anchor="NW">
-                                                <Point X="-190" Y="14"/>
+                                                <Point X="-74" Y="10"/>
                                             </LabelGeometry>
                                         </LabelBlock>
                                         <SplineGeometry>
-                                            <Point X="172" Y="424"/>
+                                            <Point X="321" Y="254"/>
                                         </SplineGeometry>
                                         <GuardActionBlock>
-                                            <Actions>
-                                                <BinaryExpression Operator="=" Text="QUEUE_LENGTH[REPLICA_INDEX][POD_TYPE] = \max(QUEUE_LENGTH[REPLICA_INDEX][POD_TYPE] - REQ_HANDLED_PER_SEC[REPLICA_INDEX][POD_TYPE], 0)">
+                                            <Guards>
+                                                <BinaryExpression Operator="&lt;=" Text="QUEUE_LENGTH[REPLICA_INDEX][POD_TYPE] &lt;= QUEUE_CAPACITY[REPLICA_INDEX][POD_TYPE]">
                                                     <IndexedIdentifier Name="QUEUE_LENGTH">
                                                         <SimpleIdentifier Name="REPLICA_INDEX"/>
                                                         <SimpleIdentifier Name="POD_TYPE"/>
                                                     </IndexedIdentifier>
-                                                    <FunctionCallExpression FunctionName="\max">
-                                                        <BinaryExpression Operator="-">
-                                                            <IndexedIdentifier Name="QUEUE_LENGTH">
-                                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                                <SimpleIdentifier Name="POD_TYPE"/>
-                                                            </IndexedIdentifier>
-                                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC">
-                                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
-                                                                <SimpleIdentifier Name="POD_TYPE"/>
-                                                            </IndexedIdentifier>
-                                                        </BinaryExpression>
-                                                        <IntConstant Value="0"/>
-                                                    </FunctionCallExpression>
+                                                    <IndexedIdentifier Name="QUEUE_CAPACITY">
+                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                        <SimpleIdentifier Name="POD_TYPE"/>
+                                                    </IndexedIdentifier>
                                                 </BinaryExpression>
-                                            </Actions>
+                                            </Guards>
                                             <LabelGeometry Anchor="NW">
-                                                <Point X="-968" Y="-11"/>
+                                                <Point X="-241" Y="31"/>
                                             </LabelGeometry>
                                         </GuardActionBlock>
-                                    </Edge>
-                                    <Edge Source="working" Target="idle">
-                                        <LabelBlock>
-                                            <SimpleIdentifier Name="one_second"/>
-                                            <LabelGeometry Anchor="NW">
-                                                <Point X="12" Y="-6"/>
-                                            </LabelGeometry>
-                                        </LabelBlock>
-                                        <SplineGeometry>
-                                            <Point X="245" Y="424"/>
-                                        </SplineGeometry>
                                     </Edge>
                                 </EdgeList>
                             </Graph>
                         </SimpleComponent>
+                        <SimpleComponent Kind="PLANT">
+                            <IndexedIdentifier Name="vertical_autoscaler">
+                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                <SimpleIdentifier Name="POD_TYPE"/>
+                            </IndexedIdentifier>
+                            <Graph>
+                                <NodeList>
+                                    <SimpleNode Initial="true" Name="working">
+                                        <PointGeometry>
+                                            <Point X="160" Y="336"/>
+                                        </PointGeometry>
+                                        <LabelGeometry Anchor="NW">
+                                            <Point X="17" Y="-6"/>
+                                        </LabelGeometry>
+                                    </SimpleNode>
+                                </NodeList>
+                                <EdgeList>
+                                    <Edge Source="working" Target="working">
+                                        <LabelBlock>
+                                            <SimpleIdentifier Name="do_vertical_scaling_ram"/>
+                                            <LabelGeometry Anchor="NW">
+                                                <Point X="-50" Y="13"/>
+                                            </LabelGeometry>
+                                        </LabelBlock>
+                                        <SplineGeometry>
+                                            <Point X="157" Y="421"/>
+                                        </SplineGeometry>
+                                        <GuardActionBlock>
+                                            <Actions>
+                                                <BinaryExpression Operator="=" Text="QUEUE_CAPACITY[REPLICA_INDEX][POD_TYPE] = \min(QUEUE_CAPACITY[REPLICA_INDEX][POD_TYPE] + 1, POD_QUEUE_CAPACITY_MAX)">
+                                                    <IndexedIdentifier Name="QUEUE_CAPACITY">
+                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                        <SimpleIdentifier Name="POD_TYPE"/>
+                                                    </IndexedIdentifier>
+                                                    <FunctionCallExpression FunctionName="\min">
+                                                        <BinaryExpression Operator="+">
+                                                            <IndexedIdentifier Name="QUEUE_CAPACITY">
+                                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                                <SimpleIdentifier Name="POD_TYPE"/>
+                                                            </IndexedIdentifier>
+                                                            <IntConstant Value="1"/>
+                                                        </BinaryExpression>
+                                                        <SimpleIdentifier Name="POD_QUEUE_CAPACITY_MAX"/>
+                                                    </FunctionCallExpression>
+                                                </BinaryExpression>
+                                            </Actions>
+                                            <LabelGeometry Anchor="NW">
+                                                <Point X="-280" Y="34"/>
+                                            </LabelGeometry>
+                                        </GuardActionBlock>
+                                    </Edge>
+                                    <Edge Source="working" Target="working">
+                                        <LabelBlock>
+                                            <SimpleIdentifier Name="do_vertical_scaling_cpu"/>
+                                            <LabelGeometry Anchor="NW">
+                                                <Point X="-66" Y="-25"/>
+                                            </LabelGeometry>
+                                        </LabelBlock>
+                                        <SplineGeometry>
+                                            <Point X="164" Y="249"/>
+                                        </SplineGeometry>
+                                        <GuardActionBlock>
+                                            <Actions>
+                                                <BinaryExpression Operator="=" Text="REQ_HANDLED_PER_SEC[REPLICA_INDEX][POD_TYPE] = \min(REQ_HANDLED_PER_SEC[REPLICA_INDEX][POD_TYPE] + 1, REQ_HANDLED_PER_SEC_PER_POD_MAX)">
+                                                    <IndexedIdentifier Name="REQ_HANDLED_PER_SEC">
+                                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                        <SimpleIdentifier Name="POD_TYPE"/>
+                                                    </IndexedIdentifier>
+                                                    <FunctionCallExpression FunctionName="\min">
+                                                        <BinaryExpression Operator="+">
+                                                            <IndexedIdentifier Name="REQ_HANDLED_PER_SEC">
+                                                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                                                <SimpleIdentifier Name="POD_TYPE"/>
+                                                            </IndexedIdentifier>
+                                                            <IntConstant Value="1"/>
+                                                        </BinaryExpression>
+                                                        <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD_MAX"/>
+                                                    </FunctionCallExpression>
+                                                </BinaryExpression>
+                                            </Actions>
+                                            <LabelGeometry Anchor="NW">
+                                                <Point X="-296" Y="-51"/>
+                                            </LabelGeometry>
+                                        </GuardActionBlock>
+                                    </Edge>
+                                </EdgeList>
+                            </Graph>
+                        </SimpleComponent>
+                        <VariableComponent>
+                            <IndexedIdentifier Name="QUEUE_CAPACITY">
+                                <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                <SimpleIdentifier Name="POD_TYPE"/>
+                            </IndexedIdentifier>
+                            <VariableRange>
+                                <BinaryExpression Operator="..">
+                                    <IntConstant Value="0"/>
+                                    <SimpleIdentifier Name="POD_QUEUE_CAPACITY_MAX"/>
+                                </BinaryExpression>
+                            </VariableRange>
+                            <VariableInitial>
+                                <BinaryExpression Operator="==" Text="QUEUE_CAPACITY[REPLICA_INDEX][POD_TYPE] == POD_QUEUE_CAPACITY_INITIAL">
+                                    <IndexedIdentifier Name="QUEUE_CAPACITY">
+                                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                                        <SimpleIdentifier Name="POD_TYPE"/>
+                                    </IndexedIdentifier>
+                                    <SimpleIdentifier Name="POD_QUEUE_CAPACITY_INITIAL"/>
+                                </BinaryExpression>
+                            </VariableInitial>
+                        </VariableComponent>
                         <VariableComponent>
                             <IndexedIdentifier Name="QUEUE_LENGTH">
                                 <SimpleIdentifier Name="REPLICA_INDEX"/>
