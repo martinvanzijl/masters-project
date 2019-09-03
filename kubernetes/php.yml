@@ -1,0 +1,165 @@
+# CONFIG MAP
+# From https://matthewpalmer.net/kubernetes-app-developer/articles/php-fpm-nginx-kubernetes.html
+#
+# First, create a ConfigMap whose contents are used
+# as the nginx.conf file in the web server. 
+# This server uses /var/www/html as its
+# root document directory. When the server gets a 
+# request for *.php, it will forward that request
+# to our PHP-FPM container.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    events {
+    }
+    http {
+      server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        
+        # Set nginx to serve files from the shared volume!
+        root /var/www/html;
+        server_name _;
+        location / {
+          try_files $uri $uri/ =404;
+        }
+        location ~ \.php$ {
+          include fastcgi_params;
+          fastcgi_param REQUEST_METHOD $request_method;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          fastcgi_pass 127.0.0.1:9000;
+        }
+      }
+    }
+---
+# POD
+# From https://matthewpalmer.net/kubernetes-app-developer/articles/php-fpm-nginx-kubernetes.html
+#
+# Create a pod containing the PHP-FPM application (my-php-app)
+# and nginx, each mounting the `shared-files` volume to their
+# respective /var/www/html directories.
+kind: Pod
+apiVersion: v1
+metadata:
+  name: phpfpm-nginx-example
+spec:
+  volumes:
+    # Create the shared files volume to be used in both pods
+    - name: shared-files
+      emptyDir: {}
+    
+    # Add the ConfigMap we declared above as a volume for the pod
+    - name: nginx-config-volume
+      configMap:
+        name: nginx-config
+
+  containers:
+    # Our PHP-FPM application
+    - image: my-php-app:1.0.0
+      name: app
+      volumeMounts:
+        - name: shared-files
+          mountPath: /var/www/html
+      # Important! After this container has started, the PHP files
+      # in our Docker image aren't in the shared volume. We need to 
+      # get them into the shared volume. If we tried to write directly
+      # to this volume from our Docker image the files wouldn't appear
+      # in the nginx container.
+      #
+      # So, after the container has started, copy the PHP files from this
+      # container's local filesystem (/app -- added via the Docker image) 
+      # to the shared volume, which is mounted at /var/www/html.
+      lifecycle:
+        postStart:
+          exec:
+            command: ["/bin/sh", "-c", "cp -r /app/. /var/www/html"]
+    
+    # Our nginx container, which uses the configuration declared above,
+    # along with the files shared with the PHP-FPM app.
+    - image: nginx:1.7.9
+      name: nginx
+      volumeMounts:
+        - name: shared-files
+          mountPath: /var/www/html
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/nginx.conf
+subPath: nginx.conf
+---
+# RESOURCE QUOTA
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: nginx-quota
+spec:
+  hard:
+    pods: "4"
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: nginx
+  type: NodePort
+---
+# DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx	
+        image: nginx:1.15.6
+        resources:
+          requests:
+            cpu: "25m"
+            memory: "25Mi"
+          limits:
+            cpu: "40m"
+            memory: "50Mi"
+        ports:
+        - containerPort: 80
+          name: nginx
+---
+# AUTO-SCALING POLICY
+apiVersion: v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-deployment
+  namespace: nginx-namespace
+spec:
+  minReplicas: 2
+  maxReplicas: 4
+  metrics:
+  - resource:
+    name: cpu
+      target:
+        averageUtilization: 50
+        type: Utilization
+      type: Resource
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: nginx-deployment
