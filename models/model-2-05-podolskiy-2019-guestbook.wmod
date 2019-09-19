@@ -745,7 +745,10 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                         </EdgeList>
                     </Graph>
                 </SimpleComponent>
-                <SimpleComponent Kind="PLANT" Name="logic_pod">
+                <SimpleComponent Kind="PLANT">
+                    <IndexedIdentifier Name="logic_pod">
+                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                    </IndexedIdentifier>
                     <Graph>
                         <NodeList>
                             <SimpleNode Initial="true" Name="idle">
@@ -820,7 +823,10 @@ Currently only the UI pods have their own vertical scalers, but the logic pods n
                         </EdgeList>
                     </Graph>
                 </SimpleComponent>
-                <SimpleComponent Kind="PLANT" Name="ui_pod">
+                <SimpleComponent Kind="PLANT">
+                    <IndexedIdentifier Name="ui_pod">
+                        <SimpleIdentifier Name="REPLICA_INDEX"/>
+                    </IndexedIdentifier>
                     <Graph>
                         <NodeList>
                             <SimpleNode Initial="true" Name="idle">
