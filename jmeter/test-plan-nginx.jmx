@@ -118,7 +118,8 @@
               <assertionsResultsToSave>0</assertionsResultsToSave>
             </value>
           </objProp>
-          <stringProp name="filename">/home/mv22/Downloads/apache-jmeter-5.1.1/results/results-table.csv</stringProp>
+          <stringProp name="filename">/home/mv22/Desktop/results/table.csv</stringProp>
+          <stringProp name="TestPlan.comments">Write the results to a file.</stringProp>
         </ResultCollector>
         <hashTree/>
         <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">
@@ -127,17 +128,17 @@
             <name>saveConfig</name>
             <value class="SampleSaveConfiguration">
               <time>true</time>
-              <latency>true</latency>
+              <latency>false</latency>
               <timestamp>true</timestamp>
               <success>true</success>
-              <label>true</label>
+              <label>false</label>
               <code>true</code>
               <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
+              <threadName>false</threadName>
+              <dataType>false</dataType>
               <encoding>false</encoding>
               <assertions>true</assertions>
-              <subresults>true</subresults>
+              <subresults>false</subresults>
               <responseData>false</responseData>
               <samplerData>false</samplerData>
               <xml>false</xml>
@@ -145,17 +146,13 @@
               <responseHeaders>false</responseHeaders>
               <requestHeaders>false</requestHeaders>
               <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
               <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
               <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
             </value>
           </objProp>
-          <stringProp name="filename">/home/mv22/Downloads/apache-jmeter-5.1.1/results/results-table.xml</stringProp>
+          <stringProp name="filename">/home/mv22/Desktop/results/report.xml</stringProp>
+          <stringProp name="TestPlan.comments">Create a report for quick viewing.</stringProp>
         </ResultCollector>
         <hashTree/>
       </hashTree>
