@@ -38,7 +38,7 @@ for ((scale_cpu = 10; scale_cpu <= 100; scale_cpu += 10))
 do
     echo "Testing scale_cpu $scale_cpu"
     echo "Test with SCALE_CPU_THRESHOLD = $scale_cpu" >> $OUTPUT_FILE
-    ./wcheck -native -lang -q -SCALE_CPU_THRESHOLD=$scale_cpu ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
+    ./wcheck -bdd -lang -q -DSCALE_CPU_THRESHOLD=$scale_cpu ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
 done
 
 # Go back to the previous directory.
