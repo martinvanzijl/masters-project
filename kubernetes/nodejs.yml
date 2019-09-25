@@ -1,4 +1,4 @@
-#--- RESOURCE QUOTA
+# RESOURCE QUOTA
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -6,7 +6,8 @@ metadata:
 spec:
   hard:
     pods: "4"	# Use a maximum of 4 pods.
-#--- DEPLOYMENT
+---
+# DEPLOYMENT
 apiVersion: apps/v1	# Kubernetes API version.
 kind: Deployment	# This is a deployment.
 metadata:
@@ -36,7 +37,8 @@ spec:
           ports:
             - containerPort: 8080
               name: nodejs
-#--- SERVICE
+---
+# SERVICE
 apiVersion: v1	# Kubernetes API version.
 kind: Service	# This is a service.
 metadata:

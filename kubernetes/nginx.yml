@@ -1,4 +1,4 @@
-#--- RESOURCE QUOTA
+# RESOURCE QUOTA
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -6,7 +6,8 @@ metadata:
 spec:
   hard:
     pods: "4"	# Use a maximum of 4 pods.
-#--- SERVICE
+---
+# SERVICE
 apiVersion: v1	# Kubernetes API version.
 kind: Service	# This is a service
 metadata:
@@ -20,7 +21,8 @@ spec:
   selector:
     app: nginx		# What is a "selector"?
   type: NodePort	# Use a fixed port. "LoadBalancer" does not seem to work.
-#--- DEPLOYMENT
+---
+# DEPLOYMENT
 apiVersion: apps/v1	# Kubernetes API version.
 kind: Deployment	# This is a deployment.
 metadata:
@@ -50,7 +52,8 @@ spec:
         ports:
         - containerPort: 80
           name: nginx
-#--- AUTO-SCALING POLICY
+---
+# AUTO-SCALING POLICY
 apiVersion: v1
 kind: HorizontalPodAutoscaler
 metadata:
@@ -70,4 +73,3 @@ spec:
     apiVersion: extensions/v1beta1
     kind: Deployment
     name: nginx-deployment
-
