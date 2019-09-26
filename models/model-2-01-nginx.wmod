@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Module Name="model-2-01-ngix" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+<Module Name="model-2-01-nginx" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
     <ns2:Comment>=== Description ===
 
 This model represents the NGNIX cloud deployed using Kubernetes and Vagrant on the University lab computer ("Donner"). I used "1-35C" as a starting point. 
@@ -64,12 +64,12 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 
 You can see "nginx.yaml" for the full Kubernetes specification.</ns2:Comment>
     <ConstantAliasList>
-        <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_REQUESTS_PER_SECOND">
             <ConstantAliasExpression>
                 <IntConstant Value="500"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="PODS_INITIALLY_ON">
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="PODS_INITIALLY_ON">
             <ConstantAliasExpression>
                 <IntConstant Value="2"/>
             </ConstantAliasExpression>
@@ -79,7 +79,7 @@ You can see "nginx.yaml" for the full Kubernetes specification.</ns2:Comment>
                 <IntConstant Value="1"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="POD_MAX">
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="POD_MAX">
             <ConstantAliasExpression>
                 <IntConstant Value="4"/>
             </ConstantAliasExpression>
@@ -99,7 +99,7 @@ You can see "nginx.yaml" for the full Kubernetes specification.</ns2:Comment>
                 <IntConstant Value="1"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="SCALE_CPU_THRESHOLD">
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="SCALE_CPU_THRESHOLD">
             <ConstantAliasExpression>
                 <IntConstant Value="50"/>
             </ConstantAliasExpression>

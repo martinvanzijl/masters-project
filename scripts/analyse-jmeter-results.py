@@ -1,11 +1,14 @@
 #!/usr/bin/python
 
 # Analyze the results from JMeter.
-# At the moment this just checks how many samples were sent each second, so that I can
-# put this in my WATERS model.
+# Reports:
+# 1) How many samples were sent each second, so that I can
+# put this in the WATERS model.
+# 2) Whether the SLO was met. 
 
 # Import modules.
 import csv
+import sys
 from datetime import datetime
 
 # Sample rate dictionary.
@@ -17,8 +20,25 @@ ERRORS_INDEX = 1
 # Column definitions.
 COLUMN_SUCCESS = 4
 
+# Globals.
+total_requests = 0
+total_failures = 0
+
+# Function to read argument.
+def read_arg(number, default):
+    if len(sys.argv) > number:
+        return sys.argv[number]
+    else:
+        return default
+
+# Read arguments.
+input_file_name     = read_arg(1, "results-table.csv")
+output_file_name    = read_arg(2, "output.csv")
+trial_number        = int(read_arg(3, "1"))
+max_error_rate_slo  = int(read_arg(4, "0"))
+
 # Open the file.
-with open('../results/results-table.csv') as csv_file:
+with open(input_file_name) as csv_file:
 	csv_reader = csv.reader(csv_file, delimiter=',')
 	line_count = 0
 	for row in csv_reader:
@@ -27,7 +47,9 @@ with open('../results/results-table.csv') as csv_file:
 			#print('Column names are', row)
 			line_count = line_count + 1
 		else:
+			# Body row.
 			# Get timestamp (first field).
+			total_requests += 1
 			timestamp_string = row[0]
 			timestamp_number = int(timestamp_string)
 			# Convert from ms to seconds
@@ -44,9 +66,10 @@ with open('../results/results-table.csv') as csv_file:
 			success = row[COLUMN_SUCCESS]
 			if success == "false":
 				samples[dt_object][ERRORS_INDEX] += 1
+				total_failures += 1
 
 # Open output file.
-output_file = open("output.csv", "w")
+output_file = open(output_file_name, "w")
 csv_writer = csv.writer(output_file)
 
 # Write results.
@@ -61,3 +84,17 @@ for key in sorted(samples):
 # Close output file.
 output_file.close()
 
+# Calculate statistics and SLA compliance.
+if total_requests == 0:
+    error_rate = "N/A"
+    meets_sla = "N/A"
+else:
+    error_rate = total_requests / total_failures * 100
+    meets_sla = error_rate <= max_error_rate_slo
+
+# Write overall statistics.
+print "Trial #:", trial_number
+print "Total requests:", total_requests
+print "Total failures:", total_failures
+print "Error rate:", error_rate, "%"
+print "Meets SLA?:", meets_sla
