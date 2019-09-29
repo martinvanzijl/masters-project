@@ -32,10 +32,11 @@ def read_arg(number, default):
         return default
 
 # Read arguments.
-input_file_name     = read_arg(1, "results-table.csv")
-output_file_name    = read_arg(2, "output.csv")
-trial_number        = int(read_arg(3, "1"))
+input_file_name     = read_arg(1, "/home/mv22/Desktop/results/table.csv")
+output_file_name    = read_arg(2, "/home/mv22/Desktop/results/output.csv")
+trial_number        = read_arg(3, "1")
 max_error_rate_slo  = int(read_arg(4, "0"))
+summary_file_name  	= read_arg(5, "/home/mv22/Desktop/results/summary.csv")
 
 # Open the file.
 with open(input_file_name) as csv_file:
@@ -89,12 +90,25 @@ if total_requests == 0:
     error_rate = "N/A"
     meets_sla = "N/A"
 else:
-    error_rate = total_requests / total_failures * 100
+    error_rate = float(total_failures) / float(total_requests) * 100
     meets_sla = error_rate <= max_error_rate_slo
+
+total_seconds = len(samples)
+if total_seconds == 0:
+	average_requests_per_second = "N/A"
+else:
+	average_requests_per_second = total_requests / total_seconds
 
 # Write overall statistics.
 print "Trial #:", trial_number
 print "Total requests:", total_requests
 print "Total failures:", total_failures
-print "Error rate:", error_rate, "%"
+print "Error rate:", int(error_rate), "%"
 print "Meets SLA?:", meets_sla
+print "Average requests per second:", average_requests_per_second
+
+# Add them to the file.
+summary_file = open(summary_file_name, "a")
+summary_file.write(str(meets_sla) + "," + str(total_requests) + "," + str(total_failures) + "," + str(int(error_rate)) + "%" + "," + str(max_error_rate_slo) + "\n")
+summary_file.close()
+

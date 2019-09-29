@@ -21,7 +21,7 @@
         <stringProp name="ThreadGroup.num_threads">1000</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">60</stringProp>
+        <stringProp name="ThreadGroup.duration">${__P(duration_in_seconds,60)}</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <stringProp name="TestPlan.comments">The users which will make requests to the cloud.</stringProp>
       </ThreadGroup>
@@ -82,11 +82,7 @@
         </hashTree>
         <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
           <intProp name="calcMode">1</intProp>
-          <doubleProp>
-            <name>throughput</name>
-            <value>24000.0</value>
-            <savedValue>0.0</savedValue>
-          </doubleProp>
+          <stringProp name="throughput">${__P(max_rpm,24000.0)}</stringProp>
           <stringProp name="TestPlan.comments">Try to send 1000 requests per second.</stringProp>
         </ConstantThroughputTimer>
         <hashTree/>
@@ -118,7 +114,7 @@
               <assertionsResultsToSave>0</assertionsResultsToSave>
             </value>
           </objProp>
-          <stringProp name="filename">/home/mv22/Desktop/results/table.csv</stringProp>
+          <stringProp name="filename">${__P(output_csv_file,/home/mv22/Desktop/results/results.csv)}</stringProp>
           <stringProp name="TestPlan.comments">Write the results to a file.</stringProp>
         </ResultCollector>
         <hashTree/>
@@ -151,7 +147,7 @@
               <idleTime>true</idleTime>
             </value>
           </objProp>
-          <stringProp name="filename">/home/mv22/Desktop/results/report.xml</stringProp>
+          <stringProp name="filename">${__P(output_report_file,/home/mv22/Desktop/results/report.xml)}</stringProp>
           <stringProp name="TestPlan.comments">Create a report for quick viewing.</stringProp>
         </ResultCollector>
         <hashTree/>
