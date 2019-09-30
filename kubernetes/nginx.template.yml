@@ -5,7 +5,7 @@ metadata:
   name: nginx-quota
 spec:
   hard:
-    pods: "4" # Use a maximum of 4 pods.
+    pods: "{{max_pods}}" # Use a maximum of 4 pods.
 ---
 # SERVICE
 apiVersion: v1
@@ -30,7 +30,7 @@ metadata:
   labels:
     app: nginx
 spec:
-  replicas: 2
+  replicas: {{starting_pods}}
   selector:
     matchLabels:
       app: nginx
@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
       - name: nginx # Container name.
-        image: nginx:1.15.6	# Image (application).
+        image: nginx:1.15.6 # Image (application).
         resources:
           requests:
             cpu: "25m" # Use a minimum of 25 milli-CPUs.
@@ -64,7 +64,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: nginx-deployment
-  minReplicas: 2 # Scale down to a minimum of 2 pods.
-  maxReplicas: 4 # Scale up to a maximum of 4 pods.
-  targetCPUUtilizationPercentage: 50
+  minReplicas: {{min_pods}}
+  maxReplicas: {{max_pods}}
+  targetCPUUtilizationPercentage: {{scale_cpu_threshold}}
 

@@ -100,12 +100,12 @@ else:
 	average_requests_per_second = total_requests / total_seconds
 
 # Write overall statistics.
-print "Trial #:", trial_number
-print "Total requests:", total_requests
-print "Total failures:", total_failures
-print "Error rate:", int(error_rate), "%"
-print "Meets SLA?:", meets_sla
-print "Average requests per second:", average_requests_per_second
+#print "Trial #:", trial_number
+#print "Total requests:", total_requests
+#print "Total failures:", total_failures
+#print "Error rate:", int(error_rate), "%"
+#print "Meets SLA?:", meets_sla
+#print "Average requests per second:", average_requests_per_second
 
 # Add them to the file.
 summary_file = open(summary_file_name, "a")
