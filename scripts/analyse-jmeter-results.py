@@ -104,11 +104,11 @@ else:
 #print "Total requests:", total_requests
 #print "Total failures:", total_failures
 #print "Error rate:", int(error_rate), "%"
-#print "Meets SLA?:", meets_sla
+print "*** Meets SLA?:", meets_sla, "***"
 #print "Average requests per second:", average_requests_per_second
 
 # Add them to the file.
 summary_file = open(summary_file_name, "a")
-summary_file.write(str(meets_sla) + "," + str(total_requests) + "," + str(total_failures) + "," + str(int(error_rate)) + "%" + "," + str(max_error_rate_slo) + "\n")
+summary_file.write(str(meets_sla) + "," + str(total_requests) + "," + str(total_failures) + "," + str(int(error_rate)) + "%" + "," + str(max_error_rate_slo) + "," + str(average_requests_per_second) + "\n")
 summary_file.close()
 
