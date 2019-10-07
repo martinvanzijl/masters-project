@@ -51,13 +51,16 @@ fi
 	#done
 #done
 
-for ((pod_max = 1; pod_max <= 1; pod_max += 1))
+for ((pod_max = 2; pod_max <= 2; pod_max += 1))
 do
-	for ((max_rps = 100; max_rps <= 400; max_rps += 100))
+	for ((scale_cpu = 25; scale_cpu <= 100; scale_cpu += 25))
 	do
-    	echo "Testing pod_max $pod_max and max_rps=$max_rps..."
-    	echo "Test with POD_MAX = $pod_max" >> $OUTPUT_FILE
-    	./wcheck -bdd -lang -q -DMAX_REQUESTS_PER_SECOND=$max_rps -DPOD_MAX=$pod_max ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
+		for ((max_rps = 400; max_rps <= 400; max_rps += 100))
+		do
+			echo "Testing pod_max=$pod_max, scale_cpu=$scale_cpu, max_rps=$max_rps..."
+			#echo "Test with POD_MAX = $pod_max" >> $OUTPUT_FILE
+			./wcheck -bdd -lang -q -DMAX_REQUESTS_PER_SECOND=$max_rps -DPOD_MAX=$pod_max -DSCALE_CPU_THRESHOLD=$scale_cpu ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
+		done
 	done
 done
 

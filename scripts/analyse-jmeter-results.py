@@ -110,7 +110,7 @@ print "*** Meets SLA?:", meets_sla, "***"
 # Add them to the file.
 summary_file = open(summary_file_name, "a")
 csv_writer = csv.writer(summary_file)
-csv_writer.writerow([meets_sla, total_requests, total_failures, error_rate/100.0, max_error_rate_slo/100.0, average_requests_per_second])
+csv_writer.writerow([int(meets_sla), total_requests, total_failures, error_rate/100.0, max_error_rate_slo/100.0, average_requests_per_second])
 #summary_file.write(str(meets_sla) + "," + str(total_requests) + "," + str(total_failures) + "," + str(int(error_rate)) + "%" + "," + str(max_error_rate_slo) + "," + str(average_requests_per_second) + "\n")
 summary_file.close()
 
