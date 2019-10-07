@@ -2,8 +2,8 @@
 # To be run on the lab PC.
 
 # Trials
-TRIALS_PER_TEST_CASE=2
-MINUTES_PER_TRIAL=1
+TRIALS_PER_TEST_CASE=5
+MINUTES_PER_TRIAL=2
 
 # SLA
 MAX_ERROR_RATE_PERCENT=1
@@ -12,7 +12,7 @@ MAX_ERROR_RATE_PERCENT=1
 MIN_REPLICAS=1
 MAX_REPLICAS_DEFAULT=4
 STARTING_REPLICAS=1
-CPU_SCALE_THRESHOLD_DEFAULT=50
+CPU_SCALE_THRESHOLD_DEFAULT=80
 
 # Files.
 OVERALL_RESULTS_FILE="/home/mv22/Desktop/results/overall-results.csv"
@@ -32,12 +32,12 @@ MAX_RPS_MAX=400
 MAX_RPS_INC=100
 
 MAX_REPLICAS_MIN=1
-MAX_REPLICAS_MAX=4
+MAX_REPLICAS_MAX=1
 MAX_REPLICAS_INC=1
 
 # Calculate duration.
-#duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
-duration_in_seconds=10
+duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
+#duration_in_seconds=10
 
 # Calculate total test cases.
 TOTAL_TEST_CASES=$(( ((CPU_SCALE_THRESHOLD_MAX-CPU_SCALE_THRESHOLD_MIN)/CPU_SCALE_THRESHOLD_INC + 1) * ((MAX_RPS_MAX-MAX_RPS_MIN)/MAX_RPS_INC + 1) * ((MAX_REPLICAS_MAX-MAX_REPLICAS_MIN)/MAX_REPLICAS_INC + 1) ))
@@ -48,7 +48,7 @@ test_case_number=0
 mv /home/mv22/Desktop/results/*.* /home/mv22/Desktop/results/archive/
 
 # Prepare summary file.
-echo "Trial Duration (s),Samples per Minute (max_rpm),Samples per Second,Min Pods (minReplicas),Max Pods (maxReplicas),Initial Pods (replicas),Scale CPU Threshold (averageUtilization),Meets SLO,Total Requests,Total Failures,Failure Rate,Max Failure Rate (SLO),Actual Avg. Samples per Second" > $OVERALL_RESULTS_FILE
+echo "Trial Duration (s),Start,End,Samples per Min.,Samples per Sec.,Min Pods,Max Pods,Initial Pods,Scale CPU Threshold,Meets SLO,Total Requests,Total Failures,Failure Rate,Max Failure Rate (SLO),Actual Avg. Samples per Sec." > $OVERALL_RESULTS_FILE
 
 # Go to JMeter directory
 pushd ~/Desktop/apache-jmeter-5.1.1/bin
@@ -61,14 +61,14 @@ do
 	do
 		# Configure the cluster.
 		ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS"
-		sleep $WAITING_TIME_AFTER_CONFIGURING_CLUSTER
+		#sleep $WAITING_TIME_AFTER_CONFIGURING_CLUSTER
 
 		# Loop through values for requests per second.
 		for((max_rps=$MAX_RPS_MIN;max_rps<=$MAX_RPS_MAX;max_rps+=$MAX_RPS_INC))
 		do
 			# Print information.
 			test_case_number=$((test_case_number+1))
-			echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: cpu=$cpu_scale_threshold and rps=$max_rps..."
+			echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: cpu=$cpu_scale_threshold, max_replicas=$max_replicas, rps=$max_rps..."
 
 			# Estimate time left.
 			awk "BEGIN {printf \"About %.1f minutes to go...\n\", ($TOTAL_TEST_CASES - $test_case_number + 1)*$MINUTES_PER_TEST_CASE}"
@@ -88,16 +88,27 @@ do
 
 				echo "Running trial number #$trial_number/$TRIALS_PER_TEST_CASE..."
 
+				# Wait for cluster to be ready.
+				echo "Waiting for cluster to be ready..."
+				ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS"
+				echo "Cluster is ready..."
+
+				# Calculate start time.
+				trial_start_time=`date +"%Y-%m-%d %H:%M:%S"`
+
 				# Run a single JMeter test.
 				# -l ~/Desktop/results/results-$trial_string.txt
 				jmeter -n -t ~/Desktop/github/jmeter/test-plan-nginx.jmx -Joutput_csv_file="$RESULTS_FILE" -Joutput_report_file="/home/mv22/Desktop/results/report-$trial_string.xml" -Jduration_in_seconds=$duration_in_seconds -Jmax_rpm=$max_rpm > $JMETER_OUT_FILE
 
+				# Calculate end time.
+				trial_end_time=`date +"%Y-%m-%d %H:%M:%S"`
+
 				# Write statistics
-				printf "$duration_in_seconds,$max_rpm,$max_rps,$MIN_REPLICAS,$max_replicas,$STARTING_REPLICAS,$cpu_scale_threshold," >> $OVERALL_RESULTS_FILE
+				printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$max_rpm,$max_rps,$MIN_REPLICAS,$max_replicas,$STARTING_REPLICAS,$cpu_scale_threshold," >> $OVERALL_RESULTS_FILE
 				$PYTHON_SCRIPT $RESULTS_FILE $RESULTS_FILE.out $trial_string $MAX_ERROR_RATE_PERCENT $OVERALL_RESULTS_FILE
 
 				# Wait for the cluster to recover
-				sleep $WAITING_TIME_BETWEEN_TRIALS_IN_SECONDS
+				#sleep $WAITING_TIME_BETWEEN_TRIALS_IN_SECONDS
 			done
 		done
 	done

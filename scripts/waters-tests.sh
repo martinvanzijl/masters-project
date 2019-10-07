@@ -41,15 +41,30 @@ fi
     #./wcheck -bdd -lang -q -DSCALE_CPU_THRESHOLD=$scale_cpu ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
 #done
 
-for ((max_rps = 100; max_rps <= 1000; max_rps += 100))
+#for ((max_rps = 200; max_rps <= 400; max_rps += 100))
+#do
+	#for ((pods_initial = 1; pods_initial <= 4; pods_initial += 1))
+	#do
+		#echo "Testing max_rps $max_rps pods_initial $pods_initial"
+		#echo "Test with MAX_REQUESTS_PER_SECOND $max_rps PODS_INITIALLY_ON = $pods_initial" >> $OUTPUT_FILE
+		#./wcheck -bdd -lang -q -DMAX_REQUESTS_PER_SECOND=$max_rps -DPODS_INITIALLY_ON=$pods_initial ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
+	#done
+#done
+
+for ((pod_max = 1; pod_max <= 1; pod_max += 1))
 do
-	for ((pods_initial = 1; pods_initial <= 4; pods_initial += 1))
+	for ((max_rps = 100; max_rps <= 400; max_rps += 100))
 	do
-		echo "Testing max_rps $max_rps pods_initial $pods_initial"
-		echo "Test with MAX_REQUESTS_PER_SECOND $max_rps PODS_INITIALLY_ON = $pods_initial" >> $OUTPUT_FILE
-		./wcheck -bdd -lang -q -DMAX_REQUESTS_PER_SECOND=$max_rps -DPODS_INITIALLY_ON=$pods_initial ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
+    	echo "Testing pod_max $pod_max and max_rps=$max_rps..."
+    	echo "Test with POD_MAX = $pod_max" >> $OUTPUT_FILE
+    	./wcheck -bdd -lang -q -DMAX_REQUESTS_PER_SECOND=$max_rps -DPOD_MAX=$pod_max ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
 	done
 done
 
 # Go back to the previous directory.
 popd
+
+# Analyse the results
+./analyse-waters-results.awk $OUTPUT_FILE > ../results/waters-analysis.csv
+echo "Results are in ../results/waters-analysis.csv"
+

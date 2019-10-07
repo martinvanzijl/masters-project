@@ -11,13 +11,14 @@ BEGIN {
 	header_printed = 0;
 }
 
-match($0, "<(.*)> ... (false|true) \\((.*),(.*),(.*)\\)", matches) {
+#match($0, "<(.*)> ... (false|true) \\((.*),(.*),(.*)\\)", matches) {
+match($0, "<(.*)> ... (false|true) \\((.*),(.*)\\)", matches) {
 
 	# Get matches.
 	i = 1;
 	parameters 	= trim(matches[i++]);
 	meets		= trim(matches[i++]);
-	states 		= trim(matches[i++]);
+	#states 		= trim(matches[i++]);
 	nodes 		= trim(matches[i++]);
 	time 		= trim(matches[i++]);
 
