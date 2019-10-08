@@ -5,7 +5,7 @@ metadata:
   name: nginx-quota
 spec:
   hard:
-    pods: "{{max_pods}}" # Use a maximum of 4 pods.
+    pods: "{{max_pods}}"
 ---
 # SERVICE
 apiVersion: v1

@@ -2,8 +2,8 @@
 # To be run on the lab PC.
 
 # Trials
-TRIALS_PER_TEST_CASE=5
-MINUTES_PER_TRIAL=2
+TRIALS_PER_TEST_CASE=2
+MINUTES_PER_TRIAL=1
 
 # SLA
 MAX_ERROR_RATE_PERCENT=1
@@ -14,26 +14,34 @@ MAX_REPLICAS_DEFAULT=4
 STARTING_REPLICAS=1
 CPU_SCALE_THRESHOLD_DEFAULT=80
 
+# Request details.
+#REQUEST_PATH="/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/"
+REQUEST_PATH="/api/v1/namespaces/nodejs-namespace/services/nodejs-service:8080/proxy/"
+#APP="nginx"
+APP="nodejs"
+
 # Files.
 OVERALL_RESULTS_FILE="/home/mv22/Desktop/results/overall-results.csv"
 PYTHON_SCRIPT="/home/mv22/Desktop/github/scripts/analyse-jmeter-results.py"
 
 # Waiting times.
-WAITING_TIME_AFTER_CONFIGURING_CLUSTER=10
-WAITING_TIME_BETWEEN_TRIALS_IN_SECONDS=10
+#WAITING_TIME_AFTER_CONFIGURING_CLUSTER=10
+#WAITING_TIME_BETWEEN_TRIALS_IN_SECONDS=10
 
 # Parameter limits.
-CPU_SCALE_THRESHOLD_MIN=25
-CPU_SCALE_THRESHOLD_MAX=100
-CPU_SCALE_THRESHOLD_INC=25
+CPU_SCALE_THRESHOLD_MIN=80
+CPU_SCALE_THRESHOLD_MAX=80
+CPU_SCALE_THRESHOLD_INC=1
 
-MAX_RPS_MIN=400
-MAX_RPS_MAX=400
-MAX_RPS_INC=100
+MAX_RPS_MIN=2
+MAX_RPS_MAX=2
+MAX_RPS_INC=1
 
-MAX_REPLICAS_MIN=2
-MAX_REPLICAS_MAX=4
+MAX_REPLICAS_MIN=1
+MAX_REPLICAS_MAX=1
 MAX_REPLICAS_INC=1
+
+USERS=10
 
 # Calculate duration.
 duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
@@ -60,7 +68,7 @@ do
 	for((cpu_scale_threshold=$CPU_SCALE_THRESHOLD_MIN;cpu_scale_threshold<=$CPU_SCALE_THRESHOLD_MAX;cpu_scale_threshold+=$CPU_SCALE_THRESHOLD_INC))
 	do
 		# Configure the cluster.
-		ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS"
+		ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS $APP"
 		#sleep $WAITING_TIME_AFTER_CONFIGURING_CLUSTER
 
 		# Loop through values for requests per second.
@@ -90,7 +98,7 @@ do
 
 				# Wait for cluster to be ready.
 				echo "Waiting for cluster to be ready..."
-				ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS"
+				ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS $APP"
 				echo "Cluster is ready..."
 
 				# Calculate start time.
@@ -98,7 +106,14 @@ do
 
 				# Run a single JMeter test.
 				# -l ~/Desktop/results/results-$trial_string.txt
-				jmeter -n -t ~/Desktop/github/jmeter/test-plan-nginx.jmx -Joutput_csv_file="$RESULTS_FILE" -Joutput_report_file="/home/mv22/Desktop/results/report-$trial_string.xml" -Jduration_in_seconds=$duration_in_seconds -Jmax_rpm=$max_rpm > $JMETER_OUT_FILE
+				jmeter -n -t ~/Desktop/github/jmeter/test-plan.jmx \
+                    -Joutput_csv_file="$RESULTS_FILE" \
+                    -Joutput_report_file="/home/mv22/Desktop/results/report-$trial_string.xml" \
+                    -Jduration_in_seconds=$duration_in_seconds \
+                    -Jmax_rpm=$max_rpm \
+                    -Jrequest_path=$REQUEST_PATH \
+                    -Jusers=$USERS \
+                    > $JMETER_OUT_FILE
 
 				# Calculate end time.
 				trial_end_time=`date +"%Y-%m-%d %H:%M:%S"`

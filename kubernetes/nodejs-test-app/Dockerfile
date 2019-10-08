@@ -8,4 +8,6 @@ EXPOSE 8080
 COPY main.js .
 
 # Run the following command to create the node.js application
+CMD npm install --save asyncawait
 CMD node main.js
+

@@ -2,8 +2,13 @@
 
 # Check	that the correct number	of pods	are running.
 # Parameter 1 is the number of pods which should be running.
+# Parameter 2 is the app.
 
-result=`kubectl get pods --namespace=nginx-namespace | awk -v pods=$1 '
+APP=$2
+NAMESPACE=$APP-namespace
+
+# Wait for the cluster to set up again.
+result=`kubectl get pods --namespace=$NAMESPACE | awk -v pods=$1 '
         /Pending/{pending++}
         /Running/{running++}
         /Succeeded/{succeeded++}
@@ -23,7 +28,7 @@ while [ $result -eq 0 ]
 do
 	#echo "." >&2
 	sleep 5
-	result=`kubectl get pods --namespace=nginx-namespace | awk -v pods=$1 '
+	result=`kubectl get pods --namespace=$NAMESPACE | awk -v pods=$1 '
 		    /Pending/{pending++}
 		    /Running/{running++}
 		    /Succeeded/{succeeded++}
@@ -42,5 +47,5 @@ done
 
 echo "result=$result"
 echo "Here comes the output:"
-kubectl get pods --namespace=nginx-namespace 
+kubectl get pods --namespace=$NAMESPACE
 

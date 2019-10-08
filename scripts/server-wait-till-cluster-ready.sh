@@ -2,5 +2,5 @@
 
 # Pass parameters.
 cd vagrant-boxes/Kubernetes/
-vagrant ssh master -c "./master-wait-till-cluster-ready.sh $1"
+vagrant ssh master -c "./master-wait-till-cluster-ready.sh $1 $2"
 

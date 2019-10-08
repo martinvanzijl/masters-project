@@ -1,6 +1,8 @@
 # Run WATERS tests for my thesis.
 
 # Constants.
+#MODEL="../models/model-2-01-nginx.wmod"
+MODEL="../models/model-2-02-nodejs.wmod"
 OUTPUT_FILE="../results/waters-results.txt"
 
 # Change to "wcheck" directory.
@@ -51,15 +53,16 @@ fi
 	#done
 #done
 
-for ((pod_max = 2; pod_max <= 2; pod_max += 1))
+#for ((pod_max = 1; pod_max <= 4; pod_max += 1))
+for ((scale_cpu = 50; scale_cpu <= 100; scale_cpu += 50))
 do
-	for ((scale_cpu = 25; scale_cpu <= 100; scale_cpu += 25))
+	#for ((scale_cpu = 50; scale_cpu <= 100; scale_cpu += 50))
+    for ((pod_max = 1; pod_max <= 4; pod_max += 1))
 	do
-		for ((max_rps = 400; max_rps <= 400; max_rps += 100))
+		for ((max_rps = 1; max_rps <= 2; max_rps += 1))
 		do
-			echo "Testing pod_max=$pod_max, scale_cpu=$scale_cpu, max_rps=$max_rps..."
-			#echo "Test with POD_MAX = $pod_max" >> $OUTPUT_FILE
-			./wcheck -bdd -lang -q -DMAX_REQUESTS_PER_SECOND=$max_rps -DPOD_MAX=$pod_max -DSCALE_CPU_THRESHOLD=$scale_cpu ../models/model-2-01-nginx.wmod >> $OUTPUT_FILE
+			echo "Testing max_rps=$max_rps, pod_max=$pod_max, scale_cpu=$scale_cpu..."
+			./wcheck -bdd -lang -q -DMAX_REQUESTS_PER_SECOND=$max_rps -DPOD_MAX=$pod_max -DSCALE_CPU_THRESHOLD=$scale_cpu $MODEL >> $OUTPUT_FILE
 		done
 	done
 done
