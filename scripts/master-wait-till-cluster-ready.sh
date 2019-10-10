@@ -45,7 +45,5 @@ do
 	'`
 done
 
-echo "result=$result"
-echo "Here comes the output:"
 kubectl get pods --namespace=$NAMESPACE
 

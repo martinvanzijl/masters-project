@@ -147,7 +147,7 @@
               <idleTime>true</idleTime>
             </value>
           </objProp>
-          <stringProp name="filename">${__P(output_report_file,/home/mv22/Desktop/results/report.xml)}</stringProp>
+          <stringProp name="filename">${__P(output_report_file,/home/mv22/Desktop/results/report.csv)}</stringProp>
           <stringProp name="TestPlan.comments">Create a report for quick viewing.</stringProp>
         </ResultCollector>
         <hashTree/>

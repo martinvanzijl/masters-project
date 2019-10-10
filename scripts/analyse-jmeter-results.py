@@ -76,7 +76,8 @@ csv_writer = csv.writer(output_file)
 # Write results.
 csv_writer.writerow(["Second", "Requests", "Errors"])
 
-for key in sorted(samples):
+samples_sorted = sorted(samples)
+for key in samples_sorted:
 	second = key.strftime("%H:%M:%S")
 	requests_sent = samples[key][REQUESTS_SENT_INDEX]
 	errors = samples[key][ERRORS_INDEX]
@@ -93,11 +94,20 @@ else:
     error_rate = float(total_failures) / float(total_requests) * 100
     meets_sla = error_rate <= max_error_rate_slo
 
-total_seconds = len(samples)
+# Calculate total time taken.
+#total_seconds = len(samples)
+first_request_sent_time = samples_sorted[0]
+last_request_sent_time = samples_sorted[-1]
+difference = last_request_sent_time - first_request_sent_time
+total_seconds = difference.seconds
+
+# Calculate average requests per second.
 if total_seconds == 0:
-	average_requests_per_second = "N/A"
+	average_requests_per_second = 0
+	average_burst = 0
 else:
-	average_requests_per_second = total_requests / total_seconds
+	average_requests_per_second = float(total_requests) / float(total_seconds)
+	average_burst = float(total_requests) / float(len(samples))
 
 # Write overall statistics.
 #print "Trial #:", trial_number
@@ -110,7 +120,7 @@ print "*** Meets SLA?:", meets_sla, "***"
 # Add them to the file.
 summary_file = open(summary_file_name, "a")
 csv_writer = csv.writer(summary_file)
-csv_writer.writerow([int(meets_sla), total_requests, total_failures, error_rate/100.0, max_error_rate_slo/100.0, average_requests_per_second])
+csv_writer.writerow([int(meets_sla), total_requests, total_failures, error_rate/100.0, max_error_rate_slo/100.0, average_requests_per_second, average_burst])
 #summary_file.write(str(meets_sla) + "," + str(total_requests) + "," + str(total_failures) + "," + str(int(error_rate)) + "%" + "," + str(max_error_rate_slo) + "," + str(average_requests_per_second) + "\n")
 summary_file.close()
 
