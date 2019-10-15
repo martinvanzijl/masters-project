@@ -14,13 +14,13 @@ STARTING_REPLICAS=4
 
 # Request details.
 #REQUEST_PATH="/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/"
-REQUEST_PATH="/api/v1/namespaces/nodejs-namespace/services/nodejs-service:8080/proxy/"
+### REQUEST_PATH="/api/v1/namespaces/nodejs-namespace/services/nodejs-service:8080/proxy/"
 #APP="nginx"
-APP="nodejs"
+### APP="nodejs"
 
 # Files.
 OVERALL_RESULTS_FILE="/home/mv22/Desktop/results/overall-results.csv"
-PYTHON_SCRIPT="/home/mv22/Desktop/github/scripts/analyse-jmeter-results.py"
+PYTHON_SCRIPT="/home/mv22/Desktop/github/scripts/analyse-jmeter-results-with-shaping-timer.py"
 
 # Parameter limits.
 CPU_SCALE_THRESHOLD_MIN=80
@@ -28,7 +28,7 @@ CPU_SCALE_THRESHOLD_MAX=80
 CPU_SCALE_THRESHOLD_INC=1
 
 MAX_RPS_MIN=1
-MAX_RPS_MAX=3
+MAX_RPS_MAX=1
 MAX_RPS_INC=1
 
 MAX_REPLICAS_MIN=4
@@ -37,7 +37,6 @@ MAX_REPLICAS_INC=1
 
 # Calculate duration.
 duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
-#duration_in_seconds=10
 
 # Calculate total test cases.
 TOTAL_TEST_CASES=$(( ((CPU_SCALE_THRESHOLD_MAX-CPU_SCALE_THRESHOLD_MIN)/CPU_SCALE_THRESHOLD_INC + 1) * ((MAX_RPS_MAX-MAX_RPS_MIN)/MAX_RPS_INC + 1) * ((MAX_REPLICAS_MAX-MAX_REPLICAS_MIN)/MAX_REPLICAS_INC + 1) ))
@@ -48,7 +47,7 @@ test_case_number=0
 mv /home/mv22/Desktop/results/*.* /home/mv22/Desktop/results/archive/ 2> /dev/null
 
 # Prepare summary file.
-echo "Trial Duration (s),Start,End,Users,Samples per Min.,Samples per Sec.,Min Pods,Max Pods,Initial Pods,Scale CPU Threshold,Meets SLO,Total Requests,Total Failures,Failure Rate,Max Failure Rate (SLO),Actual Avg. Req. per Sec.,Avg. Burst" > $OVERALL_RESULTS_FILE
+echo "Duration (s),Start,End,Req. per Sec. (low),Req. per Sec. (high),High Duration (s),Low Duration (s),App. Processing Time (ms),Min Pods,Max Pods,Initial Pods,Scale CPU,Max Error Rate (SLO),Actual Error Rate,Meets SLA?" > $OVERALL_RESULTS_FILE
 
 # Go to JMeter directory
 pushd ~/Desktop/apache-jmeter-5.1.1
@@ -98,14 +97,19 @@ pushd ~/Desktop/apache-jmeter-5.1.1
 				    ### echo "Cluster is ready..."
 
 				    # Calculate start time.
-				    ### trial_start_time=`date +"%Y-%m-%d %H:%M:%S"`
+				    trial_start_time=`date +"%Y-%m-%d %H:%M:%S"`
+
+                    # Set parameters.
+                    max_rps_low=1
+                    max_rps_high=$max_rps
 
 				    # Run a single JMeter test.
-                    JTL_FILE="/home/mv22/Desktop/results/jmeter-$trial_string.txt"
+                    JTL_FILE="/home/mv22/Desktop/results/jmeter-$trial_string.jtl"
 
                     ./bin/jmeter -n -t ~/Desktop/github/jmeter/test-plan-with-shaping-timer.jmx \
                     -l $JTL_FILE \
-                    -Jmax_rps=$max_rps #\
+                    -Jmax_rps_low=$max_rps_low \
+                    -Jmax_rps_high=$max_rps_high #\
                     #> $JMETER_OUT_FILE
 
 				    ### jmeter -n -t ~/Desktop/github/jmeter/test-plan.jmx \
@@ -120,13 +124,17 @@ pushd ~/Desktop/apache-jmeter-5.1.1
                     ./bin/JMeterPluginsCMD.sh --generate-csv $JMETER_REPORT_FILE --input-jtl $JTL_FILE --plugin-type AggregateReport
 
 				    # Calculate end time.
-				    ### trial_end_time=`date +"%Y-%m-%d %H:%M:%S"`
+				    trial_end_time=`date +"%Y-%m-%d %H:%M:%S"`
 
-				    # Write statistics header.
-				    ### printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$users,$max_rpm,$max_rps,$MIN_REPLICAS,$max_replicas,$STARTING_REPLICAS,$cpu_scale_threshold," >> $OVERALL_RESULTS_FILE
+				    # Write statistics.
+                    app_response_time=1000
+                    low_duration=60
+                    high_duration=60
+                    max_error_rate=1
+				    printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$max_rps_low,$max_rps_high,$high_duration,$low_duration,$app_response_time,$MIN_REPLICAS,$max_replicas,$STARTING_REPLICAS,$cpu_scale_threshold,$max_error_rate," >> $OVERALL_RESULTS_FILE
 
                     # Analyse with Python script.
-				    ### $PYTHON_SCRIPT $RESULTS_FILE $RESULTS_FILE.out $trial_string $MAX_ERROR_RATE_PERCENT $OVERALL_RESULTS_FILE
+				    $PYTHON_SCRIPT $JMETER_REPORT_FILE $OVERALL_RESULTS_FILE
 			    done
 		    done
 	    done
