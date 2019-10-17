@@ -6,7 +6,7 @@ MODEL=~/Desktop/github/models/model-2-01-nginx.wmod
 OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.
-pushd ~/Desktop/waters
+pushd ~/Desktop/github/waters
 
 # Back up output file.
 if [ -f $OUTPUT_FILE ]
