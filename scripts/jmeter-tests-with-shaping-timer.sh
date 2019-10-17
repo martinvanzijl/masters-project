@@ -7,6 +7,7 @@ MINUTES_PER_TRIAL=2
 
 # SLA
 MAX_ERROR_RATE_PERCENT=1
+MAX_RESPONSE_TIME_IN_MS=10000
 
 # Cluster
 MIN_REPLICAS=4
@@ -47,7 +48,7 @@ test_case_number=0
 mv /home/mv22/Desktop/results/*.* /home/mv22/Desktop/results/archive/ 2> /dev/null
 
 # Prepare summary file.
-echo "Duration (s),Start,End,Req. per Sec. (low),Req. per Sec. (high),High Duration (s),Low Duration (s),App. Processing Time (ms),Min Pods,Max Pods,Initial Pods,Scale CPU,Max Error Rate (SLO),Actual Error Rate,Meets SLA?" > $OVERALL_RESULTS_FILE
+echo "Duration (s),Start,End,Req. per Sec. (low),Req. per Sec. (high),High Duration (s),Low Duration (s),App. Processing Time (ms),Min Pods,Max Pods,Initial Pods,Scale CPU,Max Response Time (ms),Max Error Rate (SLO),Actual Error Rate,Meets SLA?" > $OVERALL_RESULTS_FILE
 
 # Go to JMeter directory
 pushd ~/Desktop/apache-jmeter-5.1.1
@@ -131,7 +132,7 @@ pushd ~/Desktop/apache-jmeter-5.1.1
                     low_duration=60
                     high_duration=60
                     max_error_rate=1
-				    printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$max_rps_low,$max_rps_high,$high_duration,$low_duration,$app_response_time,$MIN_REPLICAS,$max_replicas,$STARTING_REPLICAS,$cpu_scale_threshold,$max_error_rate," >> $OVERALL_RESULTS_FILE
+				    printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$max_rps_low,$max_rps_high,$high_duration,$low_duration,$app_response_time,$MIN_REPLICAS,$max_replicas,$STARTING_REPLICAS,$cpu_scale_threshold,$MAX_RESPONSE_TIME_IN_MS,$max_error_rate," >> $OVERALL_RESULTS_FILE
 
                     # Analyse with Python script.
 				    $PYTHON_SCRIPT $JMETER_REPORT_FILE $OVERALL_RESULTS_FILE

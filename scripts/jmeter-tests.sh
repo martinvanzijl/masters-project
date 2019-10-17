@@ -2,11 +2,12 @@
 # To be run on the lab PC.
 
 # Trials
-TRIALS_PER_TEST_CASE=2
-MINUTES_PER_TRIAL=2
+TRIALS_PER_TEST_CASE=1
+MINUTES_PER_TRIAL=1
 
 # SLA
 MAX_ERROR_RATE_PERCENT=1
+MAX_RESPONSE_TIME_IN_MS=10000
 
 # Cluster
 MIN_REPLICAS=4
@@ -30,7 +31,7 @@ CPU_SCALE_THRESHOLD_MAX=80
 CPU_SCALE_THRESHOLD_INC=1
 
 MAX_RPS_MIN=1
-MAX_RPS_MAX=3
+MAX_RPS_MAX=1
 MAX_RPS_INC=1
 
 MAX_REPLICAS_MIN=4
@@ -40,8 +41,8 @@ MAX_REPLICAS_INC=1
 USERS_DEFAULT=25
 
 # Calculate duration.
-duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
-#duration_in_seconds=10
+#duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
+duration_in_seconds=10
 
 # Calculate total test cases.
 TOTAL_TEST_CASES=$(( ((CPU_SCALE_THRESHOLD_MAX-CPU_SCALE_THRESHOLD_MIN)/CPU_SCALE_THRESHOLD_INC + 1) * ((MAX_RPS_MAX-MAX_RPS_MIN)/MAX_RPS_INC + 1) * ((MAX_REPLICAS_MAX-MAX_REPLICAS_MIN)/MAX_REPLICAS_INC + 1) ))
@@ -52,7 +53,7 @@ test_case_number=0
 mv /home/mv22/Desktop/results/*.* /home/mv22/Desktop/results/archive/ 2> /dev/null
 
 # Prepare summary file.
-echo "Trial Duration (s),Start,End,Users,Samples per Min.,Samples per Sec.,Min Pods,Max Pods,Initial Pods,Scale CPU Threshold,Meets SLO,Total Requests,Total Failures,Failure Rate,Max Failure Rate (SLO),Actual Avg. Req. per Sec.,Avg. Burst" > $OVERALL_RESULTS_FILE
+echo "Trial Duration (s),Start,End,Users,Samples per Min.,Samples per Sec.,Min Pods,Max Pods,Initial Pods,Scale CPU Threshold,Max Response Time (ms),Meets SLO,Total Requests,Total Failures,Failure Rate,Max Failure Rate (SLO),Actual Avg. Req. per Sec.,Avg. Burst" > $OVERALL_RESULTS_FILE
 
 # Go to JMeter directory
 pushd ~/Desktop/apache-jmeter-5.1.1/bin
@@ -67,7 +68,7 @@ do
 	    for((cpu_scale_threshold=$CPU_SCALE_THRESHOLD_MIN;cpu_scale_threshold<=$CPU_SCALE_THRESHOLD_MAX;cpu_scale_threshold+=$CPU_SCALE_THRESHOLD_INC))
 	    do
 		    # Configure the cluster.
-		    ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS $APP"
+		    ### ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS $APP"
 
 		    # Loop through values for requests per second.
 		    for((max_rps=$MAX_RPS_MIN;max_rps<=$MAX_RPS_MAX;max_rps+=$MAX_RPS_INC))
@@ -98,7 +99,7 @@ do
 
 				    # Wait for cluster to be ready.
 				    ### echo "Waiting for cluster to be ready..."
-				    ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS $APP"
+				    ### ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS $APP"
 				    ### echo "Cluster is ready..."
 
 				    # Calculate start time.
@@ -112,14 +113,14 @@ do
                         -Jduration_in_seconds=$duration_in_seconds \
                         -Jmax_rpm=$max_rpm \
                         -Jrequest_path=$REQUEST_PATH \
-                        -Jusers=$users \
-                        > $JMETER_OUT_FILE
+                        -Jusers=$users ###\
+                        ###> $JMETER_OUT_FILE
 
 				    # Calculate end time.
 				    trial_end_time=`date +"%Y-%m-%d %H:%M:%S"`
 
 				    # Write statistics header.
-				    printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$users,$max_rpm,$max_rps,$MIN_REPLICAS,$max_replicas,$STARTING_REPLICAS,$cpu_scale_threshold," >> $OVERALL_RESULTS_FILE
+				    printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$users,$max_rpm,$max_rps,$MIN_REPLICAS,$max_replicas,$STARTING_REPLICAS,$cpu_scale_threshold,$MAX_RESPONSE_TIME_IN_MS," >> $OVERALL_RESULTS_FILE
 
                     # Analyse with Python script.
 				    $PYTHON_SCRIPT $RESULTS_FILE $RESULTS_FILE.out $trial_string $MAX_ERROR_RATE_PERCENT $OVERALL_RESULTS_FILE
