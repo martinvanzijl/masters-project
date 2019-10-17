@@ -1,9 +1,9 @@
 # Run WATERS tests for my thesis.
 
 # Constants.
-MODEL="/home/martin/Desktop/github/models/model-2-01-nginx.wmod"
+MODEL=~/Desktop/github/models/model-2-01-nginx.wmod
 #MODEL="../models/model-2-02-nodejs.wmod"
-OUTPUT_FILE="/home/martin/Desktop/github/results/waters-results.txt"
+OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.
 pushd ~/Desktop/waters
@@ -28,7 +28,7 @@ fi
 #done
 
 # Test from CSV file.
-INPUT_FILE="/home/martin/Desktop/github/results/test-cases.csv"
+INPUT_FILE=~/Desktop/github/results/test-cases.csv
 HEADER_READ=0
 
 processing_time=6
@@ -40,7 +40,8 @@ do
         HEADER_READ=1
     else
         echo "Testing: $max_rps|$pod_min|$pod_max|$initial_pods|$scale_cpu"
-        ./wcheck -bdd -lang -q  -DMAX_REQUESTS_PER_SECOND=$max_rps \
+        ./wcheck -bdd -lang -q  -DREQ_SENT_PER_SEC_HIGH=$max_rps \
+                                -DREQ_SENT_PER_SEC_LOW=$max_rps \
                                 -DPOD_MIN=$pod_min \
                                 -DPOD_MAX=$pod_max \
                                 -DPROCESSING_TIME_PER_REQ_IN_MS=$processing_time \
@@ -54,7 +55,7 @@ done < $INPUT_FILE
 popd
 
 # Analyse the results
-ANALYSIS_FILE="/home/martin/Desktop/github/results/waters-analysis.csv"
+ANALYSIS_FILE=~/Desktop/github/results/waters-analysis.csv
 ./analyse-waters-results.awk $OUTPUT_FILE > $ANALYSIS_FILE
 echo "Results are in $ANALYSIS_FILE"
 
