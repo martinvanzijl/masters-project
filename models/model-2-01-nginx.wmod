@@ -73,7 +73,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 </B:Comment>
 <ConstantAliasList>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="COST_MAX">
-<ConstantAliasExpression><IntConstant Value="100"/>
+<ConstantAliasExpression><IntConstant Value="1"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="COST_PER_POD_PER_SEC">
