@@ -42,6 +42,8 @@ This is done by the "horizontal_pod_autoscaler" plant.
 
 The workload follows a "square wave" pattern. A high level of requests (REQUESTS_PER_SEC_HIGH) is sent for the first time period (HIGH_LOAD_TIME). From then on, the rate drops to a lower level (REQUESTS_PER_SEC_LOW). This is managed by the "workload" plant.
 
+There can also be unexpected outages, at intervals of MAX_OUTAGE_FREQUENCY_IN_SEC. This is managed by the "unexpected_outages" plant. This is disabled by default. An outage will take down one pod.
+
 
 === Analysis ===
 
@@ -81,11 +83,15 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HIGH_LOAD_TIME_IN_SECONDS">
-<ConstantAliasExpression><IntConstant Value="1"/>
+<ConstantAliasExpression><IntConstant Value="10"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_CPU_PER_POD_IN_MILLICPUS">
 <ConstantAliasExpression><IntConstant Value="40"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_OUTAGE_FREQUENCY_IN_SEC">
+<ConstantAliasExpression><IntConstant Value="2"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_RAM_PER_POD_IN_MB">
@@ -196,6 +202,11 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 <EventDecl Kind="UNCONTROLLABLE" Name="scaling_finished"/>
 <EventDecl Kind="CONTROLLABLE" Name="scale_down_if_required"/>
 <EventDecl Kind="UNCONTROLLABLE" Name="user_finished"/>
+<EventDecl Kind="CONTROLLABLE" Name="simulate_outages_start"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="simulate_outages_finished"/>
+<EventDecl Kind="CONTROLLABLE" Name="update_outage_timer"/>
+<EventDecl Kind="CONTROLLABLE" Name="simulate_outage"/>
+<EventDecl Kind="CONTROLLABLE" Name="enable_outages"/>
 </EventDeclList>
 <ComponentList>
 <SimpleComponent Kind="PLANT" Name="clock">
@@ -382,6 +393,12 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 </SimpleComponent>
 <SimpleComponent Kind="SPEC" Name="master">
 <Graph>
+<LabelBlock>
+<SimpleIdentifier Name="enable_outages"/>
+<LabelGeometry Anchor="NW">
+<Point X="1096" Y="727"/>
+</LabelGeometry>
+</LabelBlock>
 <NodeList>
 <SimpleNode Initial="true" Name="waiting">
 <EventList>
@@ -402,12 +419,12 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 <Point X="16" Y="-7"/>
 </LabelGeometry>
 </SimpleNode>
-<SimpleNode Name="done">
+<SimpleNode Name="pods_done">
 <PointGeometry>
 <Point X="432" Y="734"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
-<Point X="21" Y="1"/>
+<Point X="20" Y="-7"/>
 </LabelGeometry>
 </SimpleNode>
 <SimpleNode Name="managing_done">
@@ -434,6 +451,22 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 <Point X="20" Y="-8"/>
 </LabelGeometry>
 </SimpleNode>
+<SimpleNode Name="simulate_outages_busy">
+<PointGeometry>
+<Point X="432" Y="800"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="21" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="simulate_outages_done">
+<PointGeometry>
+<Point X="432" Y="896"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="35" Y="-5"/>
+</LabelGeometry>
+</SimpleNode>
 </NodeList>
 <EdgeList>
 <Edge Source="waiting" Target="waiting_for_user_to_finish">
@@ -447,7 +480,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 <Point X="432" Y="432"/>
 </EndPointGeometry>
 </Edge>
-<Edge Source="done" Target="waiting">
+<Edge Source="simulate_outages_done" Target="waiting">
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
@@ -455,13 +488,13 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 </LabelGeometry>
 </LabelBlock>
 <StartPointGeometry>
-<Point X="432" Y="734"/>
+<Point X="432" Y="896"/>
 </StartPointGeometry>
 <SplineGeometry>
-<Point X="1166" Y="528"/>
+<Point X="1107" Y="610"/>
 </SplineGeometry>
 </Edge>
-<Edge Source="managing_done" Target="done">
+<Edge Source="managing_done" Target="pods_done">
 <LabelBlock>
 <SimpleIdentifier Name="pods_handle_requests"/>
 <LabelGeometry Anchor="NW">
@@ -499,6 +532,22 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 <SimpleIdentifier Name="user_finished"/>
 <LabelGeometry Anchor="NW">
 <Point X="18" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="pods_done" Target="simulate_outages_busy">
+<LabelBlock>
+<SimpleIdentifier Name="simulate_outages_start"/>
+<LabelGeometry Anchor="NW">
+<Point X="22" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="simulate_outages_busy" Target="simulate_outages_done">
+<LabelBlock>
+<SimpleIdentifier Name="simulate_outages_finished"/>
+<LabelGeometry Anchor="NW">
+<Point X="21" Y="-23"/>
 </LabelGeometry>
 </LabelBlock>
 </Edge>
@@ -792,6 +841,239 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 <Point X="-241" Y="-37"/>
 </LabelGeometry>
 </GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="unexpected_outages">
+<Graph>
+<NodeList>
+<SimpleNode Name="waiting">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="352" Y="102"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-18"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="outage_expected">
+<PointGeometry>
+<Point X="240" Y="309"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-123" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="simulation_done">
+<PointGeometry>
+<Point X="352" Y="437"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="12" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="finished">
+<PointGeometry>
+<Point X="352" Y="533"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="started">
+<PointGeometry>
+<Point X="352" Y="181"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Initial="true" Name="disabled">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="352" Y="0"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-73" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="disabled_busy">
+<PointGeometry>
+<Point X="624" Y="-64"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="22" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="disabled_fin">
+<PointGeometry>
+<Point X="624" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="22" Y="-5"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="started" Target="simulation_done">
+<LabelBlock>
+<SimpleIdentifier Name="update_outage_timer"/>
+<LabelGeometry Anchor="NW">
+<Point X="24" Y="-5"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="352" Y="181"/>
+</StartPointGeometry>
+<EndPointGeometry>
+<Point X="352" Y="437"/>
+</EndPointGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&lt;" Text="SECONDS_SINCE_LAST_OUTAGE &lt; MAX_OUTAGE_FREQUENCY_IN_SEC">
+<SimpleIdentifier Name="SECONDS_SINCE_LAST_OUTAGE"/>
+<SimpleIdentifier Name="MAX_OUTAGE_FREQUENCY_IN_SEC"/>
+</BinaryExpression>
+</Guards>
+<Actions>
+<BinaryExpression Operator="+=" Text="SECONDS_SINCE_LAST_OUTAGE += 1">
+<SimpleIdentifier Name="SECONDS_SINCE_LAST_OUTAGE"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="22" Y="-42"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="finished" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="one_second"/>
+<LabelGeometry Anchor="NW">
+<Point X="11" Y="-20"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="352" Y="533"/>
+</StartPointGeometry>
+<SplineGeometry>
+<Point X="980" Y="269"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="started" Target="outage_expected">
+<LabelBlock>
+<SimpleIdentifier Name="update_outage_timer"/>
+<LabelGeometry Anchor="NW">
+<Point X="-146" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="352" Y="181"/>
+</StartPointGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&gt;=" Text="SECONDS_SINCE_LAST_OUTAGE &gt;= MAX_OUTAGE_FREQUENCY_IN_SEC">
+<SimpleIdentifier Name="SECONDS_SINCE_LAST_OUTAGE"/>
+<SimpleIdentifier Name="MAX_OUTAGE_FREQUENCY_IN_SEC"/>
+</BinaryExpression>
+</Guards>
+<Actions>
+<BinaryExpression Operator="=" Text="SECONDS_SINCE_LAST_OUTAGE = 0">
+<SimpleIdentifier Name="SECONDS_SINCE_LAST_OUTAGE"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-445" Y="-46"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="outage_expected" Target="simulation_done">
+<LabelBlock>
+<SimpleIdentifier Name="simulate_outage"/>
+<LabelGeometry Anchor="NW">
+<Point X="-121" Y="14"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = \max(POD_MIN, PODS_CURRENTLY_ON - 1)">
+<SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+<FunctionCallExpression FunctionName="\max">
+<SimpleIdentifier Name="POD_MIN"/>
+<BinaryExpression Operator="-">
+<SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</FunctionCallExpression>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-429" Y="-9"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="simulation_done" Target="finished">
+<LabelBlock>
+<SimpleIdentifier Name="simulate_outages_finished"/>
+<LabelGeometry Anchor="NW">
+<Point X="-196" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="waiting" Target="started">
+<LabelBlock>
+<SimpleIdentifier Name="simulate_outages_start"/>
+<LabelGeometry Anchor="NW">
+<Point X="-183" Y="-13"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="disabled" Target="disabled_busy">
+<LabelBlock>
+<SimpleIdentifier Name="simulate_outages_start"/>
+<LabelGeometry Anchor="NW">
+<Point X="-77" Y="-44"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="488" Y="-35"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="disabled_busy" Target="disabled_fin">
+<LabelBlock>
+<SimpleIdentifier Name="simulate_outages_finished"/>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-5"/>
+</LabelGeometry>
+</LabelBlock>
+<EndPointGeometry>
+<Point X="624" Y="48"/>
+</EndPointGeometry>
+</Edge>
+<Edge Source="disabled" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="enable_outages"/>
+<LabelGeometry Anchor="NW">
+<Point X="-120" Y="-12"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="disabled_fin" Target="disabled">
+<LabelBlock>
+<SimpleIdentifier Name="one_second"/>
+<LabelGeometry Anchor="NW">
+<Point X="-31" Y="-30"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="624" Y="48"/>
+</StartPointGeometry>
 </Edge>
 </EdgeList>
 </Graph>
@@ -1105,6 +1387,18 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 </VariableRange>
 <VariableInitial><BinaryExpression Operator="==">
 <SimpleIdentifier Name="SECONDS_ELAPSED"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="SECONDS_SINCE_LAST_OUTAGE">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="MAX_OUTAGE_FREQUENCY_IN_SEC"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==">
+<SimpleIdentifier Name="SECONDS_SINCE_LAST_OUTAGE"/>
 <IntConstant Value="0"/>
 </BinaryExpression>
 </VariableInitial>
