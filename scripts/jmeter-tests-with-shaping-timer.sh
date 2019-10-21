@@ -2,7 +2,7 @@
 # To be run on the lab PC.
 
 # Trials
-TRIALS_PER_TEST_CASE=2
+TRIALS_PER_TEST_CASE=1
 MINUTES_PER_TRIAL=2
 
 # SLA
@@ -10,13 +10,13 @@ MAX_ERROR_RATE_PERCENT=1
 MAX_RESPONSE_TIME_IN_MS=10000
 
 # Cluster
-MIN_REPLICAS=4
-STARTING_REPLICAS=4
+MIN_REPLICAS=1
+STARTING_REPLICAS=1
 
 # Request details.
-#REQUEST_PATH="/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/"
+REQUEST_PATH="/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/"
 ### REQUEST_PATH="/api/v1/namespaces/nodejs-namespace/services/nodejs-service:8080/proxy/"
-#APP="nginx"
+APP="nginx"
 ### APP="nodejs"
 
 # Files.
@@ -28,11 +28,11 @@ CPU_SCALE_THRESHOLD_MIN=80
 CPU_SCALE_THRESHOLD_MAX=80
 CPU_SCALE_THRESHOLD_INC=1
 
-MAX_RPS_MIN=1
-MAX_RPS_MAX=1
-MAX_RPS_INC=1
+MAX_RPS_MIN=100
+MAX_RPS_MAX=400
+MAX_RPS_INC=100
 
-MAX_REPLICAS_MIN=4
+MAX_REPLICAS_MIN=1
 MAX_REPLICAS_MAX=4
 MAX_REPLICAS_INC=1
 
@@ -59,18 +59,25 @@ pushd ~/Desktop/apache-jmeter-5.1.1
     # Loop through values for maximum replicas.
     for((max_replicas=$MAX_REPLICAS_MIN;max_replicas<=$MAX_REPLICAS_MAX;max_replicas+=$MAX_REPLICAS_INC))
     do
+        # Ensure starting replicas is sensible.
+        if(($STARTING_REPLICAS>$max_replicas))
+        then
+            echo "Starting replicas is too high, setting to max_replicas which is $max_replicas."
+            STARTING_REPLICAS=$max_replicas
+        fi
+
 	    # Loop through values for CPU scaling threshold.
 	    for((cpu_scale_threshold=$CPU_SCALE_THRESHOLD_MIN;cpu_scale_threshold<=$CPU_SCALE_THRESHOLD_MAX;cpu_scale_threshold+=$CPU_SCALE_THRESHOLD_INC))
 	    do
 		    # Configure the cluster.
-		    ### sh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS $APP"
+		    ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS $APP"
 
 		    # Loop through values for requests per second.
 		    for((max_rps=$MAX_RPS_MIN;max_rps<=$MAX_RPS_MAX;max_rps+=$MAX_RPS_INC))
 		    do
 			    # Print information.
 			    test_case_number=$((test_case_number+1))
-			    echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: users=$users, cpu=$cpu_scale_threshold, max_replicas=$max_replicas, rps=$max_rps..."
+			    echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: cpu=$cpu_scale_threshold, max_replicas=$max_replicas, rps(high load)=$max_rps..."
 
 			    # Estimate time left.
 			    ### awk "BEGIN {printf \"About %.1f minutes to go...\n\", ($TOTAL_TEST_CASES - $test_case_number + 1)*$MINUTES_PER_TEST_CASE}"
@@ -93,9 +100,9 @@ pushd ~/Desktop/apache-jmeter-5.1.1
 				    echo "Running trial number #$trial_number/$TRIALS_PER_TEST_CASE..."
 
 				    # Wait for cluster to be ready.
-				    ### echo "Waiting for cluster to be ready..."
-				    ### ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS $APP"
-				    ### echo "Cluster is ready..."
+				    echo "Waiting for cluster to be ready..."
+				    ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS $APP"
+				    echo "Cluster is ready..."
 
 				    # Calculate start time.
 				    trial_start_time=`date +"%Y-%m-%d %H:%M:%S"`
@@ -109,6 +116,7 @@ pushd ~/Desktop/apache-jmeter-5.1.1
 
                     ./bin/jmeter -n -t ~/Desktop/github/jmeter/test-plan-with-shaping-timer.jmx \
                     -l $JTL_FILE \
+                    -Jrequest_path=$REQUEST_PATH \
                     -Jmax_rps_low=$max_rps_low \
                     -Jmax_rps_high=$max_rps_high #\
                     #> $JMETER_OUT_FILE

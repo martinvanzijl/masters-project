@@ -15,7 +15,7 @@
       <com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup guiclass="com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroupGui" testclass="com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup" testname="bzm - Concurrency Thread Group" enabled="true">
         <elementProp name="ThreadGroup.main_controller" elementType="com.blazemeter.jmeter.control.VirtualUserController"/>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <stringProp name="TargetLevel">${__tstFeedback(Timer,10,100,10)}</stringProp>
+        <stringProp name="TargetLevel">${__tstFeedback(Timer,10,10000,10)}</stringProp>
         <stringProp name="RampUp"></stringProp>
         <stringProp name="Steps"></stringProp>
         <stringProp name="Hold">2</stringProp>
@@ -28,11 +28,11 @@
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">localhost</stringProp>
-          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.domain">donner.cms.waikato.ac.nz</stringProp>
+          <stringProp name="HTTPSampler.port">8001</stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path"></stringProp>
+          <stringProp name="HTTPSampler.path">${__P(request_path,/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/)}</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -45,14 +45,14 @@
         <hashTree/>
         <kg.apc.jmeter.timers.VariableThroughputTimer guiclass="kg.apc.jmeter.timers.VariableThroughputTimerGui" testclass="kg.apc.jmeter.timers.VariableThroughputTimer" testname="Timer" enabled="true">
           <collectionProp name="load_profile">
-            <collectionProp name="-404084828">
-              <stringProp name="-1332616912">${__P(max_rps_high,2)}</stringProp>
-              <stringProp name="-1332616912">${__P(max_rps_high,2)}</stringProp>
+            <collectionProp name="359587396">
+              <stringProp name="-742615246">${__P(max_rps_high,400)}</stringProp>
+              <stringProp name="-742615246">${__P(max_rps_high,400)}</stringProp>
               <stringProp name="60">60</stringProp>
             </collectionProp>
-            <collectionProp name="-596511452">
-              <stringProp name="-1295908487">${__P(max_rps_low,1)}</stringProp>
-              <stringProp name="-1295908487">${__P(max_rps_low,1)}</stringProp>
+            <collectionProp name="-827527804">
+              <stringProp name="172595769">${__P(max_rps_low,100)}</stringProp>
+              <stringProp name="172595769">${__P(max_rps_low,100)}</stringProp>
               <stringProp name="60">60</stringProp>
             </collectionProp>
           </collectionProp>
