@@ -64,6 +64,10 @@ I have yet do run the final JMeter tests. Using a Throughput Shaping Timer I can
 
     QUEUE_LENGTH -= min(0, 10 - READ_VERIFICATION_TIME)
 
+- Scale based on CPU usage and not queue length.
+
+- Make use of the MAX_CPU.. and MAX_RAM... parameters.
+
 
 === Other Notes ===
 
@@ -83,7 +87,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HIGH_LOAD_TIME_IN_SECONDS">
-<ConstantAliasExpression><IntConstant Value="10"/>
+<ConstantAliasExpression><IntConstant Value="20"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_CPU_PER_POD_IN_MILLICPUS">
@@ -133,7 +137,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="REQ_SENT_PER_SEC_HIGH">
-<ConstantAliasExpression><IntConstant Value="2"/>
+<ConstantAliasExpression><IntConstant Value="3"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="REQ_SENT_PER_SEC_LOW">
