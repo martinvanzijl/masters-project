@@ -33,6 +33,8 @@ It will scale down once the queue length of the first pod goes below SCALE_DOWN_
 
 This is done by the "horizontal_pod_autoscaler" plant.
 
+The horizontal pod autoscaler is run every few seconds (HPA_CHECK_INTERVAL).
+
 
 === Workload ===
 
@@ -72,9 +74,14 @@ The "2" series are models of actual cloud systems being tested.
 The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIALLY_ON". This is because the Kubernetes Horizontal Autoscaler scales by pods, not nodes. A node is a machine, a pod has containers and the containers run the application. There can be multiple pods on a node. E.g. Node_1 --&gt; Pod_1 --&gt; Container_1 --&gt; NGINX application.
 </ns2:Comment>
     <ConstantAliasList>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_CHECK_INTERVAL">
+            <ConstantAliasExpression>
+                <IntConstant Value="3"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
         <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HIGH_LOAD_TIME_IN_SECONDS">
             <ConstantAliasExpression>
-                <IntConstant Value="2"/>
+                <IntConstant Value="100"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="LOW_LOAD_TIME_IN_SECONDS">
@@ -94,7 +101,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
         </ConstantAlias>
         <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_RESPONSE_TIME_IN_MS">
             <ConstantAliasExpression>
-                <IntConstant Value="2000"/>
+                <IntConstant Value="10000"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="PODS_INITIALLY_ON">
@@ -114,7 +121,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
         </ConstantAlias>
         <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="PROCESSING_TIME_PER_REQ_IN_MS">
             <ConstantAliasExpression>
-                <IntConstant Value="100"/>
+                <IntConstant Value="1000"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Name="POD_QUEUE_CAPACITY">
@@ -135,7 +142,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
         </ConstantAlias>
         <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="REQ_SENT_PER_SEC_HIGH">
             <ConstantAliasExpression>
-                <IntConstant Value="3"/>
+                <IntConstant Value="2"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="REQ_SENT_PER_SEC_LOW">
@@ -211,6 +218,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
         <EventDecl Kind="UNCONTROLLABLE" Name="user_finished"/>
         <EventDecl Kind="CONTROLLABLE" Name="set_workload"/>
         <EventDecl Kind="CONTROLLABLE" Name="reset_load_timer"/>
+        <EventDecl Kind="CONTROLLABLE" Name="reset_hpa_timer"/>
     </EventDeclList>
     <ComponentList>
         <SimpleComponent Kind="SPEC" Name="master">
@@ -362,7 +370,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                 <NodeList>
                     <SimpleNode Name="started">
                         <PointGeometry>
-                            <Point X="96" Y="272"/>
+                            <Point X="96" Y="464"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="21" Y="-8"/>
@@ -373,7 +381,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                             <SimpleIdentifier Name=":accepting"/>
                         </EventList>
                         <PointGeometry>
-                            <Point X="97" Y="174"/>
+                            <Point X="97" Y="366"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="14" Y="-19"/>
@@ -381,7 +389,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                     </SimpleNode>
                     <SimpleNode Name="done">
                         <PointGeometry>
-                            <Point X="97" Y="686"/>
+                            <Point X="96" Y="944"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="0" Y="10"/>
@@ -389,7 +397,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                     </SimpleNode>
                     <SimpleNode Name="scale_up_ended">
                         <PointGeometry>
-                            <Point X="96" Y="448"/>
+                            <Point X="96" Y="640"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="21" Y="-7"/>
@@ -397,10 +405,34 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                     </SimpleNode>
                     <SimpleNode Name="scale_down_ended">
                         <PointGeometry>
-                            <Point X="97" Y="622"/>
+                            <Point X="97" Y="814"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="19" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="no_check">
+                        <PointGeometry>
+                            <Point X="0" Y="272"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="timer_reset">
+                        <PointGeometry>
+                            <Point X="96" Y="880"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="done_no_check">
+                        <PointGeometry>
+                            <Point X="96" Y="176"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-10"/>
                         </LabelGeometry>
                     </SimpleNode>
                 </NodeList>
@@ -413,13 +445,13 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="96" Y="272"/>
+                            <Point X="96" Y="464"/>
                         </StartPointGeometry>
                         <SplineGeometry>
-                            <Point X="55" Y="361"/>
+                            <Point X="55" Y="553"/>
                         </SplineGeometry>
                         <EndPointGeometry>
-                            <Point X="96" Y="448"/>
+                            <Point X="96" Y="640"/>
                         </EndPointGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -451,19 +483,30 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                         <LabelBlock>
                             <SimpleIdentifier Name="scaling_start"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-102" Y="-12"/>
+                                <Point X="-99" Y="-3"/>
                             </LabelGeometry>
                         </LabelBlock>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="HPA_SECONDS_ELAPSED &gt;= HPA_CHECK_INTERVAL">
+                                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="HPA_CHECK_INTERVAL"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-332" Y="-26"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
                     </Edge>
-                    <Edge Source="scale_down_ended" Target="done">
+                    <Edge Source="timer_reset" Target="done">
                         <LabelBlock>
                             <SimpleIdentifier Name="scaling_finished"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-113" Y="4"/>
+                                <Point X="-116" Y="-5"/>
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="97" Y="622"/>
+                            <Point X="96" Y="880"/>
                         </StartPointGeometry>
                     </Edge>
                     <Edge Source="started" Target="scale_up_ended">
@@ -474,7 +517,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="137" Y="359"/>
+                            <Point X="137" Y="551"/>
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -504,7 +547,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="137" Y="536"/>
+                            <Point X="137" Y="728"/>
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -534,7 +577,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="58" Y="536"/>
+                            <Point X="58" Y="728"/>
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -570,8 +613,114 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="780" Y="428"/>
+                            <Point X="868" Y="654"/>
                         </SplineGeometry>
+                    </Edge>
+                    <Edge Source="idle" Target="no_check">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scaling_start"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-129" Y="5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="HPA_SECONDS_ELAPSED &lt; HPA_CHECK_INTERVAL">
+                                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="HPA_CHECK_INTERVAL"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-353" Y="-15"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="no_check" Target="done_no_check">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scaling_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-105" Y="-27"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="96" Y="176"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="scale_down_ended" Target="timer_reset">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reset_hpa_timer"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-120" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="done_no_check" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="horizontal_pod_autoscaler_clock">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="working">
+                        <PointGeometry>
+                            <Point X="160" Y="176"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="24" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-39" Y="-28"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="162" Y="112"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="HPA_SECONDS_ELAPSED += 1">
+                                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-85" Y="-49"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reset_hpa_timer"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-51" Y="10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="158" Y="250"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="HPA_SECONDS_ELAPSED = 0">
+                                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-79" Y="31"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
                     </Edge>
                 </EdgeList>
             </Graph>
@@ -848,8 +997,8 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                         </EndPointGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="SECONDS_ELAPSED &gt;= LOW_LOAD_TIME_IN_SECONDS">
-                                    <SimpleIdentifier Name="SECONDS_ELAPSED"/>
+                                <BinaryExpression Operator="&gt;=" Text="WORKLOAD_SECONDS_ELAPSED &gt;= LOW_LOAD_TIME_IN_SECONDS">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
                                     <SimpleIdentifier Name="LOW_LOAD_TIME_IN_SECONDS"/>
                                 </BinaryExpression>
                             </Guards>
@@ -860,7 +1009,7 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-384" Y="2"/>
+                                <Point X="-423" Y="1"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -873,8 +1022,8 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                         </LabelBlock>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="SECONDS_ELAPSED &gt;= HIGH_LOAD_TIME_IN_SECONDS">
-                                    <SimpleIdentifier Name="SECONDS_ELAPSED"/>
+                                <BinaryExpression Operator="&gt;=" Text="WORKLOAD_SECONDS_ELAPSED &gt;= HIGH_LOAD_TIME_IN_SECONDS">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
                                     <SimpleIdentifier Name="HIGH_LOAD_TIME_IN_SECONDS"/>
                                 </BinaryExpression>
                             </Guards>
@@ -901,8 +1050,8 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="SECONDS_ELAPSED &lt; LOW_LOAD_TIME_IN_SECONDS">
-                                    <SimpleIdentifier Name="SECONDS_ELAPSED"/>
+                                <BinaryExpression Operator="&lt;" Text="WORKLOAD_SECONDS_ELAPSED &lt; LOW_LOAD_TIME_IN_SECONDS">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
                                     <SimpleIdentifier Name="LOW_LOAD_TIME_IN_SECONDS"/>
                                 </BinaryExpression>
                             </Guards>
@@ -937,8 +1086,8 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="SECONDS_ELAPSED &lt; HIGH_LOAD_TIME_IN_SECONDS">
-                                    <SimpleIdentifier Name="SECONDS_ELAPSED"/>
+                                <BinaryExpression Operator="&lt;" Text="WORKLOAD_SECONDS_ELAPSED &lt; HIGH_LOAD_TIME_IN_SECONDS">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
                                     <SimpleIdentifier Name="HIGH_LOAD_TIME_IN_SECONDS"/>
                                 </BinaryExpression>
                             </Guards>
@@ -989,13 +1138,13 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Actions>
-                                <BinaryExpression Operator="+=" Text="SECONDS_ELAPSED += 1">
-                                    <SimpleIdentifier Name="SECONDS_ELAPSED"/>
+                                <BinaryExpression Operator="+=" Text="WORKLOAD_SECONDS_ELAPSED += 1">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
                                     <IntConstant Value="1"/>
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-85" Y="-49"/>
+                                <Point X="-38" Y="-50"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -1011,30 +1160,44 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Actions>
-                                <BinaryExpression Operator="=" Text="SECONDS_ELAPSED = 0">
-                                    <SimpleIdentifier Name="SECONDS_ELAPSED"/>
+                                <BinaryExpression Operator="=" Text="WORKLOAD_SECONDS_ELAPSED = 0">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
                                     <IntConstant Value="0"/>
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-79" Y="31"/>
+                                <Point X="-64" Y="31"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
                 </EdgeList>
             </Graph>
         </SimpleComponent>
+        <VariableComponent Name="HPA_SECONDS_ELAPSED">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <SimpleIdentifier Name="HPA_CHECK_INTERVAL"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="HPA_SECONDS_ELAPSED == 0">
+                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
         <VariableComponent Name="NEXT_POD">
             <VariableRange>
                 <BinaryExpression Operator="..">
-                    <SimpleIdentifier Name="POD_MIN"/>
+                    <IntConstant Value="1"/>
                     <SimpleIdentifier Name="POD_MAX"/>
                 </BinaryExpression>
             </VariableRange>
             <VariableInitial>
-                <BinaryExpression Operator="==" Text="NEXT_POD == POD_MIN">
+                <BinaryExpression Operator="==" Text="NEXT_POD == 1">
                     <SimpleIdentifier Name="NEXT_POD"/>
-                    <SimpleIdentifier Name="POD_MIN"/>
+                    <IntConstant Value="1"/>
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
@@ -1066,23 +1229,6 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
-        <VariableComponent Name="SECONDS_ELAPSED">
-            <VariableRange>
-                <BinaryExpression Operator=".." Text="0..\max(LOW_LOAD_TIME_IN_SECONDS,HIGH_LOAD_TIME_IN_SECONDS)">
-                    <IntConstant Value="0"/>
-                    <FunctionCallExpression FunctionName="\max">
-                        <SimpleIdentifier Name="LOW_LOAD_TIME_IN_SECONDS"/>
-                        <SimpleIdentifier Name="HIGH_LOAD_TIME_IN_SECONDS"/>
-                    </FunctionCallExpression>
-                </BinaryExpression>
-            </VariableRange>
-            <VariableInitial>
-                <BinaryExpression Operator="==">
-                    <SimpleIdentifier Name="SECONDS_ELAPSED"/>
-                    <IntConstant Value="0"/>
-                </BinaryExpression>
-            </VariableInitial>
-        </VariableComponent>
         <VariableComponent Name="SUBMITTED_THIS_SECOND">
             <VariableRange>
                 <BinaryExpression Operator="..">
@@ -1097,9 +1243,26 @@ The "NODE" automata and variables have been renamed to "POD", e.g. "PODS_INITIAL
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
+        <VariableComponent Name="WORKLOAD_SECONDS_ELAPSED">
+            <VariableRange>
+                <BinaryExpression Operator=".." Text="0..\max(LOW_LOAD_TIME_IN_SECONDS,HIGH_LOAD_TIME_IN_SECONDS)">
+                    <IntConstant Value="0"/>
+                    <FunctionCallExpression FunctionName="\max">
+                        <SimpleIdentifier Name="LOW_LOAD_TIME_IN_SECONDS"/>
+                        <SimpleIdentifier Name="HIGH_LOAD_TIME_IN_SECONDS"/>
+                    </FunctionCallExpression>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==">
+                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
         <ForeachComponent Name="POD_INDEX">
             <BinaryExpression Operator="..">
-                <SimpleIdentifier Name="POD_MIN"/>
+                <IntConstant Value="1"/>
                 <SimpleIdentifier Name="POD_MAX"/>
             </BinaryExpression>
             <ComponentList>
