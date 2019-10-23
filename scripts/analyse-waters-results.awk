@@ -32,7 +32,7 @@ match($0, "<(.*)> ... (false|true) \\((.*),(.*)\\)", matches) {
 			split(param_items[param_index], values, "=");
 			printf "%s,", values[1];
 		}
-		print "meets_sla,verification_time";
+		print "meets_sla,total_time";
 		header_printed = 1;
 	}
 
@@ -46,6 +46,27 @@ match($0, "<(.*)> ... (false|true) \\((.*),(.*)\\)", matches) {
 	gsub(" s", "", time);
 
 	# Print final output.
-	printf "%s,%s\n", meets, time;
+	#printf "%s,%s", meets, time;
 }
 
+#/Verification result:/ {
+#    verification_result=$3
+#    printf ",%s", verification_result
+#}
+
+/Total runtime:/ {
+    verification_time=$3
+    gsub("s", "", verification_time);
+    #printf ",%s", verification_time
+}
+
+/Compile time:/ {
+    compile_time=$3
+    gsub("s", "", compile_time);
+    #printf ",%s", compile_time
+
+    total_time=compile_time+verification_time
+    #printf ",%s\n", total_time
+
+    printf "%s,%s\n", meets, total_time;
+}
