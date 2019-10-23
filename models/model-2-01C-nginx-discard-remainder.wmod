@@ -875,7 +875,7 @@ This is a test to improve performance of the NGINX model (2-01). Here we assume 
 <SimpleIdentifier Name=":accepting"/>
 </EventList>
 <PointGeometry>
-<Point X="736" Y="720"/>
+<Point X="736" Y="544"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="19" Y="-10"/>
@@ -887,21 +887,21 @@ This is a test to improve performance of the NGINX model (2-01). Here we assume 
 <LabelBlock>
 <SimpleIdentifier Name="allocate_requests_to_pods"/>
 <LabelGeometry Anchor="NW">
-<Point X="-68" Y="-76"/>
+<Point X="-236" Y="-70"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="739" Y="626"/>
+<Point X="739" Y="450"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="PODS_CURRENTLY_ON &lt;= POD_INDEX">
+<BinaryExpression Operator="&gt;=" Text="PODS_CURRENTLY_ON &gt;= POD_INDEX">
 <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
 <SimpleIdentifier Name="POD_INDEX"/>
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \min(POD_QUEUE_CAPACITY+1, MAX_REQUESTS_PER_SECOND / PODS_CURRENTLY_ON)">
+<BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \min(POD_QUEUE_CAPACITY+1, POD_QUEUE_LENGTH[POD_INDEX] + MAX_REQUESTS_PER_SECOND / PODS_CURRENTLY_ON)">
 <IndexedIdentifier Name="POD_QUEUE_LENGTH">
 <SimpleIdentifier Name="POD_INDEX"/>
 </IndexedIdentifier>
@@ -910,15 +910,52 @@ This is a test to improve performance of the NGINX model (2-01). Here we assume 
 <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
+<BinaryExpression Operator="+">
+<IndexedIdentifier Name="POD_QUEUE_LENGTH">
+<SimpleIdentifier Name="POD_INDEX"/>
+</IndexedIdentifier>
 <BinaryExpression Operator="/">
 <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
 <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+</BinaryExpression>
 </BinaryExpression>
 </FunctionCallExpression>
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
 <Point X="-236" Y="-49"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<SimpleIdentifier Name="allocate_requests_to_pods"/>
+<LabelGeometry Anchor="NW">
+<Point X="-233" Y="12"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="734" Y="650"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&lt;" Text="PODS_CURRENTLY_ON &lt; POD_INDEX">
+<SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+<SimpleIdentifier Name="POD_INDEX"/>
+</BinaryExpression>
+</Guards>
+<Actions>
+<BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = POD_QUEUE_LENGTH[POD_INDEX]">
+<IndexedIdentifier Name="POD_QUEUE_LENGTH">
+<SimpleIdentifier Name="POD_INDEX"/>
+</IndexedIdentifier>
+<IndexedIdentifier Name="POD_QUEUE_LENGTH">
+<SimpleIdentifier Name="POD_INDEX"/>
+</IndexedIdentifier>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-229" Y="36"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
