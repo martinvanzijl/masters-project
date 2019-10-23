@@ -2,12 +2,16 @@
 
 # Constants.
 #MODEL=~/Desktop/github/models/model-2-01-nginx.wmod
-MODEL=~/Desktop/github/models/model-2-01-nginx-basic.wmod
-#MODEL="../models/model-2-02-nodejs.wmod"
+MODEL=~/Desktop/github/models/model-2-01C-nginx-discard-remainder.wmod
 OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.
-pushd ~/Desktop/github/waters
+if [ -d ~/Desktop/waters ]
+then
+    pushd ~/Desktop/waters
+else
+    pushd ~/Desktop/github/waters
+fi
 
 # Back up output file.
 if [ -f $OUTPUT_FILE ]
@@ -32,26 +36,24 @@ fi
 INPUT_FILE=~/Desktop/github/results/test-cases.csv
 HEADER_READ=0
 
-#processing_time=6
-
-while IFS=, read -r rps_low rps_high high_duration low_duration processing_time pod_min pod_max initial_pods scale_cpu
+while IFS=, read -r rps pod_min pod_max initial_pods scale_cpu
 do
     if ((HEADER_READ==0))
     then
         HEADER_READ=1
     else
         processing_time=6 # Hard code processing time.
-        echo "Testing: $rps_low|$rps_high|$high_duration|$low_duration|$processing_time|$pod_min|$pod_max|$initial_pods|$scale_cpu"
-        ./wcheck -bdd -lang -q  -DREQ_SENT_PER_SEC_HIGH=$rps_high \
-                                -DREQ_SENT_PER_SEC_LOW=$rps_low \
-                                -DHIGH_LOAD_TIME_IN_SECONDS=$high_duration \
-                                -DPOD_MIN=$pod_min \
-                                -DPOD_MAX=$pod_max \
-                                -DPODS_INITIALLY_ON=$initial_pods \
-                                -DPROCESSING_TIME_PER_REQ_IN_MS=$processing_time \
-                                -DSCALE_CPU_THRESHOLD=$scale_cpu \
-                                $MODEL \
-                                 >> $OUTPUT_FILE
+        echo "Testing: $rps|$processing_time|$pod_min|$pod_max|$initial_pods|$scale_cpu"
+        ./wcheck -bdd -lang -q -stats   -DMAX_REQUESTS_PER_SECOND=$rps\
+                                        -DPOD_MIN=$pod_min \
+                                        -DPOD_MAX=$pod_max \
+                                        -DPODS_INITIALLY_ON=$initial_pods \
+                                        -DPROCESSING_TIME_PER_REQ_IN_MS=$processing_time \
+                                        -DSCALE_CPU_THRESHOLD=$scale_cpu \
+                                        $MODEL \
+                                        >> $OUTPUT_FILE
+        # I could use this to get the total time (verification + compilation):
+        # /usr/bin/time ... --append --format='TOTAL_TIME:%E' --output=$OUTPUT_FILE
     fi
 done < $INPUT_FILE
 
