@@ -2,7 +2,8 @@
 
 # Constants.
 #MODEL=~/Desktop/github/models/model-2-01-nginx.wmod
-MODEL=~/Desktop/github/models/model-2-01C-nginx-discard-remainder.wmod
+#MODEL=~/Desktop/github/models/model-2-01C-nginx-discard-remainder.wmod
+MODEL=~/Desktop/github/models/model-2-01F-nginx-simpler-workload.wmod
 OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.
@@ -33,7 +34,8 @@ fi
 #done
 
 # Test from CSV file.
-INPUT_FILE=~/Desktop/github/results/test-cases.csv
+#INPUT_FILE=~/Desktop/github/results/test-cases.csv
+INPUT_FILE=~/Desktop/github/results/speed-test-cases.csv
 HEADER_READ=0
 
 while IFS=, read -r rps pod_min pod_max initial_pods scale_cpu
@@ -44,7 +46,9 @@ do
     else
         processing_time=6 # Hard code processing time.
         echo "Testing: $rps|$processing_time|$pod_min|$pod_max|$initial_pods|$scale_cpu"
-        ./wcheck -bdd -lang -q -stats   -DMAX_REQUESTS_PER_SECOND=$rps\
+        ./wcheck -bdd -lang -q -stats \
+                                        -DREQ_SENT_PER_SEC_HIGH=$rps \
+                                        -DREQ_SENT_PER_SEC_LOW=$rps \
                                         -DPOD_MIN=$pod_min \
                                         -DPOD_MAX=$pod_max \
                                         -DPODS_INITIALLY_ON=$initial_pods \
@@ -52,6 +56,9 @@ do
                                         -DSCALE_CPU_THRESHOLD=$scale_cpu \
                                         $MODEL \
                                         >> $OUTPUT_FILE
+
+                                        #-DMAX_REQUESTS_PER_SECOND=$rps \
+
         # I could use this to get the total time (verification + compilation):
         # /usr/bin/time ... --append --format='TOTAL_TIME:%E' --output=$OUTPUT_FILE
     fi
