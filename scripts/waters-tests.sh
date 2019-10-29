@@ -2,8 +2,7 @@
 
 # Constants.
 #MODEL=~/Desktop/github/models/model-2-01-nginx.wmod
-#MODEL=~/Desktop/github/models/model-2-01C-nginx-discard-remainder.wmod
-MODEL=~/Desktop/github/models/model-2-01F-nginx-simpler-workload.wmod
+MODEL=~/Desktop/github/models/model-2-01E-nginx-quick-req-allocation.wmod
 OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.
@@ -34,8 +33,8 @@ fi
 #done
 
 # Test from CSV file.
-#INPUT_FILE=~/Desktop/github/results/test-cases.csv
-INPUT_FILE=~/Desktop/github/results/speed-test-cases.csv
+INPUT_FILE=~/Desktop/github/results/test-cases.csv
+#INPUT_FILE=~/Desktop/github/results/speed-test-cases.csv
 HEADER_READ=0
 
 while IFS=, read -r rps pod_min pod_max initial_pods scale_cpu
@@ -57,6 +56,9 @@ do
                                         $MODEL \
                                         >> $OUTPUT_FILE
 
+                                        #-DMAX_REQUESTS_PER_SECOND_ACTUAL=$rps \
+                                        #-DREQ_SENT_PER_SEC_HIGH=$rps \
+                                        #-DREQ_SENT_PER_SEC_LOW=$rps \
                                         #-DMAX_REQUESTS_PER_SECOND=$rps \
 
         # I could use this to get the total time (verification + compilation):
