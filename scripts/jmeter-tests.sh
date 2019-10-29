@@ -2,24 +2,18 @@
 # To be run on the lab PC.
 
 # Trials
-TRIALS_PER_TEST_CASE=1
-MINUTES_PER_TRIAL=1
+TRIALS_PER_TEST_CASE=3
+MINUTES_PER_TRIAL=2
 
 # SLA
 MAX_ERROR_RATE_PERCENT=1
 MAX_RESPONSE_TIME_IN_MS=10000
 
-# Cluster
-MIN_REPLICAS=4
-MAX_REPLICAS_DEFAULT=4
-STARTING_REPLICAS=4
-CPU_SCALE_THRESHOLD_DEFAULT=80
-
 # Request details.
-#REQUEST_PATH="/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/"
-REQUEST_PATH="/api/v1/namespaces/nodejs-namespace/services/nodejs-service:8080/proxy/"
-#APP="nginx"
-APP="nodejs"
+REQUEST_PATH="/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/"
+#REQUEST_PATH="/api/v1/namespaces/nodejs-namespace/services/nodejs-service:8080/proxy/"
+APP="nginx"
+#APP="nodejs"
 
 # Files.
 OVERALL_RESULTS_FILE="/home/mv22/Desktop/results/overall-results.csv"
@@ -30,19 +24,23 @@ CPU_SCALE_THRESHOLD_MIN=80
 CPU_SCALE_THRESHOLD_MAX=80
 CPU_SCALE_THRESHOLD_INC=1
 
-MAX_RPS_MIN=1
-MAX_RPS_MAX=1
-MAX_RPS_INC=1
+MAX_RPS_MIN=100
+MAX_RPS_MAX=300
+MAX_RPS_INC=50
 
-MAX_REPLICAS_MIN=4
+MIN_REPLICAS=1
+
+MAX_REPLICAS_MIN=1
 MAX_REPLICAS_MAX=4
 MAX_REPLICAS_INC=1
 
-USERS_DEFAULT=25
+STARTING_REPLICAS=1
+
+USERS_DEFAULT=1000
 
 # Calculate duration.
-#duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
-duration_in_seconds=10
+duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
+#duration_in_seconds=10
 
 # Calculate total test cases.
 TOTAL_TEST_CASES=$(( ((CPU_SCALE_THRESHOLD_MAX-CPU_SCALE_THRESHOLD_MIN)/CPU_SCALE_THRESHOLD_INC + 1) * ((MAX_RPS_MAX-MAX_RPS_MIN)/MAX_RPS_INC + 1) * ((MAX_REPLICAS_MAX-MAX_REPLICAS_MIN)/MAX_REPLICAS_INC + 1) ))
@@ -59,8 +57,9 @@ echo "Trial Duration (s),Start,End,Users,Samples per Min.,Samples per Sec.,Min P
 pushd ~/Desktop/apache-jmeter-5.1.1/bin
 
 # Loop through values for users.
-for((users=5;users<=5;users+=1))
-do
+users=$USERS_DEFAULT
+#for((users=5;users<=5;users+=1))
+#do
     # Loop through values for maximum replicas.
     for((max_replicas=$MAX_REPLICAS_MIN;max_replicas<=$MAX_REPLICAS_MAX;max_replicas+=$MAX_REPLICAS_INC))
     do
@@ -68,7 +67,7 @@ do
 	    for((cpu_scale_threshold=$CPU_SCALE_THRESHOLD_MIN;cpu_scale_threshold<=$CPU_SCALE_THRESHOLD_MAX;cpu_scale_threshold+=$CPU_SCALE_THRESHOLD_INC))
 	    do
 		    # Configure the cluster.
-		    ### ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS $APP"
+		    ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $STARTING_REPLICAS $APP"
 
 		    # Loop through values for requests per second.
 		    for((max_rps=$MAX_RPS_MIN;max_rps<=$MAX_RPS_MAX;max_rps+=$MAX_RPS_INC))
@@ -78,7 +77,7 @@ do
 			    echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: users=$users, cpu=$cpu_scale_threshold, max_replicas=$max_replicas, rps=$max_rps..."
 
 			    # Estimate time left.
-			    ### awk "BEGIN {printf \"About %.1f minutes to go...\n\", ($TOTAL_TEST_CASES - $test_case_number + 1)*$MINUTES_PER_TEST_CASE}"
+			    awk "BEGIN {printf \"About %.1f minutes to go...\n\", ($TOTAL_TEST_CASES - $test_case_number + 1)*$MINUTES_PER_TEST_CASE}"
 
 			    # Calculate maximum requests per minutes.
 			    max_rpm=$(($max_rps*60))
@@ -98,9 +97,12 @@ do
 				    echo "Running trial number #$trial_number/$TRIALS_PER_TEST_CASE..."
 
 				    # Wait for cluster to be ready.
-				    ### echo "Waiting for cluster to be ready..."
-				    ### ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS $APP"
-				    ### echo "Cluster is ready..."
+                    echo "Killing existing pods..."
+                    ssh donner "./server-kill-pods.sh $APP"
+                    echo "Pods killed..."
+				    echo "Waiting for cluster to be ready..."
+				    ssh donner "./server-wait-till-cluster-ready.sh $STARTING_REPLICAS $APP"
+				    echo "Cluster is ready..."
 
 				    # Calculate start time.
 				    trial_start_time=`date +"%Y-%m-%d %H:%M:%S"`
@@ -128,7 +130,7 @@ do
 		    done
 	    done
     done
-done
+#done
 
 # Back up.
 BACKUP_FOLDER="/home/mv22/Desktop/results/backup-"`date +"%Y-%m-%d-%H%M"`
