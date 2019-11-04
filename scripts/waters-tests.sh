@@ -43,7 +43,7 @@ do
     then
         HEADER_READ=1
     else
-        processing_time=6 # Hard code processing time.
+        processing_time=25 # Hard code processing time.
         echo "Testing: $rps|$processing_time|$pod_min|$pod_max|$initial_pods|$scale_cpu"
         ./wcheck -bdd -lang -q -stats \
                                         -DREQ_SENT_PER_SEC_HIGH=$rps \
