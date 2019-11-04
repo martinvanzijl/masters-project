@@ -24,7 +24,9 @@ CPU_SCALE_THRESHOLD_MIN=80
 CPU_SCALE_THRESHOLD_MAX=80
 CPU_SCALE_THRESHOLD_INC=1
 
-MIN_REPLICAS=1
+MIN_REPLICAS_MIN=1
+MIN_REPLICAS_MAX=4
+MIN_REPLICAS_INC=1
 
 MAX_RPS_MIN=1
 MAX_RPS_MAX=5
@@ -34,15 +36,15 @@ MAX_REPLICAS_MIN=4
 MAX_REPLICAS_MAX=4
 MAX_REPLICAS_INC=1
 
-STARTING_REPLICAS_MIN=1
-STARTING_REPLICAS_MAX=4
-STARTING_REPLICAS_INC=1
+#STARTING_REPLICAS_MIN=1
+#STARTING_REPLICAS_MAX=4
+#STARTING_REPLICAS_INC=1
 
 # Calculate duration.
 duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
 
 # Calculate total test cases.
-TOTAL_TEST_CASES=$(( ((CPU_SCALE_THRESHOLD_MAX-CPU_SCALE_THRESHOLD_MIN)/CPU_SCALE_THRESHOLD_INC + 1) * ((MAX_RPS_MAX-MAX_RPS_MIN)/MAX_RPS_INC + 1) * ((MAX_REPLICAS_MAX-MAX_REPLICAS_MIN)/MAX_REPLICAS_INC + 1) * ((STARTING_REPLICAS_MAX-STARTING_REPLICAS_MIN)/STARTING_REPLICAS_INC + 1) ))
+TOTAL_TEST_CASES=$(( ((CPU_SCALE_THRESHOLD_MAX-CPU_SCALE_THRESHOLD_MIN)/CPU_SCALE_THRESHOLD_INC + 1) * ((MAX_RPS_MAX-MAX_RPS_MIN)/MAX_RPS_INC + 1) * ((MAX_REPLICAS_MAX-MAX_REPLICAS_MIN)/MAX_REPLICAS_INC + 1) * ((MIN_REPLICAS_MAX-MIN_REPLICAS_MIN)/MIN_REPLICAS_INC + 1) ))
 MINUTES_PER_TEST_CASE=$((TRIALS_PER_TEST_CASE*MINUTES_PER_TRIAL))
 test_case_number=0
 
@@ -56,8 +58,10 @@ echo "Duration (s),Start,End,Req. per Sec. (low),Req. per Sec. (high),High Durat
 pushd ~/Desktop/apache-jmeter-5.1.1
 
 # Loop through values for users.
-for((starting_replicas=$STARTING_REPLICAS_MIN;starting_replicas<=$STARTING_REPLICAS_MAX;starting_replicas+=$STARTING_REPLICAS_INC))
+for((min_replicas=$MIN_REPLICAS_MIN;min_replicas<=$MIN_REPLICAS_MAX;min_replicas+=$MIN_REPLICAS_INC))
 do
+    starting_replicas=$min_replicas
+
     # Loop through values for maximum replicas.
     for((max_replicas=$MAX_REPLICAS_MIN;max_replicas<=$MAX_REPLICAS_MAX;max_replicas+=$MAX_REPLICAS_INC))
     do
@@ -65,14 +69,14 @@ do
 	    for((cpu_scale_threshold=$CPU_SCALE_THRESHOLD_MIN;cpu_scale_threshold<=$CPU_SCALE_THRESHOLD_MAX;cpu_scale_threshold+=$CPU_SCALE_THRESHOLD_INC))
 	    do
 		    # Configure the cluster.
-		    ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $MIN_REPLICAS $max_replicas $starting_replicas $APP"
+		    ssh donner "./server-configure-kubernetes.sh $cpu_scale_threshold $min_replicas $max_replicas $starting_replicas $APP"
 
 		    # Loop through values for requests per second.
 		    for((max_rps=$MAX_RPS_MIN;max_rps<=$MAX_RPS_MAX;max_rps+=$MAX_RPS_INC))
 		    do
 			    # Print information.
 			    test_case_number=$((test_case_number+1))
-			    echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: cpu=$cpu_scale_threshold, starting_replicas=$starting_replicas, max_replicas=$max_replicas, rps(high load)=$max_rps..."
+			    echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: cpu=$cpu_scale_threshold, min_replicas=$min_replicas, max_replicas=$max_replicas, rps(high load)=$max_rps..."
 
 			    # Estimate time left.
 			    awk "BEGIN {printf \"About %.1f minutes to go...\n\", ($TOTAL_TEST_CASES - $test_case_number + 1)*$MINUTES_PER_TEST_CASE}"
@@ -84,7 +88,7 @@ do
 			    for((trial_number=1;trial_number<=TRIALS_PER_TEST_CASE;trial_number++))
 			    do
 				    # Pad with zeroes.
-				    printf -v trial_string "%02d_%02d_%02d_%03d_%03d_%02d" $users $starting_replicas $max_replicas $cpu_scale_threshold $max_rps $trial_number
+				    printf -v trial_string "%02d_%02d_%02d_%03d_%03d_%02d" $users $min_replicas $max_replicas $cpu_scale_threshold $max_rps $trial_number
 
 				    # Calculate results file.
 				    JMETER_OUT_FILE="/home/mv22/Desktop/results/jmeter-$trial_string.txt"
@@ -130,7 +134,7 @@ do
                     low_duration=60
                     high_duration=60
                     max_error_rate=1
-				    printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$max_rps_low,$max_rps_high,$high_duration,$low_duration,$app_response_time,$MIN_REPLICAS,$max_replicas,$starting_replicas,$cpu_scale_threshold,$MAX_RESPONSE_TIME_IN_MS,$max_error_rate," >> $OVERALL_RESULTS_FILE
+				    printf "$duration_in_seconds,$trial_start_time,$trial_end_time,$max_rps_low,$max_rps_high,$high_duration,$low_duration,$app_response_time,$min_replicas,$max_replicas,$starting_replicas,$cpu_scale_threshold,$MAX_RESPONSE_TIME_IN_MS,$max_error_rate," >> $OVERALL_RESULTS_FILE
 
                     # Analyse with Python script.
 				    $PYTHON_SCRIPT $JMETER_REPORT_FILE $OVERALL_RESULTS_FILE
