@@ -7,21 +7,14 @@ This model represents the Node.js application on the local Kubernetes cluster. I
 
 === Cloud ===
 
-Instead of running NGINX, the cloud runs a NojdeJS application: https://github.com/martinvanzijl/masters-project/tree/master/kubernetes/test-application
+Instead of running NGINX, the cloud runs a NodeJS application: https://github.com/martinvanzijl/masters-project/tree/master/kubernetes/nodejs-test-appl
 
 The Kubernetes configuration is available here: https://github.com/martinvanzijl/masters-project/blob/master/kubernetes/nodejs.yml
 
 
 === Workload ===
 
-There is a new parameter: "PROCESSING_TIME_PER_REQ_IN_SEC". This is the amount of time (in seconds) taken to process a single request. Then the value for requests handled per second per pod (REQ_HANDLED_PER_SEC_PER_POD) is set to "1/PROCESSING_TIME_PER_REQ_IN_SEC". This assumes that each node can only process one request at a time - and we can enforce this using an "acquire-wait-semaphore" loop.
-
-
-=== Analysis ===
-
-The reponse times, in general, are a lot higher, even when not using an "acquire-wait-semaphore" loop.
-
-I also get conflicting results when running tests in JMeter! I think the one-minute tests are too short. it's time to use a longer interval, like 10 minutes.
+The parameter PROCESSING_TIME_PER_REQ_IN_MS represents the time to process each request in milli-seconds.
 
 
 === Other Notes ===
@@ -34,12 +27,12 @@ It seems WATERS cannot handle floating-point numbers. For example, I cannot set 
                 <IntConstant Value="10"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="PODS_INITIALLY_ON">
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="PODS_INITIALLY_ON">
             <ConstantAliasExpression>
                 <IntConstant Value="2"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="POD_MIN">
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="POD_MIN">
             <ConstantAliasExpression>
                 <IntConstant Value="1"/>
             </ConstantAliasExpression>
@@ -54,16 +47,16 @@ It seems WATERS cannot handle floating-point numbers. For example, I cannot set 
                 <IntConstant Value="200"/>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="PROCESSING_TIME_PER_REQ_IN_SEC">
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="PROCESSING_TIME_PER_REQ_IN_MS">
             <ConstantAliasExpression>
-                <IntConstant Value="1"/>
+                <IntConstant Value="1000"/>
             </ConstantAliasExpression>
         </ConstantAlias>
         <ConstantAlias Name="REQ_HANDLED_PER_SEC_PER_POD">
             <ConstantAliasExpression>
                 <BinaryExpression Operator="/">
-                    <IntConstant Value="1"/>
-                    <SimpleIdentifier Name="PROCESSING_TIME_PER_REQ_IN_SEC"/>
+                    <IntConstant Value="1000"/>
+                    <SimpleIdentifier Name="PROCESSING_TIME_PER_REQ_IN_MS"/>
                 </BinaryExpression>
             </ConstantAliasExpression>
         </ConstantAlias>
