@@ -1,0 +1,70 @@
+# RESOURCE QUOTA
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: nodejs-quota
+spec:
+  hard:
+    pods: "{{max_pods}}"
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-service
+  labels:
+    app: php
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: php
+  type: NodePort
+---
+# DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-deployment
+  labels:
+    app: php
+spec:
+  replicas: {{starting_pods}}
+  selector:
+    matchLabels:
+      app: php
+  template:
+    metadata:
+      labels:
+        app: php
+    spec:
+      containers:
+      - name: php
+        image: martinvanzijl/php-libsodium:latest
+        resources:
+          requests:
+            cpu: "25m"
+            memory: "25Mi"
+          limits:
+            cpu: "100m"
+            memory: "200Mi"
+        ports:
+        - containerPort: 8080
+          name: nodejs
+---
+# AUTO-SCALING POLICY
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: php-deployment
+  namespace: php-namespace
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: php-deployment
+  minReplicas: {{min_pods}}
+  maxReplicas: {{max_pods}}
+  targetCPUUtilizationPercentage: {{scale_cpu_threshold}}
+
