@@ -2,6 +2,7 @@
 
 /* Import modules. */
 var http = require('http');
+var url = require('url');
 
 /* Create lock. */
 var locked = false;
@@ -12,9 +13,23 @@ var counter = 1;
 /* Request handler. */
 var handleRequest = async function(request, response) {
 
+  /* Get parameters. */
+  var response_time = 1000;
+  try {
+	var query = url.parse(request.url, true).query;
+
+    if (typeof query.rt !== 'undefined') {
+	  response_time = query.rt;
+    }
+  }
+  catch(error) {
+	/* console.log("No rt parameter specified, using default value"); */
+  }
+  console.log("Response time = " + response_time);
+
   /* Wait while locked. */
   while(locked) {
-    await sleep(100);
+    await sleep(response_time/10);
   }
 
   /* Turn on lock. */
@@ -24,7 +39,7 @@ var handleRequest = async function(request, response) {
   console.log('Received request for URL: ' + request.url);
 
   /* Wait (sleep) for a while. */
-  await sleep(1000);
+  await sleep(response_time);
 
   /* Get the current time, to avoid cached (304) responses. */
   var datetime = new Date();
@@ -54,3 +69,4 @@ var www = http.createServer(handleRequest);
 
 /* Listen for connections. */
 www.listen(8080);
+

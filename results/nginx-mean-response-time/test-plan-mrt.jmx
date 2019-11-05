@@ -18,7 +18,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1000</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${__P(users,1)}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">${__P(duration_in_seconds,60)}</stringProp>
@@ -34,7 +34,7 @@
           <stringProp name="HTTPSampler.port">8001</stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/</stringProp>
+          <stringProp name="HTTPSampler.path">${__P(request_path,/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/)}</stringProp>
           <stringProp name="TestPlan.comments">Request settings to the &quot;nginx&quot; service on the Kubernetes cluster.</stringProp>
           <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
@@ -74,7 +74,7 @@
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
             <stringProp name="HTTPSampler.response_timeout">10000</stringProp>
             <stringProp name="TestPlan.comments">A single request to the cloud system.</stringProp>
           </HTTPSamplerProxy>
@@ -82,7 +82,7 @@
         </hashTree>
         <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
           <intProp name="calcMode">1</intProp>
-          <stringProp name="throughput">${__P(max_rpm,24000.0)}</stringProp>
+          <stringProp name="throughput">${__P(max_rpm,60.0)}</stringProp>
           <stringProp name="TestPlan.comments">Try to send 1000 requests per second.</stringProp>
         </ConstantThroughputTimer>
         <hashTree/>
@@ -147,7 +147,7 @@
               <idleTime>true</idleTime>
             </value>
           </objProp>
-          <stringProp name="filename">${__P(output_report_file,/home/mv22/Desktop/results/report.xml)}</stringProp>
+          <stringProp name="filename">${__P(output_report_file,/home/mv22/Desktop/results/report.csv)}</stringProp>
           <stringProp name="TestPlan.comments">Create a report for quick viewing.</stringProp>
         </ResultCollector>
         <hashTree/>

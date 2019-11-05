@@ -2,46 +2,46 @@
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: nodejs-quota
+  name: nginx-quota
 spec:
   hard:
-    pods: "4" # Use a maximum of 4 pods.
+    pods: "{{max_pods}}"
 ---
 # SERVICE
 apiVersion: v1
 kind: Service
 metadata:
-  name: nodejs-service
+  name: nginx
   labels:
-    app: nodejs
+    app: nginx
 spec:
   ports:
-    - port: 8080 # Run the service on port 8080.
-      targetPort: 8080
+    - port: 80 # Run the service on port 80.
+      targetPort: 80
   selector:
-    app: nodejs
+    app: nginx
   type: NodePort # Use a fixed port. "LoadBalancer" does not seem to work.
 ---
 # DEPLOYMENT
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nodejs-deployment
+  name: nginx-deployment
   labels:
-    app: nodejs
+    app: nginx
 spec:
-  replicas: 2
+  replicas: {{starting_pods}}
   selector:
     matchLabels:
-      app: nodejs
+      app: nginx
   template:
     metadata:
       labels:
-        app: nodejs
+        app: nginx
     spec:
       containers:
-      - name: nodejs # Container name.
-        image: martinvanzijl/test:v3 # Image (application).
+      - name: nginx # Container name.
+        image: nginx:1.15.6 # Image (application).
         resources:
           requests:
             cpu: "25m" # Use a minimum of 25 milli-CPUs.
@@ -50,21 +50,21 @@ spec:
             cpu: "40m" # Use a maximum of 40 milli-CPUs.
             memory: "50Mi" # Use a maximum of 50 MB memory.
         ports:
-        - containerPort: 8080
-          name: nodejs
+        - containerPort: 80
+          name: nginx
 ---
 # AUTO-SCALING POLICY
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: nodejs-deployment
-  namespace: nodejs-namespace
+  name: nginx-deployment
+  namespace: nginx-namespace
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: nodejs-deployment
-  minReplicas: 2 # Scale down to a minimum of 2 pods.
-  maxReplicas: 4 # Scale up to a maximum of 4 pods.
-  targetCPUUtilizationPercentage: 50
+    name: nginx-deployment
+  minReplicas: {{min_pods}}
+  maxReplicas: {{max_pods}}
+  targetCPUUtilizationPercentage: {{scale_cpu_threshold}}
 

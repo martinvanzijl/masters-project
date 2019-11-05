@@ -5,71 +5,66 @@ metadata:
   name: nginx-quota
 spec:
   hard:
-    pods: "4"	# Use a maximum of 4 pods.
+    pods: "4" # Use a maximum of 4 pods.
 ---
 # SERVICE
-apiVersion: v1	# Kubernetes API version.
-kind: Service	# This is a service
+apiVersion: v1
+kind: Service
 metadata:
-  name: nginx	# Service name
+  name: nginx
   labels:
-    app: nginx	# Apply the "nginx" label to this service.
+    app: nginx
 spec:
   ports:
-    - port: 80		# The service runs on port 80.
-      targetPort: 80	# What is a "target port"?
+    - port: 80 # Run the service on port 80.
+      targetPort: 80
   selector:
-    app: nginx		# What is a "selector"?
-  type: NodePort	# Use a fixed port. "LoadBalancer" does not seem to work.
+    app: nginx
+  type: NodePort # Use a fixed port. "LoadBalancer" does not seem to work.
 ---
 # DEPLOYMENT
-apiVersion: apps/v1	# Kubernetes API version.
-kind: Deployment	# This is a deployment.
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: nginx-deployment	# Deployment name.
+  name: nginx-deployment
   labels:
-    app: nginx	# Apply the label "nginx" to this deployment.
+    app: nginx
 spec:
-  replicas: 2	# Use two replicas (one on each worker node).
+  replicas: 2
   selector:
     matchLabels:
-      app: nginx	# Match the label "nginx" for the selector.
+      app: nginx
   template:
     metadata:
       labels:
-        app: nginx	# Match the label "nginx" for this template.
+        app: nginx
     spec:
       containers:
-      - name: nginx		# Container name.
+      - name: nginx # Container name.
         image: nginx:1.15.6	# Image (application).
         resources:
           requests:
-            cpu: "25m"		# Use a minimum of 25 milli-CPUs.
-            memory: "25Mi"	# Use a minimum of 25 MB memory.
+            cpu: "25m" # Use a minimum of 25 milli-CPUs.
+            memory: "25Mi" # Use a minimum of 25 MB memory.
           limits:
-            cpu: "40m"		# Use a maximum of 40 milli-CPUs.
-            memory: "50Mi"	# Use a maximum of 50 MB memory.
+            cpu: "40m" # Use a maximum of 40 milli-CPUs.
+            memory: "50Mi" # Use a maximum of 50 MB memory.
         ports:
         - containerPort: 80
           name: nginx
 ---
 # AUTO-SCALING POLICY
-apiVersion: v1
+apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: nginx-deployment
   namespace: nginx-namespace
 spec:
-  minReplicas: 2	# Scale down to a minimum of 2 pods.
-  maxReplicas: 4	# Scale up to a maximum of 4 pods.
-  metrics:
-  - resource:
-    name: cpu	# The scaling threshold is based on CPU usage.
-      target:
-        averageUtilization: 50	# Scale when average CPU usage reaches 50% of the limit.
-        type: Utilization	# What are the other types?
-      type: Resource
   scaleTargetRef:
-    apiVersion: extensions/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     name: nginx-deployment
+  minReplicas: 2 # Scale down to a minimum of 2 pods.
+  maxReplicas: 4 # Scale up to a maximum of 4 pods.
+  targetCPUUtilizationPercentage: 50
+

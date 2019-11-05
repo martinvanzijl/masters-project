@@ -18,7 +18,7 @@ REQUESTS_SENT_INDEX = 0
 ERRORS_INDEX = 1
 
 # Column definitions.
-COLUMN_SUCCESS = 4
+COLUMN_SUCCESS = 7
 
 # Globals.
 total_requests = 0
@@ -32,10 +32,10 @@ def read_arg(number, default):
         return default
 
 # Read arguments.
-input_file_name     = read_arg(1, "/home/mv22/Desktop/results/table.csv")
+input_file_name     = read_arg(1, "/home/mv22/Desktop/results/jmeter-01_80_001_001_00.jtl")
 output_file_name    = read_arg(2, "/home/mv22/Desktop/results/output.csv")
 trial_number        = read_arg(3, "1")
-max_error_rate_slo  = int(read_arg(4, "0"))
+max_error_rate_slo  = int(read_arg(4, "1"))
 summary_file_name  	= read_arg(5, "/home/mv22/Desktop/results/summary.csv")
 
 # Open the file.
@@ -120,7 +120,7 @@ print "*** Meets SLA?:", meets_sla, "***"
 # Add them to the file.
 summary_file = open(summary_file_name, "a")
 csv_writer = csv.writer(summary_file)
+#csv_writer.writerow(["Meets SLA?", "Total Requests", "Total Failures", "Error Rate", "Max Error Rate", "Average RPS", "Average Burst"])
 csv_writer.writerow([int(meets_sla), total_requests, total_failures, error_rate/100.0, max_error_rate_slo/100.0, average_requests_per_second, average_burst])
-#summary_file.write(str(meets_sla) + "," + str(total_requests) + "," + str(total_failures) + "," + str(int(error_rate)) + "%" + "," + str(max_error_rate_slo) + "," + str(average_requests_per_second) + "\n")
 summary_file.close()
 
