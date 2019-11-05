@@ -26,13 +26,21 @@
       <hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-            <collectionProp name="Arguments.arguments"/>
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="rt" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">${__P(app_response_time,1000)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">rt</stringProp>
+              </elementProp>
+            </collectionProp>
           </elementProp>
           <stringProp name="HTTPSampler.domain">donner.cms.waikato.ac.nz</stringProp>
           <stringProp name="HTTPSampler.port">8001</stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">${__P(request_path,/api/v1/namespaces/nginx-namespace/services/nginx:80/proxy/)}</stringProp>
+          <stringProp name="HTTPSampler.path">${__P(request_path,/api/v1/namespaces/nodejs-namespace/services/nodejs-service:8080/proxy/)}</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -45,14 +53,14 @@
         <hashTree/>
         <kg.apc.jmeter.timers.VariableThroughputTimer guiclass="kg.apc.jmeter.timers.VariableThroughputTimerGui" testclass="kg.apc.jmeter.timers.VariableThroughputTimer" testname="Timer" enabled="true">
           <collectionProp name="load_profile">
-            <collectionProp name="359587396">
-              <stringProp name="-742615246">${__P(max_rps_high,400)}</stringProp>
-              <stringProp name="-742615246">${__P(max_rps_high,400)}</stringProp>
+            <collectionProp name="1524590298">
+              <stringProp name="-1332616912">${__P(max_rps_high,2)}</stringProp>
+              <stringProp name="-1332616912">${__P(max_rps_high,2)}</stringProp>
               <stringProp name="60">60</stringProp>
             </collectionProp>
-            <collectionProp name="-827527804">
-              <stringProp name="172595769">${__P(max_rps_low,100)}</stringProp>
-              <stringProp name="172595769">${__P(max_rps_low,100)}</stringProp>
+            <collectionProp name="-596511452">
+              <stringProp name="-1295908487">${__P(max_rps_low,1)}</stringProp>
+              <stringProp name="-1295908487">${__P(max_rps_low,1)}</stringProp>
               <stringProp name="60">60</stringProp>
             </collectionProp>
           </collectionProp>
