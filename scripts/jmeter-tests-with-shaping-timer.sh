@@ -25,26 +25,32 @@ CPU_SCALE_THRESHOLD_MAX=80
 CPU_SCALE_THRESHOLD_INC=1
 
 MIN_REPLICAS_MIN=1
-MIN_REPLICAS_MAX=4
+MIN_REPLICAS_MAX=1
 MIN_REPLICAS_INC=1
+min_replicas=1
 
-MAX_RPS_MIN=1
-MAX_RPS_MAX=5
+MAX_RPS_MIN=2
+MAX_RPS_MAX=2
 MAX_RPS_INC=1
 
-MAX_REPLICAS_MIN=4
-MAX_REPLICAS_MAX=4
+MAX_REPLICAS_MIN=1
+MAX_REPLICAS_MAX=1
 MAX_REPLICAS_INC=1
 
-#STARTING_REPLICAS_MIN=1
-#STARTING_REPLICAS_MAX=4
-#STARTING_REPLICAS_INC=1
+APP_RESPONSE_TIME_MIN=300
+APP_RESPONSE_TIME_MAX=1000
+APP_RESPONSE_TIME_INC=100
+
+STARTING_REPLICAS_MIN=1
+STARTING_REPLICAS_MAX=1
+STARTING_REPLICAS_INC=1
+starting_replicas=$min_replicas
 
 # Calculate duration.
 duration_in_seconds=$(($MINUTES_PER_TRIAL*60))
 
 # Calculate total test cases.
-TOTAL_TEST_CASES=$(( ((CPU_SCALE_THRESHOLD_MAX-CPU_SCALE_THRESHOLD_MIN)/CPU_SCALE_THRESHOLD_INC + 1) * ((MAX_RPS_MAX-MAX_RPS_MIN)/MAX_RPS_INC + 1) * ((MAX_REPLICAS_MAX-MAX_REPLICAS_MIN)/MAX_REPLICAS_INC + 1) * ((MIN_REPLICAS_MAX-MIN_REPLICAS_MIN)/MIN_REPLICAS_INC + 1) ))
+TOTAL_TEST_CASES=$(( ((CPU_SCALE_THRESHOLD_MAX-CPU_SCALE_THRESHOLD_MIN)/CPU_SCALE_THRESHOLD_INC + 1) * ((MAX_RPS_MAX-MAX_RPS_MIN)/MAX_RPS_INC + 1) * ((MAX_REPLICAS_MAX-MAX_REPLICAS_MIN)/MAX_REPLICAS_INC + 1) * ((MIN_REPLICAS_MAX-MIN_REPLICAS_MIN)/MIN_REPLICAS_INC + 1) * ((APP_RESPONSE_TIME_MAX-APP_RESPONSE_TIME_MIN)/APP_RESPONSE_TIME_INC + 1) ))
 MINUTES_PER_TEST_CASE=$((TRIALS_PER_TEST_CASE*MINUTES_PER_TRIAL))
 test_case_number=0
 
@@ -57,11 +63,9 @@ echo "Duration (s),Start,End,Req. per Sec. (low),Req. per Sec. (high),High Durat
 # Go to JMeter directory
 pushd ~/Desktop/apache-jmeter-5.1.1
 
-# Loop through values for users.
-for((min_replicas=$MIN_REPLICAS_MIN;min_replicas<=$MIN_REPLICAS_MAX;min_replicas+=$MIN_REPLICAS_INC))
+# Loop through values response time.
+for((app_response_time=$APP_RESPONSE_TIME_MIN;app_response_time<=$APP_RESPONSE_TIME_MAX;app_response_time+=$APP_RESPONSE_TIME_INC))
 do
-    starting_replicas=$min_replicas
-
     # Loop through values for maximum replicas.
     for((max_replicas=$MAX_REPLICAS_MIN;max_replicas<=$MAX_REPLICAS_MAX;max_replicas+=$MAX_REPLICAS_INC))
     do
@@ -76,7 +80,7 @@ do
 		    do
 			    # Print information.
 			    test_case_number=$((test_case_number+1))
-			    echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: cpu=$cpu_scale_threshold, min_replicas=$min_replicas, max_replicas=$max_replicas, rps(high load)=$max_rps..."
+			    echo "Running test case #$test_case_number/$TOTAL_TEST_CASES: app_response_time=$app_response_time..."
 
 			    # Estimate time left.
 			    awk "BEGIN {printf \"About %.1f minutes to go...\n\", ($TOTAL_TEST_CASES - $test_case_number + 1)*$MINUTES_PER_TEST_CASE}"
@@ -88,7 +92,7 @@ do
 			    for((trial_number=1;trial_number<=TRIALS_PER_TEST_CASE;trial_number++))
 			    do
 				    # Pad with zeroes.
-				    printf -v trial_string "%02d_%02d_%02d_%03d_%03d_%02d" $users $min_replicas $max_replicas $cpu_scale_threshold $max_rps $trial_number
+				    printf -v trial_string "%02d_%02d" $test_case_number $trial_number
 
 				    # Calculate results file.
 				    JMETER_OUT_FILE="/home/mv22/Desktop/results/jmeter-$trial_string.txt"
@@ -120,8 +124,8 @@ do
                     -l $JTL_FILE \
                     -Jrequest_path=$REQUEST_PATH \
                     -Jmax_rps_low=$max_rps_low \
-                    -Jmax_rps_high=$max_rps_high #\
-                    #> $JMETER_OUT_FILE
+                    -Jmax_rps_high=$max_rps_high \
+                    -Japp_response_time=$app_response_time
 
                     # Create summary report file.
                     ./bin/JMeterPluginsCMD.sh --generate-csv $JMETER_REPORT_FILE --input-jtl $JTL_FILE --plugin-type AggregateReport
@@ -130,7 +134,7 @@ do
 				    trial_end_time=`date +"%Y-%m-%d %H:%M:%S"`
 
 				    # Write statistics.
-                    app_response_time=1000
+                    #app_response_time=1000
                     low_duration=60
                     high_duration=60
                     max_error_rate=1
