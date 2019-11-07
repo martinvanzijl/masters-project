@@ -37,8 +37,8 @@ MAX_REPLICAS_MIN=1
 MAX_REPLICAS_MAX=4
 MAX_REPLICAS_INC=1
 
-APP_RESPONSE_TIME_MIN=700
-APP_RESPONSE_TIME_MAX=700
+APP_RESPONSE_TIME_MIN=600
+APP_RESPONSE_TIME_MAX=600
 APP_RESPONSE_TIME_INC=100
 
 STARTING_REPLICAS_MIN=1
@@ -152,6 +152,13 @@ done
 BACKUP_FOLDER="/home/mv22/Desktop/results/backup-"`date +"%Y-%m-%d-%H%M"`
 mkdir $BACKUP_FOLDER
 mv /home/mv22/Desktop/results/*.* $BACKUP_FOLDER
+mkdir $BACKUP_FOLDER/scripts
+cp $PYTHON_SCRIPT $BACKUP_FOLDER/scripts
+cp ~/Desktop/github/jmeter/test-plan-with-shaping-timer.jmx $BACKUP_FOLDER/scripts
+cp ~/Desktop/github/scripts/jmeter-tests-with-shaping-timer.sh $BACKUP_FOLDER/scripts
+cp ~/Desktop/github/scripts/master-* $BACKUP_FOLDER/scripts
+cp ~/Desktop/github/scripts/server-* $BACKUP_FOLDER/scripts
+cp -r ~/Desktop/github/kubernetes/$APP* $BACKUP_FOLDER/scripts
 
 # Go back to the previous directory.
 popd
