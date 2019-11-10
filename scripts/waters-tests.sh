@@ -1,7 +1,7 @@
 # Run WATERS tests for my thesis.
 
 # Constants.
-MODEL=~/Desktop/github/models/model-2-02-nodejs.wmod
+MODEL=~/Desktop/github/models/model-2-01G-nginx-limit-values.wmod
 OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.
@@ -36,15 +36,19 @@ INPUT_FILE=~/Desktop/github/results/test-cases.csv
 #INPUT_FILE=~/Desktop/github/results/speed-test-cases.csv
 HEADER_READ=0
 
-while IFS=, read -r rps_low rps_high high_duration low_duration app_processing_time min_pods max_pods initial_pods scale_cpu
+#while IFS=, read -r rps_low rps_high high_duration low_duration app_processing_time min_pods max_pods initial_pods scale_cpu
+while IFS=, read -r rps min_pods max_pods initial_pods scale_cpu
 do
     if ((HEADER_READ==0))
     then
         HEADER_READ=1
     else
-        echo "Testing: $rps_low $rps_high $high_duration $low_duration $app_processing_time $min_pods $max_pods $initial_pods $scale_cpu"
+        #echo "Testing: $rps_low $rps_high $high_duration $low_duration $app_processing_time $min_pods $max_pods $initial_pods $scale_cpu"
+        echo "Testing: $rps|$min_pods|$max_pods|$initial_pods|$scale_cpu"
+        app_processing_time=6 # hard code response time
         ./wcheck -bdd -lang -q -stats \
-                                        -DMAX_REQUESTS_PER_SECOND=$rps_high \
+                                        -DMAX_REQUESTS_PER_SECOND_ACTUAL=$rps \
+                                        -DPOD_MIN=$min_pods \
                                         -DPOD_MAX=$max_pods \
                                         -DPROCESSING_TIME_PER_REQ_IN_MS=$app_processing_time \
                                         -DSCALE_CPU_THRESHOLD=$scale_cpu \
