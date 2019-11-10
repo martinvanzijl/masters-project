@@ -71,11 +71,24 @@ This is the final model of the NGINX cloud, for use in my thesis.
                 </FunctionCallExpression>
             </ConstantAliasExpression>
         </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="POD_STARTUP_TIME">
+            <ConstantAliasExpression>
+                <IntConstant Value="1"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
         <ConstantAlias Name="LIMITING_DIVISOR">
             <ConstantAliasExpression>
                 <BinaryExpression Operator="/" Text="POD_QUEUE_CAPACITY_ACTUAL / POD_QUEUE_CAPACITY">
                     <SimpleIdentifier Name="POD_QUEUE_CAPACITY_ACTUAL"/>
                     <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
+                </BinaryExpression>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
+            <ConstantAliasExpression>
+                <BinaryExpression Operator="/" Text="MAX_REQUESTS_PER_SECOND_ACTUAL / LIMITING_DIVISOR">
+                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND_ACTUAL"/>
+                    <SimpleIdentifier Name="LIMITING_DIVISOR"/>
                 </BinaryExpression>
             </ConstantAliasExpression>
         </ConstantAlias>
@@ -132,14 +145,6 @@ This is the final model of the NGINX cloud, for use in my thesis.
                 </BinaryExpression>
             </ConstantAliasExpression>
         </ConstantAlias>
-        <ConstantAlias Name="MAX_REQUESTS_PER_SECOND">
-            <ConstantAliasExpression>
-                <BinaryExpression Operator="/" Text="MAX_REQUESTS_PER_SECOND_ACTUAL / LIMITING_DIVISOR">
-                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND_ACTUAL"/>
-                    <SimpleIdentifier Name="LIMITING_DIVISOR"/>
-                </BinaryExpression>
-            </ConstantAliasExpression>
-        </ConstantAlias>
     </ConstantAliasList>
     <EventDeclList>
         <EventDecl Kind="CONTROLLABLE" Name="user_submits_requests"/>
@@ -155,12 +160,15 @@ This is the final model of the NGINX cloud, for use in my thesis.
             </RangeList>
         </EventDecl>
         <EventDecl Kind="PROPOSITION" Name=":accepting"/>
-        <EventDecl Kind="CONTROLLABLE" Name="scale_up_if_required"/>
         <EventDecl Kind="CONTROLLABLE" Name="scaling_start"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="scaling_finished"/>
         <EventDecl Kind="CONTROLLABLE" Name="scale_down_if_required"/>
         <EventDecl Kind="UNCONTROLLABLE" Name="user_finished"/>
         <EventDecl Kind="CONTROLLABLE" Name="reset_hpa_timer"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_up"/>
+        <EventDecl Kind="CONTROLLABLE" Name="no_scale_up"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check_5"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check_7"/>
     </EventDeclList>
     <ComponentList>
         <SimpleComponent Kind="SPEC" Name="master">
@@ -296,7 +304,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                 <NodeList>
                     <SimpleNode Name="started">
                         <PointGeometry>
-                            <Point X="96" Y="464"/>
+                            <Point X="55296" Y="-368"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="21" Y="-8"/>
@@ -307,7 +315,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                             <SimpleIdentifier Name=":accepting"/>
                         </EventList>
                         <PointGeometry>
-                            <Point X="97" Y="366"/>
+                            <Point X="55297" Y="-466"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="14" Y="-19"/>
@@ -315,7 +323,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                     </SimpleNode>
                     <SimpleNode Name="done">
                         <PointGeometry>
-                            <Point X="96" Y="944"/>
+                            <Point X="55296" Y="112"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="0" Y="10"/>
@@ -323,7 +331,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                     </SimpleNode>
                     <SimpleNode Name="scale_up_ended">
                         <PointGeometry>
-                            <Point X="96" Y="640"/>
+                            <Point X="55296" Y="-192"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="21" Y="-7"/>
@@ -331,7 +339,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                     </SimpleNode>
                     <SimpleNode Name="scale_down_ended">
                         <PointGeometry>
-                            <Point X="97" Y="814"/>
+                            <Point X="55297" Y="-18"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="19" Y="-7"/>
@@ -339,7 +347,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                     </SimpleNode>
                     <SimpleNode Name="no_check">
                         <PointGeometry>
-                            <Point X="0" Y="272"/>
+                            <Point X="55200" Y="-560"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="15" Y="-7"/>
@@ -347,7 +355,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                     </SimpleNode>
                     <SimpleNode Name="timer_reset">
                         <PointGeometry>
-                            <Point X="96" Y="880"/>
+                            <Point X="55296" Y="48"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="14" Y="-7"/>
@@ -355,7 +363,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                     </SimpleNode>
                     <SimpleNode Name="done_no_check">
                         <PointGeometry>
-                            <Point X="96" Y="176"/>
+                            <Point X="55296" Y="-656"/>
                         </PointGeometry>
                         <LabelGeometry Anchor="NW">
                             <Point X="16" Y="-10"/>
@@ -365,19 +373,19 @@ This is the final model of the NGINX cloud, for use in my thesis.
                 <EdgeList>
                     <Edge Source="started" Target="scale_up_ended">
                         <LabelBlock>
-                            <SimpleIdentifier Name="scale_up_if_required"/>
+                            <SimpleIdentifier Name="scale_up"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="-181" Y="20"/>
+                                <Point X="-115" Y="0"/>
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="96" Y="464"/>
+                            <Point X="55600" Y="-1744"/>
                         </StartPointGeometry>
                         <SplineGeometry>
-                            <Point X="55" Y="553"/>
+                            <Point X="55255" Y="-279"/>
                         </SplineGeometry>
                         <EndPointGeometry>
-                            <Point X="96" Y="640"/>
+                            <Point X="55600" Y="-1568"/>
                         </EndPointGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -388,18 +396,6 @@ This is the final model of the NGINX cloud, for use in my thesis.
                                     <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
                                 </BinaryExpression>
                             </Guards>
-                            <Actions>
-                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = \min(PODS_CURRENTLY_ON+1, POD_MAX)">
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
-                                    <FunctionCallExpression FunctionName="\min">
-                                        <BinaryExpression Operator="+">
-                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
-                                            <IntConstant Value="1"/>
-                                        </BinaryExpression>
-                                        <SimpleIdentifier Name="POD_MAX"/>
-                                    </FunctionCallExpression>
-                                </BinaryExpression>
-                            </Actions>
                             <LabelGeometry Anchor="NW">
                                 <Point X="-547" Y="-22"/>
                             </LabelGeometry>
@@ -432,18 +428,18 @@ This is the final model of the NGINX cloud, for use in my thesis.
                             </LabelGeometry>
                         </LabelBlock>
                         <StartPointGeometry>
-                            <Point X="96" Y="880"/>
+                            <Point X="55600" Y="-1328"/>
                         </StartPointGeometry>
                     </Edge>
                     <Edge Source="started" Target="scale_up_ended">
                         <LabelBlock>
-                            <SimpleIdentifier Name="scale_up_if_required"/>
+                            <SimpleIdentifier Name="no_scale_up"/>
                             <LabelGeometry Anchor="NW">
-                                <Point X="31" Y="24"/>
+                                <Point X="34" Y="5"/>
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="137" Y="551"/>
+                            <Point X="55337" Y="-281"/>
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -454,12 +450,6 @@ This is the final model of the NGINX cloud, for use in my thesis.
                                     <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
                                 </BinaryExpression>
                             </Guards>
-                            <Actions>
-                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
-                                </BinaryExpression>
-                            </Actions>
                             <LabelGeometry Anchor="NW">
                                 <Point X="33" Y="-18"/>
                             </LabelGeometry>
@@ -473,7 +463,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="137" Y="728"/>
+                            <Point X="55337" Y="-104"/>
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -503,7 +493,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="58" Y="728"/>
+                            <Point X="55258" Y="-104"/>
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
@@ -539,7 +529,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                             </LabelGeometry>
                         </LabelBlock>
                         <SplineGeometry>
-                            <Point X="868" Y="654"/>
+                            <Point X="56068" Y="-178"/>
                         </SplineGeometry>
                     </Edge>
                     <Edge Source="idle" Target="no_check">
@@ -569,7 +559,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                             </LabelGeometry>
                         </LabelBlock>
                         <EndPointGeometry>
-                            <Point X="96" Y="176"/>
+                            <Point X="55600" Y="-2032"/>
                         </EndPointGeometry>
                     </Edge>
                     <Edge Source="scale_down_ended" Target="timer_reset">
@@ -651,6 +641,151 @@ This is the final model of the NGINX cloud, for use in my thesis.
                 </EdgeList>
             </Graph>
         </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="pod_scheduler">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="96" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="container_creating">
+                        <PointGeometry>
+                            <Point X="336" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="container_creating">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-31" Y="-29"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="216" Y="200"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="container_creating" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-34" Y="15"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="216" Y="248"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="POD_SCHEDULER_SECONDS_ELAPSED &gt;= POD_STARTUP_TIME">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="POD_STARTUP_TIME"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="POD_SCHEDULER_SECONDS_ELAPSED = 0">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = \min(PODS_CURRENTLY_ON+1, POD_MAX)">
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    <FunctionCallExpression FunctionName="\min">
+                                        <BinaryExpression Operator="+">
+                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                            <IntConstant Value="1"/>
+                                        </BinaryExpression>
+                                        <SimpleIdentifier Name="POD_MAX"/>
+                                    </FunctionCallExpression>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-361" Y="35"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="container_creating" Target="container_creating">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-35" Y="-32"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="338" Y="148"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="POD_SCHEDULER_SECONDS_ELAPSED &lt; POD_STARTUP_TIME">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="POD_STARTUP_TIME"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="POD_SCHEDULER_SECONDS_ELAPSED += 1">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-166" Y="-89"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="idle" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-95" Y="-33"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="24" Y="224"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="POD_SCHEDULER_SECONDS_ELAPSED = POD_SCHEDULER_SECONDS_ELAPSED">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-499" Y="-12"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="container_creating" Target="container_creating">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-27" Y="12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="336" Y="297"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
         <SimpleComponent Kind="PLANT" Name="user">
             <Graph>
                 <NodeList>
@@ -701,6 +836,19 @@ This is the final model of the NGINX cloud, for use in my thesis.
                         <EndPointGeometry>
                             <Point X="160" Y="272"/>
                         </EndPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;=" Text="SUBMITTED_THIS_SECOND' &lt;= MAX_RPS_VARIABLE">
+                                    <UnaryExpression Operator="'">
+                                        <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                    </UnaryExpression>
+                                    <SimpleIdentifier Name="MAX_RPS_VARIABLE"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="23" Y="-30"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
                     </Edge>
                     <Edge Source="submitting" Target="submitting_done">
                         <LabelBlock>
@@ -755,6 +903,20 @@ This is the final model of the NGINX cloud, for use in my thesis.
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
+        <VariableComponent Name="MAX_RPS_VARIABLE">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="MAX_RPS_VARIABLE == MAX_REQUESTS_PER_SECOND">
+                    <SimpleIdentifier Name="MAX_RPS_VARIABLE"/>
+                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
         <VariableComponent Name="NEXT_POD">
             <VariableRange>
                 <BinaryExpression Operator="..">
@@ -783,6 +945,219 @@ This is the final model of the NGINX cloud, for use in my thesis.
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
+        <VariableComponent Name="POD_SCHEDULER_SECONDS_ELAPSED">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <SimpleIdentifier Name="POD_STARTUP_TIME"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="POD_SCHEDULER_SECONDS_ELAPSED == 0">
+                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="SUBMITTED_THIS_SECOND">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="SUBMITTED_THIS_SECOND == 0">
+                    <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <SimpleComponent Kind="PROPERTY" Name="unit_test_pods_within_limits">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="pods_must_stay_within_limits">
+                        <PointGeometry>
+                            <Point X="272" Y="144"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="pods_must_stay_within_limits" Target="pods_must_stay_within_limits">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="unit_test_check_7"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-61" Y="10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="271" Y="221"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&amp;" Text="PODS_CURRENTLY_ON &gt;= POD_MIN &amp; PODS_CURRENTLY_ON &lt;= POD_MAX">
+                                    <BinaryExpression Operator="&gt;=">
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        <SimpleIdentifier Name="POD_MIN"/>
+                                    </BinaryExpression>
+                                    <BinaryExpression Operator="&lt;=">
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        <SimpleIdentifier Name="POD_MAX"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-219" Y="32"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PROPERTY" Name="unit_test_submit_main">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Name="check">
+                        <PointGeometry>
+                            <Point X="544" Y="656"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="28" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Initial="true" Name="start">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="544" Y="448"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="no_check_required">
+                        <PointGeometry>
+                            <Point X="544" Y="256"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="27" Y="-9"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="start" Target="check">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="allocate_requests_to_pods"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-342" Y="9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="544" Y="448"/>
+                        </StartPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&amp;" Text="POD_QUEUE_LENGTH[1] == 0 &amp; SUBMITTED_THIS_SECOND == 2 &amp; PODS_CURRENTLY_ON == 1">
+                                    <BinaryExpression Operator="&amp;">
+                                        <BinaryExpression Operator="==">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <IntConstant Value="1"/>
+                                            </IndexedIdentifier>
+                                            <IntConstant Value="0"/>
+                                        </BinaryExpression>
+                                        <BinaryExpression Operator="==">
+                                            <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                            <IntConstant Value="2"/>
+                                        </BinaryExpression>
+                                    </BinaryExpression>
+                                    <BinaryExpression Operator="==">
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        <IntConstant Value="1"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-596" Y="-16"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="check" Target="start">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="17" Y="12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="652" Y="552"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="==" Text="POD_QUEUE_LENGTH[1] == 2">
+                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                        <IntConstant Value="1"/>
+                                    </IndexedIdentifier>
+                                    <IntConstant Value="2"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="18" Y="-10"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="start" Target="no_check_required">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="allocate_requests_to_pods"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-337" Y="8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <GuardActionBlock>
+                            <Guards>
+                                <UnaryExpression Operator="!" Text="!(POD_QUEUE_LENGTH[1] == 0 &amp; SUBMITTED_THIS_SECOND == 2 &amp; PODS_CURRENTLY_ON == 1)">
+                                    <BinaryExpression Operator="&amp;">
+                                        <BinaryExpression Operator="&amp;">
+                                            <BinaryExpression Operator="==">
+                                                <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                    <IntConstant Value="1"/>
+                                                </IndexedIdentifier>
+                                                <IntConstant Value="0"/>
+                                            </BinaryExpression>
+                                            <BinaryExpression Operator="==">
+                                                <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                                <IntConstant Value="2"/>
+                                            </BinaryExpression>
+                                        </BinaryExpression>
+                                        <BinaryExpression Operator="==">
+                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                            <IntConstant Value="1"/>
+                                        </BinaryExpression>
+                                    </BinaryExpression>
+                                </UnaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-616" Y="-18"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="no_check_required" Target="start">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="23" Y="-13"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="652" Y="359"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
         <ForeachComponent Name="POD_INDEX">
             <BinaryExpression Operator="..">
                 <IntConstant Value="1"/>
@@ -963,7 +1338,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \min(POD_QUEUE_CAPACITY+1, POD_QUEUE_LENGTH[POD_INDEX] + MAX_REQUESTS_PER_SECOND / PODS_CURRENTLY_ON)">
+                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \min(POD_QUEUE_CAPACITY+1, POD_QUEUE_LENGTH[POD_INDEX] + SUBMITTED_THIS_SECOND / PODS_CURRENTLY_ON)">
                                             <IndexedIdentifier Name="POD_QUEUE_LENGTH">
                                                 <SimpleIdentifier Name="POD_INDEX"/>
                                             </IndexedIdentifier>
@@ -977,7 +1352,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
                                                         <SimpleIdentifier Name="POD_INDEX"/>
                                                     </IndexedIdentifier>
                                                     <BinaryExpression Operator="/">
-                                                        <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                                        <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
                                                         <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
                                                     </BinaryExpression>
                                                 </BinaryExpression>
@@ -1020,6 +1395,139 @@ This is the final model of the NGINX cloud, for use in my thesis.
                                         <Point X="-229" Y="36"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
+                            </Edge>
+                        </EdgeList>
+                    </Graph>
+                </SimpleComponent>
+                <SimpleComponent Kind="PROPERTY">
+                    <IndexedIdentifier Name="unit_test_4_requests_only_given_to_active_pods">
+                        <SimpleIdentifier Name="POD_INDEX"/>
+                    </IndexedIdentifier>
+                    <Graph>
+                        <NodeList>
+                            <SimpleNode Initial="true" Name="start">
+                                <PointGeometry>
+                                    <Point X="224" Y="416"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="20" Y="-7"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                            <SimpleNode Name="busy_with_check">
+                                <PointGeometry>
+                                    <Point X="224" Y="272"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="22" Y="-7"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                            <SimpleNode Name="no_check_required">
+                                <PointGeometry>
+                                    <Point X="224" Y="560"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="20" Y="-7"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                        </NodeList>
+                        <EdgeList>
+                            <Edge Source="start" Target="busy_with_check">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="allocate_requests_to_pods"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-190" Y="8"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="162" Y="341"/>
+                                </SplineGeometry>
+                                <EndPointGeometry>
+                                    <Point X="592" Y="224"/>
+                                </EndPointGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &gt; PODS_CURRENTLY_ON &amp; POD_QUEUE_LENGTH[POD_INDEX] == 0">
+                                            <BinaryExpression Operator="&gt;">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                            </BinaryExpression>
+                                            <BinaryExpression Operator="==">
+                                                <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                    <SimpleIdentifier Name="POD_INDEX"/>
+                                                </IndexedIdentifier>
+                                                <IntConstant Value="0"/>
+                                            </BinaryExpression>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-523" Y="-10"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="busy_with_check" Target="start">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="user_finished"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="9" Y="12"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="280" Y="341"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="==" Text="POD_QUEUE_LENGTH[POD_INDEX] == 0">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <IntConstant Value="0"/>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="11" Y="-8"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="start" Target="no_check_required">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="allocate_requests_to_pods"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-188" Y="2"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="157" Y="485"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="|" Text="POD_INDEX &lt;= PODS_CURRENTLY_ON | POD_QUEUE_LENGTH[POD_INDEX] != 0">
+                                            <BinaryExpression Operator="&lt;=">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                            </BinaryExpression>
+                                            <BinaryExpression Operator="!=">
+                                                <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                    <SimpleIdentifier Name="POD_INDEX"/>
+                                                </IndexedIdentifier>
+                                                <IntConstant Value="0"/>
+                                            </BinaryExpression>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-504" Y="-25"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="no_check_required" Target="start">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="user_finished"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="16" Y="-6"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="287" Y="487"/>
+                                </SplineGeometry>
                             </Edge>
                         </EdgeList>
                     </Graph>
