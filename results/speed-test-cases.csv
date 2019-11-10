@@ -1,4 +1,4 @@
-Samples per Second,Min Pods,Max Pods,Initial Pods,Scale CPU Threshold
-100,1,1,1,80
-200,1,1,1,80
-200,1,2,1,80
+Samples per Second,App. Processing Time,Min Pods,Max Pods,Initial Pods,Scale CPU Threshold
+100,6,1,1,1,80
+200,6,1,1,1,80
+200,6,1,2,1,80
