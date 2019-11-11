@@ -1,0 +1,70 @@
+# RESOURCE QUOTA
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: labelling-test-quota
+spec:
+  hard:
+    pods: "4"
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: gui-service
+  labels:
+    app: gui
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: gui
+  type: NodePort
+---
+# DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gui-deployment
+  labels:
+    app: gui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gui
+  template:
+    metadata:
+      labels:
+        app: gui
+    spec:
+      containers:
+      - name: gui
+        image: martinvz/labelling-test-gui
+        resources:
+          requests:
+            cpu: "25m"
+            memory: "25Mi"
+          limits:
+            cpu: "40m"
+            memory: "50Mi"
+        ports:
+        - containerPort: 80
+          name: gui
+---
+# AUTO-SCALING POLICY
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: gui-deployment
+  namespace: labelling-test-namespace
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: gui-deployment
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+
