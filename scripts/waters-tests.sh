@@ -1,7 +1,7 @@
 # Run WATERS tests for my thesis.
 
 # Constants.
-MODEL=~/Desktop/github/models/model-2-01G-nginx-limit-values.wmod
+MODEL=~/Desktop/github/models/model-2-01Z-nginx-final.wmod
 OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.

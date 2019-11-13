@@ -32,7 +32,7 @@ match($0, "<(.*)> ... (false|true) \\((.*),(.*)\\)", matches) {
 			split(param_items[param_index], values, "=");
 			printf "%s,", values[1];
 		}
-		print "meets_sla,total_time";
+		print "WATERS Prediction, Verification Time";
 		header_printed = 1;
 	}
 
