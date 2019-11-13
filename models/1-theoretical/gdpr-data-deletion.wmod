@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="gdpr-data-deletion">
+<B:Comment>DESCRIPTION
+========
+
+A model for data deletion as per GDRP (See https://gdpr-info.eu/art-17-gdpr/.). In this scenario, the user has requested that their data must be deleted after a certain amount of days, if it was not used during that time. I'm not sure if this is a valid request under GDPR, though.
+
+There are two nodes in the cloud, and each one may have a copy of the data stored on them.
+
+1) What if a node containing a copy of the data goes down? Then we must delete it from that node as soon as it is started again!
+
+A good test for this would be a modified version of Guestbook: https://github.com/kubernetes/examples/blob/master/guestbook/all-in-one/guestbook-all-in-one.yaml. A data deletion trigger could be built in. That is, if the user requests deletion of their data, it will be deleted within a given time period (say 3 minutes). To check whether this works, the database could be queried after that time to see whether the row can be read.</B:Comment>
+<ConstantAliasList>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="DATA_AGE_MAX">
+<ConstantAliasExpression><IntConstant Value="30"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+</ConstantAliasList>
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="user_enters_data"/>
+<EventDecl Kind="CONTROLLABLE" Name="data_is_stored"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="slo_check"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="one_day"/>
+<EventDecl Kind="PROPOSITION" Name=":accepting"/>
+<EventDecl Kind="CONTROLLABLE" Name="delete_data"/>
+<EventDecl Kind="CONTROLLABLE" Name="no_action"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="replicate_data_to_node_1"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="replicate_data_to_node_2"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="read_data"/>
+<EventDecl Kind="CONTROLLABLE" Name="reset_data_age"/>
+<EventDecl Kind="CONTROLLABLE" Name="cleanup_program_finished"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="SPEC" Name="cleanup_program">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="416" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-18"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="done">
+<PointGeometry>
+<Point X="416" Y="320"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="finished_signal_sent">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="416" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="27" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="done">
+<LabelBlock>
+<SimpleIdentifier Name="delete_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="-98" Y="-3"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="353" Y="224"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="==" Text="DATA_AGE_IN_DAYS == DATA_AGE_MAX">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<SimpleIdentifier Name="DATA_AGE_MAX"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-269" Y="-27"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="idle" Target="done">
+<LabelBlock>
+<SimpleIdentifier Name="no_action"/>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="2"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="|" Text="DATA_AGE_IN_DAYS &lt; DATA_AGE_MAX | DATA_DELETED == 1">
+<BinaryExpression Operator="&lt;">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<SimpleIdentifier Name="DATA_AGE_MAX"/>
+</BinaryExpression>
+<BinaryExpression Operator="==">
+<SimpleIdentifier Name="DATA_DELETED"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="12" Y="-25"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="finished_signal_sent" Target="idle">
+<LabelBlock>
+<SimpleIdentifier Name="one_day"/>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="416" Y="416"/>
+</StartPointGeometry>
+<SplineGeometry>
+<Point X="898" Y="252"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="done" Target="finished_signal_sent">
+<LabelBlock>
+<SimpleIdentifier Name="cleanup_program_finished"/>
+<LabelGeometry Anchor="NW">
+<Point X="-179" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="clock">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="start">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="240" Y="144"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-15"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="done">
+<PointGeometry>
+<Point X="240" Y="256"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="start" Target="done">
+<LabelBlock>
+<SimpleIdentifier Name="cleanup_program_finished"/>
+<LabelGeometry Anchor="NW">
+<Point X="-185" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="done" Target="start">
+<LabelBlock>
+<SimpleIdentifier Name="one_day"/>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="240" Y="256"/>
+</StartPointGeometry>
+<SplineGeometry>
+<Point X="339" Y="199"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="SPEC" Name="database_program">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="368" Y="224"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-11"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="data_was_read">
+<PointGeometry>
+<Point X="368" Y="352"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="1"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="data_was_read">
+<LabelBlock>
+<SimpleIdentifier Name="read_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="-111" Y="-6"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="==" Text="DATA_DELETED == 0">
+<SimpleIdentifier Name="DATA_DELETED"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-147" Y="-27"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="data_was_read" Target="idle">
+<LabelBlock>
+<SimpleIdentifier Name="reset_data_age"/>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-7"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="483" Y="287"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="data_was_read" Target="data_was_read">
+<LabelBlock>
+<SimpleIdentifier Name="read_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="-29" Y="11"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="368" Y="436"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="idle" Target="idle">
+<LabelBlock>
+<SimpleIdentifier Name="read_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="-40" Y="-26"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="375" Y="145"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="==" Text="DATA_DELETED == 1">
+<SimpleIdentifier Name="DATA_DELETED"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-77" Y="-50"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="data">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<PointGeometry>
+<Point X="448" Y="144"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="entered">
+<PointGeometry>
+<Point X="448" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="stored">
+<PointGeometry>
+<Point X="448" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="deleted">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="208" Y="416"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-67" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="entered">
+<LabelBlock>
+<SimpleIdentifier Name="user_enters_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-14"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="entered" Target="stored">
+<LabelBlock>
+<SimpleIdentifier Name="data_is_stored"/>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-37"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="DATA_AGE_IN_DAYS = 0">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="24" Y="-18"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="stored" Target="stored">
+<LabelBlock>
+<SimpleIdentifier Name="one_day"/>
+<LabelGeometry Anchor="NW">
+<Point X="-24" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="447" Y="497"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="+=" Text="DATA_AGE_IN_DAYS += 1">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-67" Y="30"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="stored" Target="deleted">
+<LabelBlock>
+<SimpleIdentifier Name="delete_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="-40" Y="-26"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="DATA_DELETED = 1">
+<SimpleIdentifier Name="DATA_DELETED"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-65" Y="-47"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="stored" Target="stored">
+<LabelBlock>
+<SimpleIdentifier Name="reset_data_age"/>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-13"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="541" Y="418"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="DATA_AGE_IN_DAYS = 0">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="5"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="deleted" Target="deleted">
+<LabelBlock>
+<SimpleIdentifier Name="one_day"/>
+<LabelGeometry Anchor="NW">
+<Point X="-31" Y="8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="206" Y="499"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="DATA_AGE_IN_DAYS = DATA_AGE_IN_DAYS">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-129" Y="31"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="deleted" Target="deleted">
+<LabelBlock>
+<SimpleIdentifier Name="reset_data_age"/>
+<LabelGeometry Anchor="NW">
+<Point X="-62" Y="-54"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="212" Y="338"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="DATA_AGE_IN_DAYS = DATA_AGE_IN_DAYS">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-131" Y="-34"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PROPERTY" Name="data_available">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="checking">
+<PointGeometry>
+<Point X="288" Y="176"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="checking" Target="checking">
+<LabelBlock>
+<SimpleIdentifier Name="slo_check"/>
+<LabelGeometry Anchor="NW">
+<Point X="-31" Y="8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="290" Y="262"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="|" Text="DATA_AGE_IN_DAYS &gt;= DATA_AGE_MAX | DATA_DELETED == 0">
+<BinaryExpression Operator="&gt;=">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<SimpleIdentifier Name="DATA_AGE_MAX"/>
+</BinaryExpression>
+<BinaryExpression Operator="==">
+<SimpleIdentifier Name="DATA_DELETED"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-178" Y="30"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<VariableComponent Name="DATA_DELETED">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="DATA_DELETED == 0">
+<SimpleIdentifier Name="DATA_DELETED"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="DATA_AGE_IN_DAYS">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<BinaryExpression Operator="+">
+<SimpleIdentifier Name="DATA_AGE_MAX"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="DATA_AGE_IN_DAYS == 0">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<SimpleComponent Kind="PROPERTY" Name="data_deleted_in_time">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="checking">
+<PointGeometry>
+<Point X="208" Y="96"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="checking" Target="checking">
+<LabelBlock>
+<SimpleIdentifier Name="slo_check"/>
+<LabelGeometry Anchor="NW">
+<Point X="-30" Y="9"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="208" Y="177"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="|" Text="DATA_AGE_IN_DAYS &lt;= DATA_AGE_MAX | DATA_DELETED == 1">
+<BinaryExpression Operator="&lt;=">
+<SimpleIdentifier Name="DATA_AGE_IN_DAYS"/>
+<SimpleIdentifier Name="DATA_AGE_MAX"/>
+</BinaryExpression>
+<BinaryExpression Operator="==">
+<SimpleIdentifier Name="DATA_DELETED"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-182" Y="34"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="node_1">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="160" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="idle">
+<LabelBlock>
+<SimpleIdentifier Name="replicate_data_to_node_1"/>
+<LabelGeometry Anchor="NW">
+<Point X="-78" Y="11"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="160" Y="225"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="node_2">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="192" Y="144"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="idle">
+<LabelBlock>
+<SimpleIdentifier Name="replicate_data_to_node_2"/>
+<LabelGeometry Anchor="NW">
+<Point X="-78" Y="11"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="192" Y="241"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
+</Module>
