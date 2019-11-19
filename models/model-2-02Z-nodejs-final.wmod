@@ -1,0 +1,1637 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Module Name="model-2-02Z-nodejs-final" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
+    <ns2:Comment>=== Description ===
+
+This is the final model of the Node.js cloud, for use in my thesis. Based on "2-01Z".
+
+Since the queue capacity is high, there is no need for the limiting divisor.
+
+The load is also in square shape form, not a constant maximum.
+</ns2:Comment>
+    <ConstantAliasList>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_CHECK_INTERVAL">
+            <ConstantAliasExpression>
+                <IntConstant Value="3"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_CPU_PER_POD_IN_MILLICPUS">
+            <ConstantAliasExpression>
+                <IntConstant Value="40"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_RAM_PER_POD_IN_MB">
+            <ConstantAliasExpression>
+                <IntConstant Value="50"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_REQUESTS_PER_SECOND_ACTUAL">
+            <ConstantAliasExpression>
+                <IntConstant Value="200"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_RESPONSE_TIME_IN_MS">
+            <ConstantAliasExpression>
+                <IntConstant Value="10000"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="PODS_INITIALLY_ON">
+            <ConstantAliasExpression>
+                <IntConstant Value="2"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="POD_MIN">
+            <ConstantAliasExpression>
+                <IntConstant Value="2"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="POD_MAX">
+            <ConstantAliasExpression>
+                <IntConstant Value="4"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="PROCESSING_TIME_PER_REQ_IN_MS">
+            <ConstantAliasExpression>
+                <IntConstant Value="1000"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="REQ_SENT_PER_SEC_HIGH">
+            <ConstantAliasExpression>
+                <IntConstant Value="2"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="REQ_SENT_PER_SEC_LOW">
+            <ConstantAliasExpression>
+                <IntConstant Value="1"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HIGH_LOAD_TIME_IN_SECONDS">
+            <ConstantAliasExpression>
+                <IntConstant Value="60"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="LOW_LOAD_TIME_IN_SECONDS">
+            <ConstantAliasExpression>
+                <IntConstant Value="60"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="POD_QUEUE_CAPACITY">
+            <ConstantAliasExpression>
+                <BinaryExpression Operator="/" Text="MAX_RESPONSE_TIME_IN_MS / PROCESSING_TIME_PER_REQ_IN_MS">
+                    <SimpleIdentifier Name="MAX_RESPONSE_TIME_IN_MS"/>
+                    <SimpleIdentifier Name="PROCESSING_TIME_PER_REQ_IN_MS"/>
+                </BinaryExpression>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="POD_STARTUP_TIME">
+            <ConstantAliasExpression>
+                <IntConstant Value="1"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="REQ_HANDLED_PER_SEC_PER_POD">
+            <ConstantAliasExpression>
+                <BinaryExpression Operator="/" Text="1000 / PROCESSING_TIME_PER_REQ_IN_MS">
+                    <IntConstant Value="1000"/>
+                    <SimpleIdentifier Name="PROCESSING_TIME_PER_REQ_IN_MS"/>
+                </BinaryExpression>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="SCALE_AMOUNT">
+            <ConstantAliasExpression>
+                <IntConstant Value="1"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="SCALE_DOWN_CPU_THRESHOLD">
+            <ConstantAliasExpression>
+                <IntConstant Value="20"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="SCALE_CPU_THRESHOLD">
+            <ConstantAliasExpression>
+                <IntConstant Value="80"/>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="SCALE_DOWN_THRESHOLD_FIRST_POD">
+            <ConstantAliasExpression>
+                <BinaryExpression Operator="/">
+                    <BinaryExpression Operator="*">
+                        <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
+                        <SimpleIdentifier Name="SCALE_DOWN_CPU_THRESHOLD"/>
+                    </BinaryExpression>
+                    <IntConstant Value="100"/>
+                </BinaryExpression>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+        <ConstantAlias Name="SCALE_THRESHOLD_LAST_POD">
+            <ConstantAliasExpression>
+                <BinaryExpression Operator="/">
+                    <BinaryExpression Operator="*">
+                        <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
+                        <SimpleIdentifier Name="SCALE_CPU_THRESHOLD"/>
+                    </BinaryExpression>
+                    <IntConstant Value="100"/>
+                </BinaryExpression>
+            </ConstantAliasExpression>
+        </ConstantAlias>
+    </ConstantAliasList>
+    <EventDeclList>
+        <EventDecl Kind="CONTROLLABLE" Name="user_submits_requests"/>
+        <EventDecl Kind="CONTROLLABLE" Name="pods_handle_requests"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="one_second"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="slo_check">
+            <RangeList>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="1"/>
+                    <SimpleIdentifier Name="POD_MAX"/>
+                </BinaryExpression>
+            </RangeList>
+        </EventDecl>
+        <EventDecl Kind="PROPOSITION" Name=":accepting"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scaling_start"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="scaling_finished"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_down_if_required"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="user_finished"/>
+        <EventDecl Kind="CONTROLLABLE" Name="reset_hpa_timer"/>
+        <EventDecl Kind="CONTROLLABLE" Name="scale_up"/>
+        <EventDecl Kind="CONTROLLABLE" Name="no_scale_up"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check_5"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check_7"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="allocate_req_to_pods_main"/>
+        <EventDecl Kind="UNCONTROLLABLE" Name="allocate_req_to_pods_remainder"/>
+    </EventDeclList>
+    <ComponentList>
+        <SimpleComponent Kind="SPEC" Name="master">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="waiting">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="528" Y="352"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-22"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_user_to_finish">
+                        <PointGeometry>
+                            <Point X="528" Y="448"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="pods_done">
+                        <PointGeometry>
+                            <Point X="528" Y="880"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="24" Y="2"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="scaling_done">
+                        <PointGeometry>
+                            <Point X="528" Y="768"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="22" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting_for_scaler_to_finish">
+                        <PointGeometry>
+                            <Point X="528" Y="656"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="user_done">
+                        <PointGeometry>
+                            <Point X="528" Y="544"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="waiting" Target="waiting_for_user_to_finish">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_submits_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="16" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="528" Y="352"/>
+                        </StartPointGeometry>
+                        <EndPointGeometry>
+                            <Point X="528" Y="448"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="pods_done" Target="waiting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="8" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="528" Y="880"/>
+                        </StartPointGeometry>
+                        <SplineGeometry>
+                            <Point X="1084" Y="605"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="scaling_done" Target="pods_done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="pods_handle_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="21" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="528" Y="768"/>
+                        </StartPointGeometry>
+                        <EndPointGeometry>
+                            <Point X="528" Y="880"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="user_done" Target="waiting_for_scaler_to_finish">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scaling_start"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="19" Y="-6"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="528" Y="544"/>
+                        </StartPointGeometry>
+                    </Edge>
+                    <Edge Source="waiting_for_scaler_to_finish" Target="scaling_done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scaling_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="20" Y="-7"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="waiting_for_user_to_finish" Target="user_done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="18" Y="-10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="horizontal_pod_autoscaler">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Name="started">
+                        <PointGeometry>
+                            <Point X="55296" Y="-368"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="21" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Initial="true" Name="idle">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="55297" Y="-466"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-19"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="done">
+                        <PointGeometry>
+                            <Point X="55296" Y="112"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="scale_up_ended">
+                        <PointGeometry>
+                            <Point X="55296" Y="-192"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="21" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="scale_down_ended">
+                        <PointGeometry>
+                            <Point X="55297" Y="-18"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="19" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="no_check">
+                        <PointGeometry>
+                            <Point X="55200" Y="-560"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="timer_reset">
+                        <PointGeometry>
+                            <Point X="55296" Y="48"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-7"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="done_no_check">
+                        <PointGeometry>
+                            <Point X="55296" Y="-656"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="started" Target="scale_up_ended">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-115" Y="0"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="55600" Y="-1744"/>
+                        </StartPointGeometry>
+                        <SplineGeometry>
+                            <Point X="55255" Y="-279"/>
+                        </SplineGeometry>
+                        <EndPointGeometry>
+                            <Point X="55600" Y="-1568"/>
+                        </EndPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="POD_QUEUE_LENGTH[PODS_CURRENTLY_ON] &gt;= SCALE_THRESHOLD_LAST_POD">
+                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    </IndexedIdentifier>
+                                    <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-547" Y="-22"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="idle" Target="started">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scaling_start"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-99" Y="-3"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="HPA_SECONDS_ELAPSED &gt;= HPA_CHECK_INTERVAL">
+                                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="HPA_CHECK_INTERVAL"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-332" Y="-26"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="timer_reset" Target="done">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scaling_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-116" Y="-5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="55600" Y="-1328"/>
+                        </StartPointGeometry>
+                    </Edge>
+                    <Edge Source="started" Target="scale_up_ended">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="no_scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="34" Y="5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="55337" Y="-281"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="POD_QUEUE_LENGTH[PODS_CURRENTLY_ON] &lt; SCALE_THRESHOLD_LAST_POD">
+                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    </IndexedIdentifier>
+                                    <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="33" Y="-18"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="scale_up_ended" Target="scale_down_ended">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_down_if_required"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="36" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="55337" Y="-104"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;" Text="POD_QUEUE_LENGTH[POD_MIN] &gt; SCALE_DOWN_THRESHOLD_FIRST_POD">
+                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                        <SimpleIdentifier Name="POD_MIN"/>
+                                    </IndexedIdentifier>
+                                    <SimpleIdentifier Name="SCALE_DOWN_THRESHOLD_FIRST_POD"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="42" Y="-52"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="scale_up_ended" Target="scale_down_ended">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_down_if_required"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-217" Y="-13"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="55258" Y="-104"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;=" Text="POD_QUEUE_LENGTH[POD_MIN] &lt;= SCALE_DOWN_THRESHOLD_FIRST_POD">
+                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                        <SimpleIdentifier Name="POD_MIN"/>
+                                    </IndexedIdentifier>
+                                    <SimpleIdentifier Name="SCALE_DOWN_THRESHOLD_FIRST_POD"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = \max(PODS_CURRENTLY_ON-1, POD_MIN)">
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    <FunctionCallExpression FunctionName="\max">
+                                        <BinaryExpression Operator="-">
+                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                            <IntConstant Value="1"/>
+                                        </BinaryExpression>
+                                        <SimpleIdentifier Name="POD_MIN"/>
+                                    </FunctionCallExpression>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-575" Y="-53"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="done" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="16" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="56068" Y="-178"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="idle" Target="no_check">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scaling_start"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-129" Y="5"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="HPA_SECONDS_ELAPSED &lt; HPA_CHECK_INTERVAL">
+                                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="HPA_CHECK_INTERVAL"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-353" Y="-15"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="no_check" Target="done_no_check">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scaling_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-105" Y="-27"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="55600" Y="-2032"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="scale_down_ended" Target="timer_reset">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reset_hpa_timer"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-120" Y="-8"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                    <Edge Source="done_no_check" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="12" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="horizontal_pod_autoscaler_clock">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="working">
+                        <PointGeometry>
+                            <Point X="160" Y="176"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="24" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-39" Y="-28"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="162" Y="112"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="HPA_SECONDS_ELAPSED += 1">
+                                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-85" Y="-49"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="working" Target="working">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="reset_hpa_timer"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-51" Y="10"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="158" Y="250"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="HPA_SECONDS_ELAPSED = 0">
+                                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-79" Y="31"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="pod_scheduler">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="96" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="0" Y="10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="container_creating">
+                        <PointGeometry>
+                            <Point X="336" Y="224"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="18" Y="-10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="container_creating">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-31" Y="-29"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="216" Y="200"/>
+                        </SplineGeometry>
+                    </Edge>
+                    <Edge Source="container_creating" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-34" Y="15"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="216" Y="248"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="POD_SCHEDULER_SECONDS_ELAPSED &gt;= POD_STARTUP_TIME">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="POD_STARTUP_TIME"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="POD_SCHEDULER_SECONDS_ELAPSED = 0">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = \min(PODS_CURRENTLY_ON+1, POD_MAX)">
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    <FunctionCallExpression FunctionName="\min">
+                                        <BinaryExpression Operator="+">
+                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                            <IntConstant Value="1"/>
+                                        </BinaryExpression>
+                                        <SimpleIdentifier Name="POD_MAX"/>
+                                    </FunctionCallExpression>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-361" Y="35"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="container_creating" Target="container_creating">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-35" Y="-32"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="338" Y="148"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="POD_SCHEDULER_SECONDS_ELAPSED &lt; POD_STARTUP_TIME">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="POD_STARTUP_TIME"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="POD_SCHEDULER_SECONDS_ELAPSED += 1">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-166" Y="-89"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="idle" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-95" Y="-33"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="24" Y="224"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="POD_SCHEDULER_SECONDS_ELAPSED = POD_SCHEDULER_SECONDS_ELAPSED">
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-499" Y="-12"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="container_creating" Target="container_creating">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="scale_up"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-27" Y="12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="336" Y="297"/>
+                        </SplineGeometry>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="user">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="idle">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="64" Y="464"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="20" Y="-22"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="submitting">
+                        <PointGeometry>
+                            <Point X="64" Y="560"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="25" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="waiting">
+                        <PointGeometry>
+                            <Point X="-192" Y="560"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-61" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="main_requests_allocated">
+                        <PointGeometry>
+                            <Point X="64" Y="848"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="24" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="requests_all_allocated">
+                        <PointGeometry>
+                            <Point X="-192" Y="848"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="-157" Y="-6"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="idle" Target="submitting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_submits_requests"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="23" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="-48" Y="192"/>
+                        </EndPointGeometry>
+                    </Edge>
+                    <Edge Source="submitting" Target="main_requests_allocated">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="allocate_req_to_pods_main"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="17" Y="-41"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <EndPointGeometry>
+                            <Point X="-48" Y="480"/>
+                        </EndPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;=" Text="SUBMITTED_THIS_SECOND' &lt;= MAX_REQUESTS_PER_SECOND">
+                                    <UnaryExpression Operator="'">
+                                        <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                    </UnaryExpression>
+                                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="SUBMITTED_REMAINDER = SUBMITTED_THIS_SECOND % PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                    <BinaryExpression Operator="%">
+                                        <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="16" Y="-21"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="waiting" Target="idle">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-73" Y="-27"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="-304" Y="192"/>
+                        </StartPointGeometry>
+                    </Edge>
+                    <Edge Source="requests_all_allocated" Target="waiting">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="user_finished"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-106" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <StartPointGeometry>
+                            <Point X="-304" Y="480"/>
+                        </StartPointGeometry>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="SUBMITTED_REMAINDER = 0">
+                                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="NEXT_POD = NEXT_POD_TEMP + 1">
+                                    <SimpleIdentifier Name="NEXT_POD"/>
+                                    <BinaryExpression Operator="+">
+                                        <SimpleIdentifier Name="NEXT_POD_TEMP"/>
+                                        <IntConstant Value="1"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-229" Y="12"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="main_requests_allocated" Target="requests_all_allocated">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-96" Y="25"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <GuardActionBlock>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="NEXT_POD_TEMP = (NEXT_POD + SUBMITTED_REMAINDER - 1) % PODS_CURRENTLY_ON">
+                                    <SimpleIdentifier Name="NEXT_POD_TEMP"/>
+                                    <BinaryExpression Operator="%">
+                                        <BinaryExpression Operator="-">
+                                            <BinaryExpression Operator="+">
+                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                                <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                            </BinaryExpression>
+                                            <IntConstant Value="1"/>
+                                        </BinaryExpression>
+                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-94" Y="45"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <SimpleComponent Kind="PLANT" Name="workload_shape">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="high_load">
+                        <PointGeometry>
+                            <Point X="608" Y="320"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="13" Y="-4"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="low_load">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="784" Y="320"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="16" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="high_load" Target="low_load">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-38" Y="-31"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="695" Y="255"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="WORKLOAD_SECONDS_ELAPSED &gt;= HIGH_LOAD_TIME_IN_SECONDS">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="HIGH_LOAD_TIME_IN_SECONDS"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="MAX_REQUESTS_PER_SECOND = REQ_SENT_PER_SEC_HIGH">
+                                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                    <SimpleIdentifier Name="REQ_SENT_PER_SEC_HIGH"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="WORKLOAD_SECONDS_ELAPSED = 0">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-195" Y="-84"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="low_load" Target="high_load">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-29" Y="16"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="700" Y="379"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&gt;=" Text="WORKLOAD_SECONDS_ELAPSED &gt;= LOW_LOAD_TIME_IN_SECONDS">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="LOW_LOAD_TIME_IN_SECONDS"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="=" Text="MAX_REQUESTS_PER_SECOND = REQ_SENT_PER_SEC_LOW">
+                                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                    <SimpleIdentifier Name="REQ_SENT_PER_SEC_LOW"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="WORKLOAD_SECONDS_ELAPSED = 0">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="0"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-197" Y="37"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="low_load" Target="low_load">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="22" Y="-12"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="887" Y="323"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="WORKLOAD_SECONDS_ELAPSED &lt; LOW_LOAD_TIME_IN_SECONDS">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="LOW_LOAD_TIME_IN_SECONDS"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="WORKLOAD_SECONDS_ELAPSED += 1">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="MAX_REQUESTS_PER_SECOND = MAX_REQUESTS_PER_SECOND">
+                                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="23" Y="6"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="high_load" Target="high_load">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="one_second"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-93" Y="-11"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="502" Y="320"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;" Text="WORKLOAD_SECONDS_ELAPSED &lt; HIGH_LOAD_TIME_IN_SECONDS">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                                    <SimpleIdentifier Name="HIGH_LOAD_TIME_IN_SECONDS"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <Actions>
+                                <BinaryExpression Operator="+=" Text="WORKLOAD_SECONDS_ELAPSED += 1">
+                                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                                    <IntConstant Value="1"/>
+                                </BinaryExpression>
+                                <BinaryExpression Operator="=" Text="MAX_REQUESTS_PER_SECOND = MAX_REQUESTS_PER_SECOND">
+                                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                                </BinaryExpression>
+                            </Actions>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-419" Y="7"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
+        <VariableComponent Name="HPA_SECONDS_ELAPSED">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <SimpleIdentifier Name="HPA_CHECK_INTERVAL"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="HPA_SECONDS_ELAPSED == 0">
+                    <SimpleIdentifier Name="HPA_SECONDS_ELAPSED"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="MAX_REQUESTS_PER_SECOND">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <SimpleIdentifier Name="REQ_SENT_PER_SEC_LOW"/>
+                    <SimpleIdentifier Name="REQ_SENT_PER_SEC_HIGH"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==">
+                    <SimpleIdentifier Name="MAX_REQUESTS_PER_SECOND"/>
+                    <SimpleIdentifier Name="REQ_SENT_PER_SEC_HIGH"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="NEXT_POD">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="1"/>
+                    <SimpleIdentifier Name="POD_MAX"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="NEXT_POD == 1">
+                    <SimpleIdentifier Name="NEXT_POD"/>
+                    <IntConstant Value="1"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="NEXT_POD_TEMP">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="-1"/>
+                    <SimpleIdentifier Name="POD_MAX"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="NEXT_POD_TEMP == 1">
+                    <SimpleIdentifier Name="NEXT_POD_TEMP"/>
+                    <IntConstant Value="1"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="PODS_CURRENTLY_ON">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <SimpleIdentifier Name="POD_MIN"/>
+                    <SimpleIdentifier Name="POD_MAX"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="PODS_CURRENTLY_ON == PODS_INITIALLY_ON">
+                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                    <SimpleIdentifier Name="PODS_INITIALLY_ON"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="POD_SCHEDULER_SECONDS_ELAPSED">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <SimpleIdentifier Name="POD_STARTUP_TIME"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="POD_SCHEDULER_SECONDS_ELAPSED == 0">
+                    <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="SUBMITTED_REMAINDER">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <SimpleIdentifier Name="REQ_SENT_PER_SEC_HIGH"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="SUBMITTED_REMAINDER == 0">
+                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="SUBMITTED_THIS_SECOND">
+            <VariableRange>
+                <BinaryExpression Operator="..">
+                    <IntConstant Value="0"/>
+                    <SimpleIdentifier Name="REQ_SENT_PER_SEC_HIGH"/>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==" Text="SUBMITTED_THIS_SECOND == 0">
+                    <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <VariableComponent Name="WORKLOAD_SECONDS_ELAPSED">
+            <VariableRange>
+                <BinaryExpression Operator=".." Text="0..\max(LOW_LOAD_TIME_IN_SECONDS,HIGH_LOAD_TIME_IN_SECONDS)">
+                    <IntConstant Value="0"/>
+                    <FunctionCallExpression FunctionName="\max">
+                        <SimpleIdentifier Name="LOW_LOAD_TIME_IN_SECONDS"/>
+                        <SimpleIdentifier Name="HIGH_LOAD_TIME_IN_SECONDS"/>
+                    </FunctionCallExpression>
+                </BinaryExpression>
+            </VariableRange>
+            <VariableInitial>
+                <BinaryExpression Operator="==">
+                    <SimpleIdentifier Name="WORKLOAD_SECONDS_ELAPSED"/>
+                    <IntConstant Value="0"/>
+                </BinaryExpression>
+            </VariableInitial>
+        </VariableComponent>
+        <ForeachComponent Name="POD_INDEX">
+            <BinaryExpression Operator="..">
+                <IntConstant Value="1"/>
+                <SimpleIdentifier Name="POD_MAX"/>
+            </BinaryExpression>
+            <ComponentList>
+                <SimpleComponent Kind="PROPERTY">
+                    <IndexedIdentifier Name="max_response_time">
+                        <SimpleIdentifier Name="POD_INDEX"/>
+                    </IndexedIdentifier>
+                    <Graph>
+                        <NodeList>
+                            <SimpleNode Initial="true" Name="checking">
+                                <PointGeometry>
+                                    <Point X="128" Y="208"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="16" Y="-8"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                        </NodeList>
+                        <EdgeList>
+                            <Edge Source="checking" Target="checking">
+                                <LabelBlock>
+                                    <IndexedIdentifier Name="slo_check">
+                                        <SimpleIdentifier Name="POD_INDEX"/>
+                                    </IndexedIdentifier>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-74" Y="10"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="129" Y="286"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="&lt;=" Text="POD_QUEUE_LENGTH[POD_INDEX] &lt;= POD_QUEUE_CAPACITY">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-175" Y="30"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                        </EdgeList>
+                    </Graph>
+                </SimpleComponent>
+                <VariableComponent>
+                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                        <SimpleIdentifier Name="POD_INDEX"/>
+                    </IndexedIdentifier>
+                    <VariableRange>
+                        <BinaryExpression Operator="..">
+                            <IntConstant Value="0"/>
+                            <BinaryExpression Operator="+">
+                                <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
+                                <IntConstant Value="1"/>
+                            </BinaryExpression>
+                        </BinaryExpression>
+                    </VariableRange>
+                    <VariableInitial>
+                        <BinaryExpression Operator="==" Text="POD_QUEUE_LENGTH[POD_INDEX] == 0">
+                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                <SimpleIdentifier Name="POD_INDEX"/>
+                            </IndexedIdentifier>
+                            <IntConstant Value="0"/>
+                        </BinaryExpression>
+                    </VariableInitial>
+                </VariableComponent>
+                <SimpleComponent Kind="PLANT">
+                    <IndexedIdentifier Name="pod">
+                        <SimpleIdentifier Name="POD_INDEX"/>
+                    </IndexedIdentifier>
+                    <Graph>
+                        <NodeList>
+                            <SimpleNode Initial="true" Name="idle">
+                                <PointGeometry>
+                                    <Point X="272" Y="144"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="23" Y="-15"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                            <SimpleNode Name="working">
+                                <PointGeometry>
+                                    <Point X="272" Y="464"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="-76" Y="-8"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                        </NodeList>
+                        <EdgeList>
+                            <Edge Source="idle" Target="working">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="pods_handle_requests"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-478" Y="20"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="236" Y="312"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Actions>
+                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \max(POD_QUEUE_LENGTH[POD_INDEX] - REQ_HANDLED_PER_SEC_PER_POD, 0)">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <FunctionCallExpression FunctionName="\max">
+                                                <BinaryExpression Operator="-">
+                                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                        <SimpleIdentifier Name="POD_INDEX"/>
+                                                    </IndexedIdentifier>
+                                                    <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD"/>
+                                                </BinaryExpression>
+                                                <IntConstant Value="0"/>
+                                            </FunctionCallExpression>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-722" Y="-9"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="working" Target="idle">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="one_second"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="12" Y="-6"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="309" Y="312"/>
+                                </SplineGeometry>
+                            </Edge>
+                        </EdgeList>
+                    </Graph>
+                </SimpleComponent>
+                <SimpleComponent Kind="PLANT">
+                    <IndexedIdentifier Name="pod_queue">
+                        <SimpleIdentifier Name="POD_INDEX"/>
+                    </IndexedIdentifier>
+                    <Graph>
+                        <NodeList>
+                            <SimpleNode Initial="true" Name="working">
+                                <EventList>
+                                    <SimpleIdentifier Name=":accepting"/>
+                                </EventList>
+                                <PointGeometry>
+                                    <Point X="688" Y="752"/>
+                                </PointGeometry>
+                                <LabelGeometry Anchor="NW">
+                                    <Point X="18" Y="-14"/>
+                                </LabelGeometry>
+                            </SimpleNode>
+                        </NodeList>
+                        <EdgeList>
+                            <Edge Source="working" Target="working">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="10" Y="20"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="785" Y="725"/>
+                                </SplineGeometry>
+                                <EndPointGeometry>
+                                    <Point X="992" Y="704"/>
+                                </EndPointGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &gt;= NEXT_POD &amp; POD_INDEX &lt; NEXT_POD + SUBMITTED_REMAINDER">
+                                            <BinaryExpression Operator="&gt;=">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                            </BinaryExpression>
+                                            <BinaryExpression Operator="&lt;">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <BinaryExpression Operator="+">
+                                                    <SimpleIdentifier Name="NEXT_POD"/>
+                                                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                </BinaryExpression>
+                                            </BinaryExpression>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <Actions>
+                                        <BinaryExpression Operator="+=" Text="POD_QUEUE_LENGTH[POD_INDEX] += 1">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <IntConstant Value="1"/>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="12" Y="-22"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="working" Target="working">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="allocate_req_to_pods_main"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-91" Y="-57"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="692" Y="654"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="&lt;=" Text="POD_INDEX &lt;= PODS_CURRENTLY_ON">
+                                            <SimpleIdentifier Name="POD_INDEX"/>
+                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <Actions>
+                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \min(POD_QUEUE_LENGTH[POD_INDEX] + SUBMITTED_THIS_SECOND / PODS_CURRENTLY_ON, POD_QUEUE_CAPACITY + 1)">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <FunctionCallExpression FunctionName="\min">
+                                                <BinaryExpression Operator="+">
+                                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                        <SimpleIdentifier Name="POD_INDEX"/>
+                                                    </IndexedIdentifier>
+                                                    <BinaryExpression Operator="/">
+                                                        <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
+                                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                                    </BinaryExpression>
+                                                </BinaryExpression>
+                                                <BinaryExpression Operator="+">
+                                                    <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
+                                                    <IntConstant Value="1"/>
+                                                </BinaryExpression>
+                                            </FunctionCallExpression>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-502" Y="-41"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="working" Target="working">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="34" Y="2"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="752" Y="849"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &gt;= NEXT_POD &amp; POD_INDEX &gt;= NEXT_POD + SUBMITTED_REMAINDER">
+                                            <BinaryExpression Operator="&gt;=">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                            </BinaryExpression>
+                                            <BinaryExpression Operator="&gt;=">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <BinaryExpression Operator="+">
+                                                    <SimpleIdentifier Name="NEXT_POD"/>
+                                                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                </BinaryExpression>
+                                            </BinaryExpression>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <Actions>
+                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = POD_QUEUE_LENGTH[POD_INDEX]">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="34" Y="-45"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="working" Target="working">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-211" Y="7"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="591" Y="717"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &lt; NEXT_POD &amp; POD_INDEX &lt; NEXT_POD + SUBMITTED_REMAINDER - PODS_CURRENTLY_ON">
+                                            <BinaryExpression Operator="&lt;">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                            </BinaryExpression>
+                                            <BinaryExpression Operator="&lt;">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <BinaryExpression Operator="-">
+                                                    <BinaryExpression Operator="+">
+                                                        <SimpleIdentifier Name="NEXT_POD"/>
+                                                        <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                    </BinaryExpression>
+                                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                                </BinaryExpression>
+                                            </BinaryExpression>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <Actions>
+                                        <BinaryExpression Operator="+=" Text="POD_QUEUE_LENGTH[POD_INDEX] += 1">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <IntConstant Value="1"/>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-643" Y="-39"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="working" Target="working">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-228" Y="20"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="613" Y="846"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &lt; NEXT_POD &amp; POD_INDEX &gt;= NEXT_POD + SUBMITTED_REMAINDER - PODS_CURRENTLY_ON">
+                                            <BinaryExpression Operator="&lt;">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                            </BinaryExpression>
+                                            <BinaryExpression Operator="&gt;=">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <BinaryExpression Operator="-">
+                                                    <BinaryExpression Operator="+">
+                                                        <SimpleIdentifier Name="NEXT_POD"/>
+                                                        <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                    </BinaryExpression>
+                                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                                </BinaryExpression>
+                                            </BinaryExpression>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <Actions>
+                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = POD_QUEUE_LENGTH[POD_INDEX]">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-672" Y="-25"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                            <Edge Source="working" Target="working">
+                                <LabelBlock>
+                                    <SimpleIdentifier Name="allocate_req_to_pods_main"/>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-73" Y="59"/>
+                                    </LabelGeometry>
+                                </LabelBlock>
+                                <SplineGeometry>
+                                    <Point X="684" Y="901"/>
+                                </SplineGeometry>
+                                <GuardActionBlock>
+                                    <Guards>
+                                        <BinaryExpression Operator="&gt;" Text="POD_INDEX &gt; PODS_CURRENTLY_ON">
+                                            <SimpleIdentifier Name="POD_INDEX"/>
+                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        </BinaryExpression>
+                                    </Guards>
+                                    <Actions>
+                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = POD_QUEUE_LENGTH[POD_INDEX]">
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            </IndexedIdentifier>
+                                        </BinaryExpression>
+                                    </Actions>
+                                    <LabelGeometry Anchor="NW">
+                                        <Point X="-194" Y="18"/>
+                                    </LabelGeometry>
+                                </GuardActionBlock>
+                            </Edge>
+                        </EdgeList>
+                    </Graph>
+                </SimpleComponent>
+            </ComponentList>
+        </ForeachComponent>
+    </ComponentList>
+</Module>
