@@ -377,9 +377,9 @@ The load is also in square shape form, not a constant maximum.
                         </EndPointGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;=" Text="POD_QUEUE_LENGTH[PODS_CURRENTLY_ON] &gt;= SCALE_THRESHOLD_LAST_POD">
-                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="&gt;=" Text="QL[PODS_ON] &gt;= SCALE_THRESHOLD_LAST_POD">
+                                    <IndexedIdentifier Name="QL">
+                                        <SimpleIdentifier Name="PODS_ON"/>
                                     </IndexedIdentifier>
                                     <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
                                 </BinaryExpression>
@@ -431,9 +431,9 @@ The load is also in square shape form, not a constant maximum.
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;" Text="POD_QUEUE_LENGTH[PODS_CURRENTLY_ON] &lt; SCALE_THRESHOLD_LAST_POD">
-                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="&lt;" Text="QL[PODS_ON] &lt; SCALE_THRESHOLD_LAST_POD">
+                                    <IndexedIdentifier Name="QL">
+                                        <SimpleIdentifier Name="PODS_ON"/>
                                     </IndexedIdentifier>
                                     <SimpleIdentifier Name="SCALE_THRESHOLD_LAST_POD"/>
                                 </BinaryExpression>
@@ -455,17 +455,17 @@ The load is also in square shape form, not a constant maximum.
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&gt;" Text="POD_QUEUE_LENGTH[POD_MIN] &gt; SCALE_DOWN_THRESHOLD_FIRST_POD">
-                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                <BinaryExpression Operator="&gt;" Text="QL[POD_MIN] &gt; SCALE_DOWN_THRESHOLD_FIRST_POD">
+                                    <IndexedIdentifier Name="QL">
                                         <SimpleIdentifier Name="POD_MIN"/>
                                     </IndexedIdentifier>
                                     <SimpleIdentifier Name="SCALE_DOWN_THRESHOLD_FIRST_POD"/>
                                 </BinaryExpression>
                             </Guards>
                             <Actions>
-                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="=" Text="PODS_ON = PODS_ON">
+                                    <SimpleIdentifier Name="PODS_ON"/>
+                                    <SimpleIdentifier Name="PODS_ON"/>
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
@@ -485,19 +485,19 @@ The load is also in square shape form, not a constant maximum.
                         </SplineGeometry>
                         <GuardActionBlock>
                             <Guards>
-                                <BinaryExpression Operator="&lt;=" Text="POD_QUEUE_LENGTH[POD_MIN] &lt;= SCALE_DOWN_THRESHOLD_FIRST_POD">
-                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
+                                <BinaryExpression Operator="&lt;=" Text="QL[POD_MIN] &lt;= SCALE_DOWN_THRESHOLD_FIRST_POD">
+                                    <IndexedIdentifier Name="QL">
                                         <SimpleIdentifier Name="POD_MIN"/>
                                     </IndexedIdentifier>
                                     <SimpleIdentifier Name="SCALE_DOWN_THRESHOLD_FIRST_POD"/>
                                 </BinaryExpression>
                             </Guards>
                             <Actions>
-                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = \max(PODS_CURRENTLY_ON-1, POD_MIN)">
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="=" Text="PODS_ON = \max(PODS_ON-1, POD_MIN)">
+                                    <SimpleIdentifier Name="PODS_ON"/>
                                     <FunctionCallExpression FunctionName="\max">
                                         <BinaryExpression Operator="-">
-                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                            <SimpleIdentifier Name="PODS_ON"/>
                                             <IntConstant Value="1"/>
                                         </BinaryExpression>
                                         <SimpleIdentifier Name="POD_MIN"/>
@@ -686,11 +686,11 @@ The load is also in square shape form, not a constant maximum.
                                     <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
                                     <IntConstant Value="0"/>
                                 </BinaryExpression>
-                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = \min(PODS_CURRENTLY_ON+1, POD_MAX)">
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="=" Text="PODS_ON = \min(PODS_ON+1, POD_MAX)">
+                                    <SimpleIdentifier Name="PODS_ON"/>
                                     <FunctionCallExpression FunctionName="\min">
                                         <BinaryExpression Operator="+">
-                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                            <SimpleIdentifier Name="PODS_ON"/>
                                             <IntConstant Value="1"/>
                                         </BinaryExpression>
                                         <SimpleIdentifier Name="POD_MAX"/>
@@ -724,9 +724,9 @@ The load is also in square shape form, not a constant maximum.
                                     <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
                                     <IntConstant Value="1"/>
                                 </BinaryExpression>
-                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="=" Text="PODS_ON = PODS_ON">
+                                    <SimpleIdentifier Name="PODS_ON"/>
+                                    <SimpleIdentifier Name="PODS_ON"/>
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
@@ -750,9 +750,9 @@ The load is also in square shape form, not a constant maximum.
                                     <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
                                     <SimpleIdentifier Name="POD_SCHEDULER_SECONDS_ELAPSED"/>
                                 </BinaryExpression>
-                                <BinaryExpression Operator="=" Text="PODS_CURRENTLY_ON = PODS_CURRENTLY_ON">
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
-                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                <BinaryExpression Operator="=" Text="PODS_ON = PODS_ON">
+                                    <SimpleIdentifier Name="PODS_ON"/>
+                                    <SimpleIdentifier Name="PODS_ON"/>
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
@@ -853,11 +853,11 @@ The load is also in square shape form, not a constant maximum.
                                 </BinaryExpression>
                             </Guards>
                             <Actions>
-                                <BinaryExpression Operator="=" Text="SUBMITTED_REMAINDER = SUBMITTED_THIS_SECOND % PODS_CURRENTLY_ON">
-                                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                <BinaryExpression Operator="=" Text="REMAINDER = SUBMITTED_THIS_SECOND % PODS_ON">
+                                    <SimpleIdentifier Name="REMAINDER"/>
                                     <BinaryExpression Operator="%">
                                         <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
-                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        <SimpleIdentifier Name="PODS_ON"/>
                                     </BinaryExpression>
                                 </BinaryExpression>
                             </Actions>
@@ -889,14 +889,14 @@ The load is also in square shape form, not a constant maximum.
                         </StartPointGeometry>
                         <GuardActionBlock>
                             <Actions>
-                                <BinaryExpression Operator="=" Text="SUBMITTED_REMAINDER = 0">
-                                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                <BinaryExpression Operator="=" Text="REMAINDER = 0">
+                                    <SimpleIdentifier Name="REMAINDER"/>
                                     <IntConstant Value="0"/>
                                 </BinaryExpression>
-                                <BinaryExpression Operator="=" Text="NEXT_POD = NEXT_POD_TEMP + 1">
-                                    <SimpleIdentifier Name="NEXT_POD"/>
+                                <BinaryExpression Operator="=" Text="NP = NP_TEMP + 1">
+                                    <SimpleIdentifier Name="NP"/>
                                     <BinaryExpression Operator="+">
-                                        <SimpleIdentifier Name="NEXT_POD_TEMP"/>
+                                        <SimpleIdentifier Name="NP_TEMP"/>
                                         <IntConstant Value="1"/>
                                     </BinaryExpression>
                                 </BinaryExpression>
@@ -915,17 +915,17 @@ The load is also in square shape form, not a constant maximum.
                         </LabelBlock>
                         <GuardActionBlock>
                             <Actions>
-                                <BinaryExpression Operator="=" Text="NEXT_POD_TEMP = (NEXT_POD + SUBMITTED_REMAINDER - 1) % PODS_CURRENTLY_ON">
-                                    <SimpleIdentifier Name="NEXT_POD_TEMP"/>
+                                <BinaryExpression Operator="=" Text="NP_TEMP = (NP + REMAINDER - 1) % PODS_ON">
+                                    <SimpleIdentifier Name="NP_TEMP"/>
                                     <BinaryExpression Operator="%">
                                         <BinaryExpression Operator="-">
                                             <BinaryExpression Operator="+">
-                                                <SimpleIdentifier Name="NEXT_POD"/>
-                                                <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                <SimpleIdentifier Name="NP"/>
+                                                <SimpleIdentifier Name="REMAINDER"/>
                                             </BinaryExpression>
                                             <IntConstant Value="1"/>
                                         </BinaryExpression>
-                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        <SimpleIdentifier Name="PODS_ON"/>
                                     </BinaryExpression>
                                 </BinaryExpression>
                             </Actions>
@@ -1120,7 +1120,7 @@ The load is also in square shape form, not a constant maximum.
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
-        <VariableComponent Name="NEXT_POD">
+        <VariableComponent Name="NP">
             <VariableRange>
                 <BinaryExpression Operator="..">
                     <IntConstant Value="1"/>
@@ -1128,13 +1128,13 @@ The load is also in square shape form, not a constant maximum.
                 </BinaryExpression>
             </VariableRange>
             <VariableInitial>
-                <BinaryExpression Operator="==" Text="NEXT_POD == 1">
-                    <SimpleIdentifier Name="NEXT_POD"/>
+                <BinaryExpression Operator="==" Text="NP == 1">
+                    <SimpleIdentifier Name="NP"/>
                     <IntConstant Value="1"/>
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
-        <VariableComponent Name="NEXT_POD_TEMP">
+        <VariableComponent Name="NP_TEMP">
             <VariableRange>
                 <BinaryExpression Operator="..">
                     <IntConstant Value="-1"/>
@@ -1142,13 +1142,13 @@ The load is also in square shape form, not a constant maximum.
                 </BinaryExpression>
             </VariableRange>
             <VariableInitial>
-                <BinaryExpression Operator="==" Text="NEXT_POD_TEMP == 1">
-                    <SimpleIdentifier Name="NEXT_POD_TEMP"/>
+                <BinaryExpression Operator="==" Text="NP_TEMP == 1">
+                    <SimpleIdentifier Name="NP_TEMP"/>
                     <IntConstant Value="1"/>
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
-        <VariableComponent Name="PODS_CURRENTLY_ON">
+        <VariableComponent Name="PODS_ON">
             <VariableRange>
                 <BinaryExpression Operator="..">
                     <SimpleIdentifier Name="POD_MIN"/>
@@ -1156,8 +1156,8 @@ The load is also in square shape form, not a constant maximum.
                 </BinaryExpression>
             </VariableRange>
             <VariableInitial>
-                <BinaryExpression Operator="==" Text="PODS_CURRENTLY_ON == PODS_INITIALLY_ON">
-                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                <BinaryExpression Operator="==" Text="PODS_ON == PODS_INITIALLY_ON">
+                    <SimpleIdentifier Name="PODS_ON"/>
                     <SimpleIdentifier Name="PODS_INITIALLY_ON"/>
                 </BinaryExpression>
             </VariableInitial>
@@ -1176,7 +1176,7 @@ The load is also in square shape form, not a constant maximum.
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
-        <VariableComponent Name="SUBMITTED_REMAINDER">
+        <VariableComponent Name="REMAINDER">
             <VariableRange>
                 <BinaryExpression Operator="..">
                     <IntConstant Value="0"/>
@@ -1184,8 +1184,8 @@ The load is also in square shape form, not a constant maximum.
                 </BinaryExpression>
             </VariableRange>
             <VariableInitial>
-                <BinaryExpression Operator="==" Text="SUBMITTED_REMAINDER == 0">
-                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                <BinaryExpression Operator="==" Text="REMAINDER == 0">
+                    <SimpleIdentifier Name="REMAINDER"/>
                     <IntConstant Value="0"/>
                 </BinaryExpression>
             </VariableInitial>
@@ -1221,7 +1221,7 @@ The load is also in square shape form, not a constant maximum.
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
-        <ForeachComponent Name="POD_INDEX">
+        <ForeachComponent Name="PI">
             <BinaryExpression Operator="..">
                 <IntConstant Value="1"/>
                 <SimpleIdentifier Name="POD_MAX"/>
@@ -1229,7 +1229,7 @@ The load is also in square shape form, not a constant maximum.
             <ComponentList>
                 <SimpleComponent Kind="PROPERTY">
                     <IndexedIdentifier Name="max_response_time">
-                        <SimpleIdentifier Name="POD_INDEX"/>
+                        <SimpleIdentifier Name="PI"/>
                     </IndexedIdentifier>
                     <Graph>
                         <NodeList>
@@ -1246,7 +1246,7 @@ The load is also in square shape form, not a constant maximum.
                             <Edge Source="checking" Target="checking">
                                 <LabelBlock>
                                     <IndexedIdentifier Name="slo_check">
-                                        <SimpleIdentifier Name="POD_INDEX"/>
+                                        <SimpleIdentifier Name="PI"/>
                                     </IndexedIdentifier>
                                     <LabelGeometry Anchor="NW">
                                         <Point X="-74" Y="10"/>
@@ -1257,9 +1257,9 @@ The load is also in square shape form, not a constant maximum.
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&lt;=" Text="POD_QUEUE_LENGTH[POD_INDEX] &lt;= POD_QUEUE_CAPACITY">
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                        <BinaryExpression Operator="&lt;=" Text="QL[PI] &lt;= POD_QUEUE_CAPACITY">
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
                                             <SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
                                         </BinaryExpression>
@@ -1273,8 +1273,8 @@ The load is also in square shape form, not a constant maximum.
                     </Graph>
                 </SimpleComponent>
                 <VariableComponent>
-                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                        <SimpleIdentifier Name="POD_INDEX"/>
+                    <IndexedIdentifier Name="QL">
+                        <SimpleIdentifier Name="PI"/>
                     </IndexedIdentifier>
                     <VariableRange>
                         <BinaryExpression Operator="..">
@@ -1286,9 +1286,9 @@ The load is also in square shape form, not a constant maximum.
                         </BinaryExpression>
                     </VariableRange>
                     <VariableInitial>
-                        <BinaryExpression Operator="==" Text="POD_QUEUE_LENGTH[POD_INDEX] == 0">
-                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                <SimpleIdentifier Name="POD_INDEX"/>
+                        <BinaryExpression Operator="==" Text="QL[PI] == 0">
+                            <IndexedIdentifier Name="QL">
+                                <SimpleIdentifier Name="PI"/>
                             </IndexedIdentifier>
                             <IntConstant Value="0"/>
                         </BinaryExpression>
@@ -1296,7 +1296,7 @@ The load is also in square shape form, not a constant maximum.
                 </VariableComponent>
                 <SimpleComponent Kind="PLANT">
                     <IndexedIdentifier Name="pod">
-                        <SimpleIdentifier Name="POD_INDEX"/>
+                        <SimpleIdentifier Name="PI"/>
                     </IndexedIdentifier>
                     <Graph>
                         <NodeList>
@@ -1330,14 +1330,14 @@ The load is also in square shape form, not a constant maximum.
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \max(POD_QUEUE_LENGTH[POD_INDEX] - REQ_HANDLED_PER_SEC_PER_POD, 0)">
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                        <BinaryExpression Operator="=" Text="QL[PI] = \max(QL[PI] - REQ_HANDLED_PER_SEC_PER_POD, 0)">
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
                                             <FunctionCallExpression FunctionName="\max">
                                                 <BinaryExpression Operator="-">
-                                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                        <SimpleIdentifier Name="POD_INDEX"/>
+                                                    <IndexedIdentifier Name="QL">
+                                                        <SimpleIdentifier Name="PI"/>
                                                     </IndexedIdentifier>
                                                     <SimpleIdentifier Name="REQ_HANDLED_PER_SEC_PER_POD"/>
                                                 </BinaryExpression>
@@ -1366,7 +1366,7 @@ The load is also in square shape form, not a constant maximum.
                 </SimpleComponent>
                 <SimpleComponent Kind="PLANT">
                     <IndexedIdentifier Name="pod_queue">
-                        <SimpleIdentifier Name="POD_INDEX"/>
+                        <SimpleIdentifier Name="PI"/>
                     </IndexedIdentifier>
                     <Graph>
                         <NodeList>
@@ -1398,24 +1398,24 @@ The load is also in square shape form, not a constant maximum.
                                 </EndPointGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &gt;= NEXT_POD &amp; POD_INDEX &lt; NEXT_POD + SUBMITTED_REMAINDER">
+                                        <BinaryExpression Operator="&amp;" Text="PI &gt;= NP &amp; PI &lt; NP + REMAINDER">
                                             <BinaryExpression Operator="&gt;=">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
-                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                                <SimpleIdentifier Name="PI"/>
+                                                <SimpleIdentifier Name="NP"/>
                                             </BinaryExpression>
                                             <BinaryExpression Operator="&lt;">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="PI"/>
                                                 <BinaryExpression Operator="+">
-                                                    <SimpleIdentifier Name="NEXT_POD"/>
-                                                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                    <SimpleIdentifier Name="NP"/>
+                                                    <SimpleIdentifier Name="REMAINDER"/>
                                                 </BinaryExpression>
                                             </BinaryExpression>
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="+=" Text="POD_QUEUE_LENGTH[POD_INDEX] += 1">
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                        <BinaryExpression Operator="+=" Text="QL[PI] += 1">
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
                                             <IntConstant Value="1"/>
                                         </BinaryExpression>
@@ -1437,24 +1437,24 @@ The load is also in square shape form, not a constant maximum.
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&lt;=" Text="POD_INDEX &lt;= PODS_CURRENTLY_ON">
-                                            <SimpleIdentifier Name="POD_INDEX"/>
-                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        <BinaryExpression Operator="&lt;=" Text="PI &lt;= PODS_ON">
+                                            <SimpleIdentifier Name="PI"/>
+                                            <SimpleIdentifier Name="PODS_ON"/>
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \min(POD_QUEUE_LENGTH[POD_INDEX] + SUBMITTED_THIS_SECOND / PODS_CURRENTLY_ON, POD_QUEUE_CAPACITY + 1)">
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                        <BinaryExpression Operator="=" Text="QL[PI] = \min(QL[PI] + SUBMITTED_THIS_SECOND / PODS_ON, POD_QUEUE_CAPACITY + 1)">
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
                                             <FunctionCallExpression FunctionName="\min">
                                                 <BinaryExpression Operator="+">
-                                                    <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                        <SimpleIdentifier Name="POD_INDEX"/>
+                                                    <IndexedIdentifier Name="QL">
+                                                        <SimpleIdentifier Name="PI"/>
                                                     </IndexedIdentifier>
                                                     <BinaryExpression Operator="/">
                                                         <SimpleIdentifier Name="SUBMITTED_THIS_SECOND"/>
-                                                        <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                                        <SimpleIdentifier Name="PODS_ON"/>
                                                     </BinaryExpression>
                                                 </BinaryExpression>
                                                 <BinaryExpression Operator="+">
@@ -1465,7 +1465,7 @@ The load is also in square shape form, not a constant maximum.
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-502" Y="-41"/>
+                                        <Point X="-284" Y="-40"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -1481,27 +1481,27 @@ The load is also in square shape form, not a constant maximum.
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &gt;= NEXT_POD &amp; POD_INDEX &gt;= NEXT_POD + SUBMITTED_REMAINDER">
+                                        <BinaryExpression Operator="&amp;" Text="PI &gt;= NP &amp; PI &gt;= NP + REMAINDER">
                                             <BinaryExpression Operator="&gt;=">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
-                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                                <SimpleIdentifier Name="PI"/>
+                                                <SimpleIdentifier Name="NP"/>
                                             </BinaryExpression>
                                             <BinaryExpression Operator="&gt;=">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="PI"/>
                                                 <BinaryExpression Operator="+">
-                                                    <SimpleIdentifier Name="NEXT_POD"/>
-                                                    <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                    <SimpleIdentifier Name="NP"/>
+                                                    <SimpleIdentifier Name="REMAINDER"/>
                                                 </BinaryExpression>
                                             </BinaryExpression>
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = POD_QUEUE_LENGTH[POD_INDEX]">
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                        <BinaryExpression Operator="=" Text="QL[PI] = QL[PI]">
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
                                         </BinaryExpression>
                                     </Actions>
@@ -1522,33 +1522,33 @@ The load is also in square shape form, not a constant maximum.
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &lt; NEXT_POD &amp; POD_INDEX &lt; NEXT_POD + SUBMITTED_REMAINDER - PODS_CURRENTLY_ON">
+                                        <BinaryExpression Operator="&amp;" Text="PI &lt; NP &amp; PI &lt; NP + REMAINDER - PODS_ON">
                                             <BinaryExpression Operator="&lt;">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
-                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                                <SimpleIdentifier Name="PI"/>
+                                                <SimpleIdentifier Name="NP"/>
                                             </BinaryExpression>
                                             <BinaryExpression Operator="&lt;">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="PI"/>
                                                 <BinaryExpression Operator="-">
                                                     <BinaryExpression Operator="+">
-                                                        <SimpleIdentifier Name="NEXT_POD"/>
-                                                        <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                        <SimpleIdentifier Name="NP"/>
+                                                        <SimpleIdentifier Name="REMAINDER"/>
                                                     </BinaryExpression>
-                                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                                    <SimpleIdentifier Name="PODS_ON"/>
                                                 </BinaryExpression>
                                             </BinaryExpression>
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="+=" Text="POD_QUEUE_LENGTH[POD_INDEX] += 1">
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                        <BinaryExpression Operator="+=" Text="QL[PI] += 1">
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
                                             <IntConstant Value="1"/>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-643" Y="-39"/>
+                                        <Point X="-277" Y="-34"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -1564,35 +1564,35 @@ The load is also in square shape form, not a constant maximum.
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&amp;" Text="POD_INDEX &lt; NEXT_POD &amp; POD_INDEX &gt;= NEXT_POD + SUBMITTED_REMAINDER - PODS_CURRENTLY_ON">
+                                        <BinaryExpression Operator="&amp;" Text="PI &lt; NP &amp; PI &gt;= NP + REMAINDER - PODS_ON">
                                             <BinaryExpression Operator="&lt;">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
-                                                <SimpleIdentifier Name="NEXT_POD"/>
+                                                <SimpleIdentifier Name="PI"/>
+                                                <SimpleIdentifier Name="NP"/>
                                             </BinaryExpression>
                                             <BinaryExpression Operator="&gt;=">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                                <SimpleIdentifier Name="PI"/>
                                                 <BinaryExpression Operator="-">
                                                     <BinaryExpression Operator="+">
-                                                        <SimpleIdentifier Name="NEXT_POD"/>
-                                                        <SimpleIdentifier Name="SUBMITTED_REMAINDER"/>
+                                                        <SimpleIdentifier Name="NP"/>
+                                                        <SimpleIdentifier Name="REMAINDER"/>
                                                     </BinaryExpression>
-                                                    <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                                    <SimpleIdentifier Name="PODS_ON"/>
                                                 </BinaryExpression>
                                             </BinaryExpression>
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = POD_QUEUE_LENGTH[POD_INDEX]">
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                        <BinaryExpression Operator="=" Text="QL[PI] = QL[PI]">
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-672" Y="-25"/>
+                                        <Point X="-302" Y="-18"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
@@ -1608,23 +1608,23 @@ The load is also in square shape form, not a constant maximum.
                                 </SplineGeometry>
                                 <GuardActionBlock>
                                     <Guards>
-                                        <BinaryExpression Operator="&gt;" Text="POD_INDEX &gt; PODS_CURRENTLY_ON">
-                                            <SimpleIdentifier Name="POD_INDEX"/>
-                                            <SimpleIdentifier Name="PODS_CURRENTLY_ON"/>
+                                        <BinaryExpression Operator="&gt;" Text="PI &gt; PODS_ON">
+                                            <SimpleIdentifier Name="PI"/>
+                                            <SimpleIdentifier Name="PODS_ON"/>
                                         </BinaryExpression>
                                     </Guards>
                                     <Actions>
-                                        <BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = POD_QUEUE_LENGTH[POD_INDEX]">
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                        <BinaryExpression Operator="=" Text="QL[PI] = QL[PI]">
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
-                                            <IndexedIdentifier Name="POD_QUEUE_LENGTH">
-                                                <SimpleIdentifier Name="POD_INDEX"/>
+                                            <IndexedIdentifier Name="QL">
+                                                <SimpleIdentifier Name="PI"/>
                                             </IndexedIdentifier>
                                         </BinaryExpression>
                                     </Actions>
                                     <LabelGeometry Anchor="NW">
-                                        <Point X="-194" Y="18"/>
+                                        <Point X="-44" Y="16"/>
                                     </LabelGeometry>
                                 </GuardActionBlock>
                             </Edge>
