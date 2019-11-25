@@ -1302,17 +1302,17 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = \min(POD_QUEUE_CAPACITY+1, POD_QUEUE_LENGTH[POD_INDEX] + SUBMITTED_THIS_SECOND / PODS_CURRENTLY_ON)">
-<IndexedIdentifier Name="POD_QUEUE_LENGTH">
+<BinaryExpression Operator="=" Text="QL[POD_INDEX] = \min(QL_MAX+1, QL[POD_INDEX] + SUBMITTED_THIS_SECOND / PODS_CURRENTLY_ON)">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="POD_INDEX"/>
 </IndexedIdentifier>
 <FunctionCallExpression FunctionName="\min">
 <BinaryExpression Operator="+">
-<SimpleIdentifier Name="POD_QUEUE_CAPACITY"/>
+<SimpleIdentifier Name="QL_MAX"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
 <BinaryExpression Operator="+">
-<IndexedIdentifier Name="POD_QUEUE_LENGTH">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="POD_INDEX"/>
 </IndexedIdentifier>
 <BinaryExpression Operator="/">
@@ -1346,11 +1346,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="=" Text="POD_QUEUE_LENGTH[POD_INDEX] = POD_QUEUE_LENGTH[POD_INDEX]">
-<IndexedIdentifier Name="POD_QUEUE_LENGTH">
+<BinaryExpression Operator="=" Text="QL[POD_INDEX] = QL[POD_INDEX]">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="POD_INDEX"/>
 </IndexedIdentifier>
-<IndexedIdentifier Name="POD_QUEUE_LENGTH">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="POD_INDEX"/>
 </IndexedIdentifier>
 </BinaryExpression>
