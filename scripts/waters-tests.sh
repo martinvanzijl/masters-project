@@ -1,7 +1,9 @@
 # Run WATERS tests for my thesis.
 
 # Constants.
-MODEL=~/Desktop/github/models/model-2-01Z-nginx-final.wmod
+#MODEL=~/Desktop/github/models/model-2-01Z-nginx-final.wmod
+MODEL=~/Desktop/github/models/model-2-02Z-nodejs-final.wmod
+#MODEL=~/Desktop/github/models/temp.wmod
 OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.
@@ -26,7 +28,7 @@ fi
 #		for ((max_rps = 1; max_rps <= 2; max_rps += 1))
 #		do
 #			echo "Testing max_rps=$max_rps, pod_max=$pod_max, scale_cpu=$scale_cpu..."
-#			./wcheck -bdd -lang -q -DMAX_REQUESTS_PER_SECOND=$max_rps -DPOD_MAX=$pod_max -DSCALE_CPU_THRESHOLD=$scale_cpu $MODEL >> $OUTPUT_FILE
+#			./wcheck -bdd -lang -q -DMax_Requests_Per_Second=$max_rps -DPod_Max=$pod_max -DScale_CPU_Threshold=$scale_cpu $MODEL >> $OUTPUT_FILE
 #		done
 #	done
 #done
@@ -36,40 +38,46 @@ INPUT_FILE=~/Desktop/github/results/test-cases.csv
 #INPUT_FILE=~/Desktop/github/results/speed-test-cases.csv
 HEADER_READ=0
 
-#while IFS=, read -r rps_low rps_high high_duration low_duration app_processing_time min_pods max_pods initial_pods scale_cpu
-while IFS=, read -r rps min_pods max_pods initial_pods scale_cpu
+# NGINX
+#while IFS=, read -r rps min_pods max_pods initial_pods scale_cpu
+
+# NodeJS
+while IFS=, read -r rps_low rps_high high_duration low_duration app_processing_time min_pods max_pods initial_pods scale_cpu
 do
     if ((HEADER_READ==0))
     then
         HEADER_READ=1
     else
-        #echo "Testing: $rps_low|$rps_high|$high_duration|$low_duration|$app_processing_time|$min_pods|$max_pods|$initial_pods|$scale_cpu"
-        echo "Testing: $rps|$min_pods|$max_pods|$initial_pods|$scale_cpu"
-        app_processing_time=6 # hard code response time
+        # NGINX
+        #echo "Testing: $rps|$min_pods|$max_pods|$initial_pods|$scale_cpu"
+        #app_processing_time=6 # hard code response time
+
+        # NodeJS
+        echo "Testing: $rps_low|$rps_high|$high_duration|$low_duration|$app_processing_time|$min_pods|$max_pods|$initial_pods|$scale_cpu"
 
         # NGINX
-        ./wcheck -bdd -lang -q -stats \
-                                        -DMAX_REQUESTS_PER_SECOND_ACTUAL=$rps \
-                                        -DPOD_MIN=$min_pods \
-                                        -DPOD_MAX=$max_pods \
-                                        -DPROCESSING_TIME_PER_REQ_IN_MS=$app_processing_time \
-                                        -DSCALE_CPU_THRESHOLD=$scale_cpu \
-                                        $MODEL \
-                                        >> $OUTPUT_FILE
-
-        # Node.js
         #./wcheck -bdd -lang -q -stats \
-                                        #-DREQ_SENT_PER_SEC_HIGH=$rps_high \
-                                        #-DREQ_SENT_PER_SEC_LOW=$rps_low \
-                                        #-DHIGH_LOAD_TIME_IN_SECONDS=$high_duration \
-                                        #-DLOW_LOAD_TIME_IN_SECONDS=$low_duration \
-                                        #-DPODS_INITIALLY_ON=$initial_pods \
-                                        #-DPOD_MIN=$min_pods \
-                                        #-DPOD_MAX=$max_pods \
-                                        #-DSCALE_CPU_THRESHOLD=$scale_cpu \
-                                        #-DPROCESSING_TIME_PER_REQ_IN_MS=$app_processing_time \
+                                        #-DMax_Requests_Per_Second_Actual=$rps \
+                                        #-DPod_Min=$min_pods \
+                                        #-DPod_Max=$max_pods \
+                                        #-DProcessing_Time_Per_Req_In_Ms=$app_processing_time \
+                                        #-DScale_CPU_Threshold=$scale_cpu \
                                         #$MODEL \
                                         #>> $OUTPUT_FILE
+
+        # NodeJS
+        ./wcheck -bdd -lang -q -stats \
+                                        -DReq_Sent_Per_Sec_High=$rps_high \
+                                        -DReq_Sent_Per_Sec_Low=$rps_low \
+                                        -DHigh_Load_Time_In_Seconds=$high_duration \
+                                        -DLow_Load_Time_In_Seconds=$low_duration \
+                                        -DPods_Initially_On=$initial_pods \
+                                        -DPod_Min=$min_pods \
+                                        -DPod_Max=$max_pods \
+                                        -DScale_CPU_Threshold=$scale_cpu \
+                                        -DProcessing_Time_Per_Req_In_Ms=$app_processing_time \
+                                        $MODEL \
+                                        >> $OUTPUT_FILE
     fi
 done < $INPUT_FILE
 
