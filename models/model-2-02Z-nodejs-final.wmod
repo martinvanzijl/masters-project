@@ -830,6 +830,19 @@ The load is also in square shape form, not a constant maximum.
                         <EndPointGeometry>
                             <Point X="-48" Y="192"/>
                         </EndPointGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&lt;=" Text="Submitted_This_Second' &lt;= Max_Requests_Per_Second">
+                                    <UnaryExpression Operator="'">
+                                        <SimpleIdentifier Name="Submitted_This_Second"/>
+                                    </UnaryExpression>
+                                    <SimpleIdentifier Name="Max_Requests_Per_Second"/>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="21" Y="-32"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
                     </Edge>
                     <Edge Source="submitting" Target="main_requests_allocated">
                         <LabelBlock>
@@ -842,14 +855,6 @@ The load is also in square shape form, not a constant maximum.
                             <Point X="-48" Y="480"/>
                         </EndPointGeometry>
                         <GuardActionBlock>
-                            <Guards>
-                                <BinaryExpression Operator="&lt;=" Text="Submitted_This_Second' &lt;= Max_Requests_Per_Second">
-                                    <UnaryExpression Operator="'">
-                                        <SimpleIdentifier Name="Submitted_This_Second"/>
-                                    </UnaryExpression>
-                                    <SimpleIdentifier Name="Max_Requests_Per_Second"/>
-                                </BinaryExpression>
-                            </Guards>
                             <Actions>
                                 <BinaryExpression Operator="=" Text="Submitted_Remainder = Submitted_This_Second % Pods_On">
                                     <SimpleIdentifier Name="Submitted_Remainder"/>
@@ -860,7 +865,7 @@ The load is also in square shape form, not a constant maximum.
                                 </BinaryExpression>
                             </Actions>
                             <LabelGeometry Anchor="NW">
-                                <Point X="16" Y="-21"/>
+                                <Point X="17" Y="-22"/>
                             </LabelGeometry>
                         </GuardActionBlock>
                     </Edge>
@@ -1219,6 +1224,132 @@ The load is also in square shape form, not a constant maximum.
                 </BinaryExpression>
             </VariableInitial>
         </VariableComponent>
+        <SimpleComponent Kind="PROPERTY" Name="unit_test_1_remainder">
+            <Graph>
+                <NodeList>
+                    <SimpleNode Initial="true" Name="start">
+                        <EventList>
+                            <SimpleIdentifier Name=":accepting"/>
+                        </EventList>
+                        <PointGeometry>
+                            <Point X="416" Y="192"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="15" Y="-10"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="checking">
+                        <PointGeometry>
+                            <Point X="416" Y="320"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="14" Y="-5"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                    <SimpleNode Name="no_check">
+                        <PointGeometry>
+                            <Point X="416" Y="64"/>
+                        </PointGeometry>
+                        <LabelGeometry Anchor="NW">
+                            <Point X="11" Y="-8"/>
+                        </LabelGeometry>
+                    </SimpleNode>
+                </NodeList>
+                <EdgeList>
+                    <Edge Source="start" Target="checking">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="allocate_req_to_pods_main"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-183" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="374" Y="258"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&amp;" Text="Submitted_This_Second == 1 &amp; Pods_On == 2">
+                                    <BinaryExpression Operator="==">
+                                        <SimpleIdentifier Name="Submitted_This_Second"/>
+                                        <IntConstant Value="1"/>
+                                    </BinaryExpression>
+                                    <BinaryExpression Operator="==">
+                                        <SimpleIdentifier Name="Pods_On"/>
+                                        <IntConstant Value="2"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-300" Y="-29"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="checking" Target="start">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="15" Y="-4"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <GuardActionBlock>
+                            <Guards>
+                                <BinaryExpression Operator="&amp;" Text="Submitted_Remainder == 1 &amp; Submitted_This_Second == 1">
+                                    <BinaryExpression Operator="==">
+                                        <SimpleIdentifier Name="Submitted_Remainder"/>
+                                        <IntConstant Value="1"/>
+                                    </BinaryExpression>
+                                    <BinaryExpression Operator="==">
+                                        <SimpleIdentifier Name="Submitted_This_Second"/>
+                                        <IntConstant Value="1"/>
+                                    </BinaryExpression>
+                                </BinaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="16" Y="-25"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="start" Target="no_check">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="allocate_req_to_pods_main"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-180" Y="0"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                        <SplineGeometry>
+                            <Point X="372" Y="128"/>
+                        </SplineGeometry>
+                        <GuardActionBlock>
+                            <Guards>
+                                <UnaryExpression Operator="!" Text="!(Submitted_This_Second == 1 &amp; Pods_On == 2)">
+                                    <BinaryExpression Operator="&amp;">
+                                        <BinaryExpression Operator="==">
+                                            <SimpleIdentifier Name="Submitted_This_Second"/>
+                                            <IntConstant Value="1"/>
+                                        </BinaryExpression>
+                                        <BinaryExpression Operator="==">
+                                            <SimpleIdentifier Name="Pods_On"/>
+                                            <IntConstant Value="2"/>
+                                        </BinaryExpression>
+                                    </BinaryExpression>
+                                </UnaryExpression>
+                            </Guards>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="-309" Y="-24"/>
+                            </LabelGeometry>
+                        </GuardActionBlock>
+                    </Edge>
+                    <Edge Source="no_check" Target="start">
+                        <LabelBlock>
+                            <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
+                            <LabelGeometry Anchor="NW">
+                                <Point X="18" Y="-9"/>
+                            </LabelGeometry>
+                        </LabelBlock>
+                    </Edge>
+                </EdgeList>
+            </Graph>
+        </SimpleComponent>
         <ForeachComponent Name="Pod_Index">
             <BinaryExpression Operator="..">
                 <IntConstant Value="1"/>
