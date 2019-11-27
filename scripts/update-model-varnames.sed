@@ -34,3 +34,4 @@ s/PODS_CURRENTLY_ON/Pods_Currently_On/g
 s/SUM_OF_QUEUE_LENGTHS_BEFORE/Sum_Of_Queue_Lengths_Before/g
 s/SUM_OF_QUEUE_LENGTHS_AFTER/Sum_Of_Queue_Lengths_After/g
 s/POD_INDEX/Pod_Index/g
+s/Pod_Queue_Capacity/Max_Queue_Length/g

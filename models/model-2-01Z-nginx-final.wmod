@@ -41,21 +41,21 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <ConstantAliasExpression><IntConstant Value="6"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Pod_Queue_Capacity_Actual">
+<ConstantAlias Name="Max_Queue_Length_Actual">
 <ConstantAliasExpression><BinaryExpression Operator="/" Text="Max_Response_Time_In_Ms / Processing_Time_Per_Req_In_Ms">
 <SimpleIdentifier Name="Max_Response_Time_In_Ms"/>
 <SimpleIdentifier Name="Processing_Time_Per_Req_In_Ms"/>
 </BinaryExpression>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Pod_Queue_Capacity_Limit">
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_Queue_Length_Limit">
 <ConstantAliasExpression><IntConstant Value="50"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Pod_Queue_Capacity">
+<ConstantAlias Name="Max_Queue_Length">
 <ConstantAliasExpression><FunctionCallExpression FunctionName="\min">
-<SimpleIdentifier Name="Pod_Queue_Capacity_Actual"/>
-<SimpleIdentifier Name="Pod_Queue_Capacity_Limit"/>
+<SimpleIdentifier Name="Max_Queue_Length_Actual"/>
+<SimpleIdentifier Name="Max_Queue_Length_Limit"/>
 </FunctionCallExpression>
 </ConstantAliasExpression>
 </ConstantAlias>
@@ -64,9 +64,9 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Name="Limiting_Divisor">
-<ConstantAliasExpression><BinaryExpression Operator="/" Text="Pod_Queue_Capacity_Actual / Pod_Queue_Capacity">
-<SimpleIdentifier Name="Pod_Queue_Capacity_Actual"/>
-<SimpleIdentifier Name="Pod_Queue_Capacity"/>
+<ConstantAliasExpression><BinaryExpression Operator="/" Text="Max_Queue_Length_Actual / Max_Queue_Length">
+<SimpleIdentifier Name="Max_Queue_Length_Actual"/>
+<SimpleIdentifier Name="Max_Queue_Length"/>
 </BinaryExpression>
 </ConstantAliasExpression>
 </ConstantAlias>
@@ -106,7 +106,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <ConstantAlias Name="Scale_Down_Threshold_First_Pod">
 <ConstantAliasExpression><BinaryExpression Operator="/">
 <BinaryExpression Operator="*">
-<SimpleIdentifier Name="Pod_Queue_Capacity"/>
+<SimpleIdentifier Name="Max_Queue_Length"/>
 <SimpleIdentifier Name="Scale_Down_CPU_Threshold"/>
 </BinaryExpression>
 <IntConstant Value="100"/>
@@ -116,7 +116,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <ConstantAlias Name="Scale_Threshold_Last_Pod">
 <ConstantAliasExpression><BinaryExpression Operator="/">
 <BinaryExpression Operator="*">
-<SimpleIdentifier Name="Pod_Queue_Capacity"/>
+<SimpleIdentifier Name="Max_Queue_Length"/>
 <SimpleIdentifier Name="Scale_CPU_Threshold"/>
 </BinaryExpression>
 <IntConstant Value="100"/>
@@ -968,11 +968,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="Pod_Queue_Length[Pod_Index] &lt;= Pod_Queue_Capacity">
+<BinaryExpression Operator="&lt;=" Text="Pod_Queue_Length[Pod_Index] &lt;= Max_Queue_Length">
 <IndexedIdentifier Name="Pod_Queue_Length">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Pod_Queue_Capacity"/>
+<SimpleIdentifier Name="Max_Queue_Length"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
@@ -990,7 +990,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <VariableRange><BinaryExpression Operator="..">
 <IntConstant Value="0"/>
 <BinaryExpression Operator="+">
-<SimpleIdentifier Name="Pod_Queue_Capacity"/>
+<SimpleIdentifier Name="Max_Queue_Length"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
 </BinaryExpression>
@@ -1110,13 +1110,13 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="=" Text="Pod_Queue_Length[Pod_Index] = \min(Pod_Queue_Capacity+1, Pod_Queue_Length[Pod_Index] + Submitted_This_Second / Pods_Currently_On)">
+<BinaryExpression Operator="=" Text="Pod_Queue_Length[Pod_Index] = \min(Max_Queue_Length+1, Pod_Queue_Length[Pod_Index] + Submitted_This_Second / Pods_Currently_On)">
 <IndexedIdentifier Name="Pod_Queue_Length">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <FunctionCallExpression FunctionName="\min">
 <BinaryExpression Operator="+">
-<SimpleIdentifier Name="Pod_Queue_Capacity"/>
+<SimpleIdentifier Name="Max_Queue_Length"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
 <BinaryExpression Operator="+">
