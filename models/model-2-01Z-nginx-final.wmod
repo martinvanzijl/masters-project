@@ -809,11 +809,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="Submitted_This_Second' &lt;= Max_RPS_Variable">
+<BinaryExpression Operator="&lt;=" Text="Submitted_This_Second' &lt;= Max_Requests_Per_Second">
 <UnaryExpression Operator="'">
 <SimpleIdentifier Name="Submitted_This_Second"/>
 </UnaryExpression>
-<SimpleIdentifier Name="Max_RPS_Variable"/>
+<SimpleIdentifier Name="Max_Requests_Per_Second"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
@@ -869,18 +869,6 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <VariableInitial><BinaryExpression Operator="==" Text="HPA_Seconds_Elapsed == 0">
 <SimpleIdentifier Name="HPA_Seconds_Elapsed"/>
 <IntConstant Value="0"/>
-</BinaryExpression>
-</VariableInitial>
-</VariableComponent>
-<VariableComponent Name="Max_RPS_Variable">
-<VariableRange><BinaryExpression Operator="..">
-<SimpleIdentifier Name="Max_Requests_Per_Second"/>
-<SimpleIdentifier Name="Max_Requests_Per_Second"/>
-</BinaryExpression>
-</VariableRange>
-<VariableInitial><BinaryExpression Operator="==" Text="Max_RPS_Variable == Max_Requests_Per_Second">
-<SimpleIdentifier Name="Max_RPS_Variable"/>
-<SimpleIdentifier Name="Max_Requests_Per_Second"/>
 </BinaryExpression>
 </VariableInitial>
 </VariableComponent>
