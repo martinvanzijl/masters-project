@@ -26,19 +26,19 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Pods_Initially_On">
-<ConstantAliasExpression><IntConstant Value="2"/>
+<ConstantAliasExpression><IntConstant Value="1"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Pod_Min">
-<ConstantAliasExpression><IntConstant Value="2"/>
+<ConstantAliasExpression><IntConstant Value="1"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Pod_Max">
-<ConstantAliasExpression><IntConstant Value="4"/>
+<ConstantAliasExpression><IntConstant Value="1"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Processing_Time_Per_Req_In_Ms">
-<ConstantAliasExpression><IntConstant Value="6"/>
+<ConstantAliasExpression><IntConstant Value="20"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Name="Max_Queue_Length_Actual">
