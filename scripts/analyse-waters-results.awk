@@ -44,29 +44,17 @@ match($0, "<(.*)> ... (false|true) \\((.*),(.*)\\)", matches) {
 
 	# Format time.
 	gsub(" s", "", time);
-
-	# Print final output.
-	#printf "%s,%s", meets, time;
-}
-
-#/Verification result:/ {
-#    verification_result=$3
-#    printf ",%s", verification_result
-#}
-
-/Total runtime:/ {
-    verification_time=$3
-    gsub("s", "", verification_time);
-    #printf ",%s", verification_time
 }
 
 /Compile time:/ {
     compile_time=$3
     gsub("s", "", compile_time);
-    #printf ",%s", compile_time
+}
+
+/Verification time:/ {
+    verification_time=$3
+    gsub("s", "", verification_time);
 
     total_time=compile_time+verification_time
-    #printf ",%s\n", total_time
-
     printf "%s,%s\n", meets, total_time;
 }
