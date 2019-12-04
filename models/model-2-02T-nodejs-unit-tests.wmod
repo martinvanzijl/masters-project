@@ -1311,6 +1311,163 @@ The load is also in square shape form, not a constant maximum.
 </EdgeList>
 </Graph>
 </SimpleComponent>
+<SimpleComponent Kind="PROPERTY" Name="unit_test_2_wont_scale_up_twice">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="start">
+<PointGeometry>
+<Point X="288" Y="224"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="12" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="waiting_for_pod_creation">
+<PointGeometry>
+<Point X="288" Y="352"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="pod_created">
+<PointGeometry>
+<Point X="288" Y="480"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="11" Y="-4"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="start" Target="waiting_for_pod_creation">
+<LabelBlock>
+<SimpleIdentifier Name="scale_up"/>
+<LabelGeometry Anchor="NW">
+<Point X="-72" Y="-12"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&amp;" Text="Pods_On == 1 &amp; Pod_Max &gt; 1">
+<BinaryExpression Operator="==">
+<SimpleIdentifier Name="Pods_On"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+<BinaryExpression Operator="&gt;">
+<SimpleIdentifier Name="Pod_Max"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-200" Y="-33"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="start" Target="start">
+<LabelBlock>
+<SimpleIdentifier Name="one_second"/>
+<LabelGeometry Anchor="NW">
+<Point X="-39" Y="-27"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="290" Y="150"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="start" Target="start">
+<LabelBlock>
+<SimpleIdentifier Name="scale_up"/>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="3"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="362" Y="223"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<UnaryExpression Operator="!" Text="!(Pods_On == 1 &amp; Pod_Max &gt; 1)">
+<BinaryExpression Operator="&amp;">
+<BinaryExpression Operator="==">
+<SimpleIdentifier Name="Pods_On"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+<BinaryExpression Operator="&gt;">
+<SimpleIdentifier Name="Pod_Max"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</BinaryExpression>
+</UnaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-17"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="waiting_for_pod_creation" Target="waiting_for_pod_creation">
+<LabelBlock>
+<SimpleIdentifier Name="one_second"/>
+<LabelGeometry Anchor="NW">
+<Point X="-99" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="218" Y="353"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<UnaryExpression Operator="!" Text="!(Pods_On' == 2)">
+<BinaryExpression Operator="==">
+<UnaryExpression Operator="'">
+<SimpleIdentifier Name="Pods_On"/>
+</UnaryExpression>
+<IntConstant Value="2"/>
+</BinaryExpression>
+</UnaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-112" Y="-29"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="waiting_for_pod_creation" Target="pod_created">
+<LabelBlock>
+<SimpleIdentifier Name="one_second"/>
+<LabelGeometry Anchor="NW">
+<Point X="-96" Y="1"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="==" Text="Pods_On' == 2">
+<UnaryExpression Operator="'">
+<SimpleIdentifier Name="Pods_On"/>
+</UnaryExpression>
+<IntConstant Value="2"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-107" Y="-17"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="pod_created" Target="pod_created">
+<LabelBlock>
+<SimpleIdentifier Name="scale_up"/>
+<SimpleIdentifier Name="one_second"/>
+<LabelGeometry Anchor="NW">
+<Point X="-37" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="289" Y="563"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
 <ForeachComponent Name="Pod_Index">
 <BinaryExpression Operator="..">
 <IntConstant Value="1"/>
