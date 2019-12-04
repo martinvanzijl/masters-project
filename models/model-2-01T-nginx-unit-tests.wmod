@@ -2,7 +2,17 @@
 <Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-2-01T-nginx-unit-tests">
 <B:Comment>=== Description ===
 
-This is the final model of the NGINX cloud, for use in my thesis.
+These are "unit tests" for the NGINX cloud model. I am keeping them in a separate file so that a property check will not also check these (since not all of them necessarily need to pass).
+
+Tests:
+
+* unit_test_6_pod_handles_outstanding_requests_when_turned_off[Pod_Index]
+
+This checks that, after a pod is scaled down (i.e. deleted), its queue length goes to zero before it is scaled up (i.e. added) again. Otherwise you have a scenario where you bring up a new pod that already has requests in its queue (which makes no sense).
+
+It turns out this is met because the event "pods_handle_requests" always occurs in the "pod" automaton, even if the pod is "off". So the queue length is always decreasing. It hits zero before we can "scale up" to the pod again.
+
+This could be enforced even more strictly by explicitly setting "Pod_Queue_Length[Pods_Currently_On]" to zero within the transition in "pod_scheduler".
 </B:Comment>
 <ConstantAliasList>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_Check_Interval">
@@ -150,6 +160,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check_2"/>
 <EventDecl Kind="CONTROLLABLE" Name="unit_test_check_5"/>
 <EventDecl Kind="CONTROLLABLE" Name="unit_test_check_7"/>
+<EventDecl Kind="CONTROLLABLE" Name="unit_test_check_8"/>
 </EventDeclList>
 <ComponentList>
 <SimpleComponent Kind="SPEC" Name="master">
@@ -1633,7 +1644,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </Graph>
 </SimpleComponent>
 <SimpleComponent Kind="PROPERTY">
-<IndexedIdentifier Name="unit_test_5_if_pod_is_off_its_queue_is_empty">
+<IndexedIdentifier Name="OLD_unit_test_5_if_pod_is_off_its_queue_is_empty">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <Graph>
@@ -1700,6 +1711,101 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </Guards>
 <LabelGeometry Anchor="NW">
 <Point X="-116" Y="-46"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PROPERTY">
+<IndexedIdentifier Name="unit_test_6_pod_handles_outstanding_requests_when_turned_off">
+<SimpleIdentifier Name="Pod_Index"/>
+</IndexedIdentifier>
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="start">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="432" Y="224"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="12" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="start" Target="start">
+<LabelBlock>
+<SimpleIdentifier Name="one_second"/>
+<LabelGeometry Anchor="NW">
+<Point X="-38" Y="32"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="432" Y="308"/>
+</SplineGeometry>
+<EndPointGeometry>
+<Point X="432" Y="224"/>
+</EndPointGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&amp;" Text="Pods_Currently_On &lt; Pod_Index &amp; Pods_Currently_On' &gt;= Pod_Index &amp; Pod_Queue_Length[Pod_Index] == 0">
+<BinaryExpression Operator="&amp;">
+<BinaryExpression Operator="&lt;">
+<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pod_Index"/>
+</BinaryExpression>
+<BinaryExpression Operator="&gt;=">
+<UnaryExpression Operator="'">
+<SimpleIdentifier Name="Pods_Currently_On"/>
+</UnaryExpression>
+<SimpleIdentifier Name="Pod_Index"/>
+</BinaryExpression>
+</BinaryExpression>
+<BinaryExpression Operator="==">
+<IndexedIdentifier Name="Pod_Queue_Length">
+<SimpleIdentifier Name="Pod_Index"/>
+</IndexedIdentifier>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-319" Y="10"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="start" Target="start">
+<LabelBlock>
+<SimpleIdentifier Name="one_second"/>
+<LabelGeometry Anchor="NW">
+<Point X="-44" Y="-50"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="436" Y="138"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<UnaryExpression Operator="!" Text="!(Pods_Currently_On &lt; Pod_Index &amp; Pods_Currently_On' &gt;= Pod_Index)">
+<BinaryExpression Operator="&amp;">
+<BinaryExpression Operator="&lt;">
+<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pod_Index"/>
+</BinaryExpression>
+<BinaryExpression Operator="&gt;=">
+<UnaryExpression Operator="'">
+<SimpleIdentifier Name="Pods_Currently_On"/>
+</UnaryExpression>
+<SimpleIdentifier Name="Pod_Index"/>
+</BinaryExpression>
+</BinaryExpression>
+</UnaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-197" Y="-28"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
