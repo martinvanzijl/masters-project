@@ -40,14 +40,19 @@ with open(input_file_name) as input_file:
 output_file = open(output_file_name, "w")
 csv_writer = csv.writer(output_file)
 
-csv_writer.writerow(["Users", "RPS", "Min Pods", "Max Pods", "Initial Pods", "Scale CPU", "Value 1", "Value 2", "Value 3", "Average", "Meets"])
+#csv_writer.writerow(["Users", "RPS", "Min Pods", "Max Pods", "Initial Pods", "Scale CPU", "Value 1", "Value 2", "Value 3", "Average", "Meets"])
+csv_writer.writerow(["Users", "RPS", "Min Pods", "Max Pods", "Initial Pods", "Scale CPU", "Value 1", "Value 2", "Value 3", "Proportion", "Meets"])
 for key in sorted(summary):
     values = summary[key]
-    average = float(sum(values)) / float(len(values))
+    trials_meeting_sla = sum(values)
+    total_trials = len(values)
+    average = float(trials_meeting_sla) / float(total_trials)
     meets = average >= 0.5
+    proportion = str(trials_meeting_sla) + "/" + str(total_trials)
     row = key.split(",")
     row.extend(values)
-    row.append(average)
+    #row.append(average)
+    row.append(proportion)
     row.append(meets)
     csv_writer.writerow(row)
 
