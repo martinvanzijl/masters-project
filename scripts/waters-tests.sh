@@ -27,7 +27,7 @@ fi
 #		for ((max_rps = 1; max_rps <= 2; max_rps += 1))
 #		do
 #			echo "Testing max_rps=$max_rps, pod_max=$pod_max, scale_cpu=$scale_cpu..."
-#			./wcheck -bdd -lang -q -DMax_Requests_Per_Second=$max_rps -DPod_Max=$pod_max -DScale_CPU_Threshold=$scale_cpu $MODEL >> $OUTPUT_FILE
+#			./wcheck -bdd -lang -q -DRPS_Max=$max_rps -DPod_Max=$pod_max -DScale_CPU_Threshold=$scale_cpu $MODEL >> $OUTPUT_FILE
 #		done
 #	done
 #done
@@ -39,25 +39,29 @@ INPUT_FILE=~/Desktop/github/results/test-cases.csv
 HEADER_READ=0
 
 #NGINX
-#while IFS=, read -r rps min_pods max_pods initial_pods scale_cpu
+while IFS=, read -r rps min_pods max_pods initial_pods scale_cpu
 # Node.js
-while IFS=, read -r rps_low rps_high high_duration low_duration app_processing_time min_pods max_pods initial_pods scale_cpu
+#while IFS=, read -r rps_low rps_high high_duration low_duration app_processing_time min_pods max_pods initial_pods scale_cpu
 do
     if ((HEADER_READ==0))
     then
         HEADER_READ=1
     else
         # NGINX
-        #echo "Testing: $rps|$min_pods|$max_pods|$initial_pods|$scale_cpu"
+        echo "Testing: $rps|$min_pods|$max_pods|$initial_pods|$scale_cpu"
         # Node.js
-        echo "Testing: $rps_low|$rps_high|$high_duration|$low_duration|$app_processing_time|$min_pods|$max_pods|$initial_pods|$scale_cpu"
+        #echo "Testing: $rps_low|$rps_high|$high_duration|$low_duration|$app_processing_time|$min_pods|$max_pods|$initial_pods|$scale_cpu"
 
         # NGINX
-        #app_processing_time=6 # hard code response time
+        app_processing_time=6 # hard code response time
+        rps_high=$rps
+        rps_low=$rps
+        high_duration=1
+        low_duration=1
 
         # NGINX
         #./wcheck -bdd -lang -q -stats \
-                                        #-DMax_Requests_Per_Second_Actual=$rps \
+                                        #-DRPS_Max_Actual=$rps \
                                         #-DPod_Min=$min_pods \
                                         #-DPod_Max=$max_pods \
                                         #-DProcessing_Time_Per_Req_In_Ms=$app_processing_time \
@@ -67,10 +71,10 @@ do
 
         # Node.js
         ./wcheck -bdd -lang -q -stats \
-                                        -DReq_Sent_Per_Sec_High=$rps_high \
-                                        -DReq_Sent_Per_Sec_Low=$rps_low \
-                                        -DHigh_Load_Time_In_Seconds=$high_duration \
-                                        -DLow_Load_Time_In_Seconds=$low_duration \
+                                        -DRPS_Max_High=$rps_high \
+                                        -DRPS_Max_Low=$rps_low \
+                                        -DT_High=$high_duration \
+                                        -DT_Low=$low_duration \
                                         -DPods_Initially_On=$initial_pods \
                                         -DPod_Min=$min_pods \
                                         -DPod_Max=$max_pods \

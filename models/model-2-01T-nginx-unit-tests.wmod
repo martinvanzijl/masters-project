@@ -27,7 +27,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <ConstantAliasExpression><IntConstant Value="50"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_Requests_Per_Second_Actual">
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="RPS_Max_Actual">
 <ConstantAliasExpression><IntConstant Value="400"/>
 </ConstantAliasExpression>
 </ConstantAlias>
@@ -51,21 +51,21 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <ConstantAliasExpression><IntConstant Value="6"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Max_Queue_Length_Actual">
+<ConstantAlias Name="QL_Max_Actual">
 <ConstantAliasExpression><BinaryExpression Operator="/" Text="Max_Response_Time_In_Ms / Processing_Time_Per_Req_In_Ms">
 <SimpleIdentifier Name="Max_Response_Time_In_Ms"/>
 <SimpleIdentifier Name="Processing_Time_Per_Req_In_Ms"/>
 </BinaryExpression>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_Queue_Length_Limit">
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="QL_Max_Limit">
 <ConstantAliasExpression><IntConstant Value="50"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Max_Queue_Length">
+<ConstantAlias Name="QL_Max">
 <ConstantAliasExpression><FunctionCallExpression FunctionName="\min">
-<SimpleIdentifier Name="Max_Queue_Length_Actual"/>
-<SimpleIdentifier Name="Max_Queue_Length_Limit"/>
+<SimpleIdentifier Name="QL_Max_Actual"/>
+<SimpleIdentifier Name="QL_Max_Limit"/>
 </FunctionCallExpression>
 </ConstantAliasExpression>
 </ConstantAlias>
@@ -74,15 +74,15 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Name="Limiting_Divisor">
-<ConstantAliasExpression><BinaryExpression Operator="/" Text="Max_Queue_Length_Actual / Max_Queue_Length">
-<SimpleIdentifier Name="Max_Queue_Length_Actual"/>
-<SimpleIdentifier Name="Max_Queue_Length"/>
+<ConstantAliasExpression><BinaryExpression Operator="/" Text="QL_Max_Actual / QL_Max">
+<SimpleIdentifier Name="QL_Max_Actual"/>
+<SimpleIdentifier Name="QL_Max"/>
 </BinaryExpression>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Max_Requests_Per_Second">
-<ConstantAliasExpression><BinaryExpression Operator="/" Text="Max_Requests_Per_Second_Actual / Limiting_Divisor">
-<SimpleIdentifier Name="Max_Requests_Per_Second_Actual"/>
+<ConstantAlias Name="RPS_Max">
+<ConstantAliasExpression><BinaryExpression Operator="/" Text="RPS_Max_Actual / Limiting_Divisor">
+<SimpleIdentifier Name="RPS_Max_Actual"/>
 <SimpleIdentifier Name="Limiting_Divisor"/>
 </BinaryExpression>
 </ConstantAliasExpression>
@@ -116,7 +116,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <ConstantAlias Name="Scale_Down_Threshold_First_Pod">
 <ConstantAliasExpression><BinaryExpression Operator="/">
 <BinaryExpression Operator="*">
-<SimpleIdentifier Name="Max_Queue_Length"/>
+<SimpleIdentifier Name="QL_Max"/>
 <SimpleIdentifier Name="Scale_Down_CPU_Threshold"/>
 </BinaryExpression>
 <IntConstant Value="100"/>
@@ -126,7 +126,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <ConstantAlias Name="Scale_Threshold_Last_Pod">
 <ConstantAliasExpression><BinaryExpression Operator="/">
 <BinaryExpression Operator="*">
-<SimpleIdentifier Name="Max_Queue_Length"/>
+<SimpleIdentifier Name="QL_Max"/>
 <SimpleIdentifier Name="Scale_CPU_Threshold"/>
 </BinaryExpression>
 <IntConstant Value="100"/>
@@ -158,9 +158,8 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <EventDecl Kind="CONTROLLABLE" Name="no_scale_down"/>
 <EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check"/>
 <EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check_2"/>
-<EventDecl Kind="CONTROLLABLE" Name="unit_test_check_5"/>
-<EventDecl Kind="CONTROLLABLE" Name="unit_test_check_7"/>
-<EventDecl Kind="CONTROLLABLE" Name="unit_test_check_8"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check_7"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="unit_test_check_5"/>
 </EventDeclList>
 <ComponentList>
 <SimpleComponent Kind="SPEC" Name="master">
@@ -367,7 +366,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <LabelBlock>
 <SimpleIdentifier Name="scale_up"/>
 <LabelGeometry Anchor="NW">
-<Point X="-82" Y="1"/>
+<Point X="-76" Y="1"/>
 </LabelGeometry>
 </LabelBlock>
 <StartPointGeometry>
@@ -381,15 +380,15 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&gt;=" Text="Pod_Queue_Length[Pods_Currently_On] &gt;= Scale_Threshold_Last_Pod">
-<IndexedIdentifier Name="Pod_Queue_Length">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="&gt;=" Text="QL[Pods_On] &gt;= Scale_Threshold_Last_Pod">
+<IndexedIdentifier Name="QL">
+<SimpleIdentifier Name="Pods_On"/>
 </IndexedIdentifier>
 <SimpleIdentifier Name="Scale_Threshold_Last_Pod"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-449" Y="-23"/>
+<Point X="-282" Y="-21"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -435,9 +434,9 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;" Text="Pod_Queue_Length[Pods_Currently_On] &lt; Scale_Threshold_Last_Pod">
-<IndexedIdentifier Name="Pod_Queue_Length">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="&lt;" Text="QL[Pods_On] &lt; Scale_Threshold_Last_Pod">
+<IndexedIdentifier Name="QL">
+<SimpleIdentifier Name="Pods_On"/>
 </IndexedIdentifier>
 <SimpleIdentifier Name="Scale_Threshold_Last_Pod"/>
 </BinaryExpression>
@@ -459,8 +458,8 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&gt;" Text="Pod_Queue_Length[1] &gt; Scale_Down_Threshold_First_Pod">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<BinaryExpression Operator="&gt;" Text="QL[1] &gt; Scale_Down_Threshold_First_Pod">
+<IndexedIdentifier Name="QL">
 <IntConstant Value="1"/>
 </IndexedIdentifier>
 <SimpleIdentifier Name="Scale_Down_Threshold_First_Pod"/>
@@ -475,7 +474,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <LabelBlock>
 <SimpleIdentifier Name="scale_down"/>
 <LabelGeometry Anchor="NW">
-<Point X="-97" Y="-14"/>
+<Point X="-92" Y="-14"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -483,19 +482,19 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="Pod_Queue_Length[1] &lt;= Scale_Down_Threshold_First_Pod">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<BinaryExpression Operator="&lt;=" Text="QL[1] &lt;= Scale_Down_Threshold_First_Pod">
+<IndexedIdentifier Name="QL">
 <IntConstant Value="1"/>
 </IndexedIdentifier>
 <SimpleIdentifier Name="Scale_Down_Threshold_First_Pod"/>
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="=" Text="Pods_Currently_On = \max(Pods_Currently_On-1, Pod_Min)">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="=" Text="Pods_On = \max(Pods_On-1, Pod_Min)">
+<SimpleIdentifier Name="Pods_On"/>
 <FunctionCallExpression FunctionName="\max">
 <BinaryExpression Operator="-">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
 <SimpleIdentifier Name="Pod_Min"/>
@@ -503,7 +502,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-378" Y="-52"/>
+<Point X="-277" Y="-53"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -515,14 +514,14 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="55852" Y="-198"/>
+<Point X="55649" Y="-218"/>
 </SplineGeometry>
 </Edge>
 <Edge Source="idle" Target="no_check">
 <LabelBlock>
 <SimpleIdentifier Name="scaling_start"/>
 <LabelGeometry Anchor="NW">
-<Point X="-129" Y="5"/>
+<Point X="-91" Y="16"/>
 </LabelGeometry>
 </LabelBlock>
 <GuardActionBlock>
@@ -533,7 +532,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-321" Y="-16"/>
+<Point X="-284" Y="-2"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -674,21 +673,21 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&gt;=" Text="Pod_Scheduler_Seconds_Elapsed &gt;= Pod_Startup_Time">
-<SimpleIdentifier Name="Pod_Scheduler_Seconds_Elapsed"/>
+<BinaryExpression Operator="&gt;=" Text="PS_Seconds_Elapsed &gt;= Pod_Startup_Time">
+<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
 <SimpleIdentifier Name="Pod_Startup_Time"/>
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="=" Text="Pod_Scheduler_Seconds_Elapsed = 0">
-<SimpleIdentifier Name="Pod_Scheduler_Seconds_Elapsed"/>
+<BinaryExpression Operator="=" Text="PS_Seconds_Elapsed = 0">
+<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
 <IntConstant Value="0"/>
 </BinaryExpression>
-<BinaryExpression Operator="=" Text="Pods_Currently_On = \min(Pods_Currently_On+1, Pod_Max)">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="=" Text="Pods_On = \min(Pods_On+1, Pod_Max)">
+<SimpleIdentifier Name="Pods_On"/>
 <FunctionCallExpression FunctionName="\min">
 <BinaryExpression Operator="+">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
 <SimpleIdentifier Name="Pod_Max"/>
@@ -696,7 +695,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-297" Y="36"/>
+<Point X="-203" Y="36"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -712,23 +711,23 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;" Text="Pod_Scheduler_Seconds_Elapsed &lt; Pod_Startup_Time">
-<SimpleIdentifier Name="Pod_Scheduler_Seconds_Elapsed"/>
+<BinaryExpression Operator="&lt;" Text="PS_Seconds_Elapsed &lt; Pod_Startup_Time">
+<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
 <SimpleIdentifier Name="Pod_Startup_Time"/>
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="+=" Text="Pod_Scheduler_Seconds_Elapsed += 1">
-<SimpleIdentifier Name="Pod_Scheduler_Seconds_Elapsed"/>
+<BinaryExpression Operator="+=" Text="PS_Seconds_Elapsed += 1">
+<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
-<BinaryExpression Operator="=" Text="Pods_Currently_On = Pods_Currently_On">
-<SimpleIdentifier Name="Pods_Currently_On"/>
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="=" Text="Pods_On = Pods_On">
+<SimpleIdentifier Name="Pods_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-166" Y="-89"/>
+<Point X="-158" Y="-83"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -744,17 +743,17 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Actions>
-<BinaryExpression Operator="=" Text="Pod_Scheduler_Seconds_Elapsed = Pod_Scheduler_Seconds_Elapsed">
-<SimpleIdentifier Name="Pod_Scheduler_Seconds_Elapsed"/>
-<SimpleIdentifier Name="Pod_Scheduler_Seconds_Elapsed"/>
+<BinaryExpression Operator="=" Text="PS_Seconds_Elapsed = PS_Seconds_Elapsed">
+<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
+<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
 </BinaryExpression>
-<BinaryExpression Operator="=" Text="Pods_Currently_On = Pods_Currently_On">
-<SimpleIdentifier Name="Pods_Currently_On"/>
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="=" Text="Pods_On = Pods_On">
+<SimpleIdentifier Name="Pods_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-436" Y="-6"/>
+<Point X="-289" Y="-4"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -824,11 +823,11 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="Submitted_This_Second' &lt;= Max_Requests_Per_Second">
+<BinaryExpression Operator="&lt;=" Text="Submitted' &lt;= RPS_Max">
 <UnaryExpression Operator="'">
-<SimpleIdentifier Name="Submitted_This_Second"/>
+<SimpleIdentifier Name="Submitted"/>
 </UnaryExpression>
-<SimpleIdentifier Name="Max_Requests_Per_Second"/>
+<SimpleIdentifier Name="RPS_Max"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
@@ -899,38 +898,38 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </BinaryExpression>
 </VariableInitial>
 </VariableComponent>
-<VariableComponent Name="Pods_Currently_On">
+<VariableComponent Name="Pods_On">
 <VariableRange><BinaryExpression Operator="..">
 <SimpleIdentifier Name="Pod_Min"/>
 <SimpleIdentifier Name="Pod_Max"/>
 </BinaryExpression>
 </VariableRange>
-<VariableInitial><BinaryExpression Operator="==" Text="Pods_Currently_On == Pods_Initially_On">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<VariableInitial><BinaryExpression Operator="==" Text="Pods_On == Pods_Initially_On">
+<SimpleIdentifier Name="Pods_On"/>
 <SimpleIdentifier Name="Pods_Initially_On"/>
 </BinaryExpression>
 </VariableInitial>
 </VariableComponent>
-<VariableComponent Name="Pod_Scheduler_Seconds_Elapsed">
+<VariableComponent Name="PS_Seconds_Elapsed">
 <VariableRange><BinaryExpression Operator="..">
 <IntConstant Value="0"/>
 <SimpleIdentifier Name="Pod_Startup_Time"/>
 </BinaryExpression>
 </VariableRange>
-<VariableInitial><BinaryExpression Operator="==" Text="Pod_Scheduler_Seconds_Elapsed == 0">
-<SimpleIdentifier Name="Pod_Scheduler_Seconds_Elapsed"/>
+<VariableInitial><BinaryExpression Operator="==" Text="PS_Seconds_Elapsed == 0">
+<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
 <IntConstant Value="0"/>
 </BinaryExpression>
 </VariableInitial>
 </VariableComponent>
-<VariableComponent Name="Submitted_This_Second">
+<VariableComponent Name="Submitted">
 <VariableRange><BinaryExpression Operator="..">
 <IntConstant Value="0"/>
-<SimpleIdentifier Name="Max_Requests_Per_Second"/>
+<SimpleIdentifier Name="RPS_Max"/>
 </BinaryExpression>
 </VariableRange>
-<VariableInitial><BinaryExpression Operator="==" Text="Submitted_This_Second == 0">
-<SimpleIdentifier Name="Submitted_This_Second"/>
+<VariableInitial><BinaryExpression Operator="==" Text="Submitted == 0">
+<SimpleIdentifier Name="Submitted"/>
 <IntConstant Value="0"/>
 </BinaryExpression>
 </VariableInitial>
@@ -963,8 +962,8 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="Pod_Queue_Length[1] &lt;= Scale_Down_Threshold_First_Pod">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<BinaryExpression Operator="&lt;=" Text="QL[1] &lt;= Scale_Down_Threshold_First_Pod">
+<IndexedIdentifier Name="QL">
 <IntConstant Value="1"/>
 </IndexedIdentifier>
 <SimpleIdentifier Name="Scale_Down_Threshold_First_Pod"/>
@@ -1019,8 +1018,8 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </LabelBlock>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="==" Text="Pods_Currently_On == 2">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="==" Text="Pods_On == 2">
+<SimpleIdentifier Name="Pods_On"/>
 <IntConstant Value="2"/>
 </BinaryExpression>
 </Guards>
@@ -1038,8 +1037,8 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </LabelBlock>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="==" Text="Pods_Currently_On == 3">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="==" Text="Pods_On == 3">
+<SimpleIdentifier Name="Pods_On"/>
 <IntConstant Value="3"/>
 </BinaryExpression>
 </Guards>
@@ -1060,9 +1059,9 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<UnaryExpression Operator="!" Text="!(Pods_Currently_On == 2)">
+<UnaryExpression Operator="!" Text="!(Pods_On == 2)">
 <BinaryExpression Operator="==">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 <IntConstant Value="2"/>
 </BinaryExpression>
 </UnaryExpression>
@@ -1214,8 +1213,8 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="==" Text="Pods_Currently_On == Pods_Initially_On">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="==" Text="Pods_On == Pods_Initially_On">
+<SimpleIdentifier Name="Pods_On"/>
 <SimpleIdentifier Name="Pods_Initially_On"/>
 </BinaryExpression>
 </Guards>
@@ -1252,13 +1251,13 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&amp;" Text="Pods_Currently_On &gt;= Pod_Min &amp; Pods_Currently_On &lt;= Pod_Max">
+<BinaryExpression Operator="&amp;" Text="Pods_On &gt;= Pod_Min &amp; Pods_On &lt;= Pod_Max">
 <BinaryExpression Operator="&gt;=">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 <SimpleIdentifier Name="Pod_Min"/>
 </BinaryExpression>
 <BinaryExpression Operator="&lt;=">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 <SimpleIdentifier Name="Pod_Max"/>
 </BinaryExpression>
 </BinaryExpression>
@@ -1307,11 +1306,11 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="Pod_Queue_Length[Pod_Index] &lt;= Max_Queue_Length">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<BinaryExpression Operator="&lt;=" Text="QL[Pod_Index] &lt;= QL_Max">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Max_Queue_Length"/>
+<SimpleIdentifier Name="QL_Max"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
@@ -1323,19 +1322,19 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </Graph>
 </SimpleComponent>
 <VariableComponent>
-<IndexedIdentifier Name="Pod_Queue_Length">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <VariableRange><BinaryExpression Operator="..">
 <IntConstant Value="0"/>
 <BinaryExpression Operator="+">
-<SimpleIdentifier Name="Max_Queue_Length"/>
+<SimpleIdentifier Name="QL_Max"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
 </BinaryExpression>
 </VariableRange>
-<VariableInitial><BinaryExpression Operator="==" Text="Pod_Queue_Length[Pod_Index] == 0">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<VariableInitial><BinaryExpression Operator="==" Text="QL[Pod_Index] == 0">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <IntConstant Value="0"/>
@@ -1370,7 +1369,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <LabelBlock>
 <SimpleIdentifier Name="pods_handle_requests"/>
 <LabelGeometry Anchor="NW">
-<Point X="-401" Y="19"/>
+<Point X="-304" Y="10"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -1378,13 +1377,13 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Actions>
-<BinaryExpression Operator="=" Text="Pod_Queue_Length[Pod_Index] = \max(Pod_Queue_Length[Pod_Index] - Req_Handled_Per_Sec_Per_Pod, 0)">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<BinaryExpression Operator="=" Text="QL[Pod_Index] = \max(QL[Pod_Index] - Req_Handled_Per_Sec_Per_Pod, 0)">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <FunctionCallExpression FunctionName="\max">
 <BinaryExpression Operator="-">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <SimpleIdentifier Name="Req_Handled_Per_Sec_Per_Pod"/>
@@ -1394,7 +1393,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-662" Y="-10"/>
+<Point X="-467" Y="-19"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1435,7 +1434,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <LabelBlock>
 <SimpleIdentifier Name="allocate_requests_to_pods"/>
 <LabelGeometry Anchor="NW">
-<Point X="-236" Y="-70"/>
+<Point X="-95" Y="-65"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -1443,35 +1442,35 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&gt;=" Text="Pods_Currently_On &gt;= Pod_Index">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="&gt;=" Text="Pods_On &gt;= Pod_Index">
+<SimpleIdentifier Name="Pods_On"/>
 <SimpleIdentifier Name="Pod_Index"/>
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="=" Text="Pod_Queue_Length[Pod_Index] = \min(Max_Queue_Length+1, Pod_Queue_Length[Pod_Index] + Submitted_This_Second / Pods_Currently_On)">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<BinaryExpression Operator="=" Text="QL[Pod_Index] = \min(QL_Max+1, QL[Pod_Index] + Submitted / Pods_On)">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <FunctionCallExpression FunctionName="\min">
 <BinaryExpression Operator="+">
-<SimpleIdentifier Name="Max_Queue_Length"/>
+<SimpleIdentifier Name="QL_Max"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
 <BinaryExpression Operator="+">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <BinaryExpression Operator="/">
-<SimpleIdentifier Name="Submitted_This_Second"/>
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Submitted"/>
+<SimpleIdentifier Name="Pods_On"/>
 </BinaryExpression>
 </BinaryExpression>
 </FunctionCallExpression>
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-236" Y="-49"/>
+<Point X="-95" Y="-44"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1479,7 +1478,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <LabelBlock>
 <SimpleIdentifier Name="allocate_requests_to_pods"/>
 <LabelGeometry Anchor="NW">
-<Point X="-233" Y="12"/>
+<Point X="-92" Y="15"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -1487,23 +1486,23 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;" Text="Pods_Currently_On &lt; Pod_Index">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<BinaryExpression Operator="&lt;" Text="Pods_On &lt; Pod_Index">
+<SimpleIdentifier Name="Pods_On"/>
 <SimpleIdentifier Name="Pod_Index"/>
 </BinaryExpression>
 </Guards>
 <Actions>
-<BinaryExpression Operator="=" Text="Pod_Queue_Length[Pod_Index] = Pod_Queue_Length[Pod_Index]">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<BinaryExpression Operator="=" Text="QL[Pod_Index] = QL[Pod_Index]">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
-<IndexedIdentifier Name="Pod_Queue_Length">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-229" Y="36"/>
+<Point X="-88" Y="39"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1557,13 +1556,13 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&amp;" Text="Pod_Index &gt; Pods_Currently_On &amp; Pod_Queue_Length[Pod_Index] == 0">
+<BinaryExpression Operator="&amp;" Text="Pod_Index &gt; Pods_On &amp; QL[Pod_Index] == 0">
 <BinaryExpression Operator="&gt;">
 <SimpleIdentifier Name="Pod_Index"/>
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 </BinaryExpression>
 <BinaryExpression Operator="==">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <IntConstant Value="0"/>
@@ -1587,13 +1586,13 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="|" Text="Pod_Index &lt;= Pods_Currently_On | Pod_Queue_Length[Pod_Index] != 0">
+<BinaryExpression Operator="|" Text="Pod_Index &lt;= Pods_On | QL[Pod_Index] != 0">
 <BinaryExpression Operator="&lt;=">
 <SimpleIdentifier Name="Pod_Index"/>
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 </BinaryExpression>
 <BinaryExpression Operator="!=">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <IntConstant Value="0"/>
@@ -1628,8 +1627,8 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="==" Text="Pod_Queue_Length[Pod_Index] == 0">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<BinaryExpression Operator="==" Text="QL[Pod_Index] == 0">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <IntConstant Value="0"/>
@@ -1674,13 +1673,13 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&amp;" Text="Pod_Index &gt; Pods_Currently_On &amp; Pod_Queue_Length[Pod_Index] == 0">
+<BinaryExpression Operator="&amp;" Text="Pod_Index &gt; Pods_On &amp; QL[Pod_Index] == 0">
 <BinaryExpression Operator="&gt;">
 <SimpleIdentifier Name="Pod_Index"/>
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 </BinaryExpression>
 <BinaryExpression Operator="==">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <IntConstant Value="0"/>
@@ -1688,7 +1687,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-233" Y="31"/>
+<Point X="-101" Y="31"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1704,13 +1703,13 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="Pod_Index &lt;= Pods_Currently_On">
+<BinaryExpression Operator="&lt;=" Text="Pod_Index &lt;= Pods_On">
 <SimpleIdentifier Name="Pod_Index"/>
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-116" Y="-46"/>
+<Point X="-71" Y="-45"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1751,21 +1750,21 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&amp;" Text="Pods_Currently_On &lt; Pod_Index &amp; Pods_Currently_On' &gt;= Pod_Index &amp; Pod_Queue_Length[Pod_Index] == 0">
+<BinaryExpression Operator="&amp;" Text="Pods_On &lt; Pod_Index &amp; Pods_On' &gt;= Pod_Index &amp; QL[Pod_Index] == 0">
 <BinaryExpression Operator="&amp;">
 <BinaryExpression Operator="&lt;">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 <SimpleIdentifier Name="Pod_Index"/>
 </BinaryExpression>
 <BinaryExpression Operator="&gt;=">
 <UnaryExpression Operator="'">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 </UnaryExpression>
 <SimpleIdentifier Name="Pod_Index"/>
 </BinaryExpression>
 </BinaryExpression>
 <BinaryExpression Operator="==">
-<IndexedIdentifier Name="Pod_Queue_Length">
+<IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pod_Index"/>
 </IndexedIdentifier>
 <IntConstant Value="0"/>
@@ -1789,15 +1788,15 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<UnaryExpression Operator="!" Text="!(Pods_Currently_On &lt; Pod_Index &amp; Pods_Currently_On' &gt;= Pod_Index)">
+<UnaryExpression Operator="!" Text="!(Pods_On &lt; Pod_Index &amp; Pods_On' &gt;= Pod_Index)">
 <BinaryExpression Operator="&amp;">
 <BinaryExpression Operator="&lt;">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 <SimpleIdentifier Name="Pod_Index"/>
 </BinaryExpression>
 <BinaryExpression Operator="&gt;=">
 <UnaryExpression Operator="'">
-<SimpleIdentifier Name="Pods_Currently_On"/>
+<SimpleIdentifier Name="Pods_On"/>
 </UnaryExpression>
 <SimpleIdentifier Name="Pod_Index"/>
 </BinaryExpression>

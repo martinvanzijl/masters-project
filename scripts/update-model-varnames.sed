@@ -35,3 +35,17 @@ s/SUM_OF_QUEUE_LENGTHS_BEFORE/Sum_Of_Queue_Lengths_Before/g
 s/SUM_OF_QUEUE_LENGTHS_AFTER/Sum_Of_Queue_Lengths_After/g
 s/POD_INDEX/Pod_Index/g
 s/Pod_Queue_Capacity/Max_Queue_Length/g
+
+# To shorten the the names so that the diagrams fit on the page.
+s/Max_Queue_Length/QL_Max/g
+s/Pod_Queue_Length/QL/g
+s/Submitted_Remainder/Remainder/g
+s/Submitted_This_Second/Submitted/g
+s/Pods_Currently_On/Pods_On/g
+s/Pod_Scheduler_Seconds_Elapsed/PS_Seconds_Elapsed/g
+s/Workload_Seconds_Elapsed/W_Seconds_Elapsed/g
+s/High_Load_Time_In_Seconds/T_High/g
+s/Low_Load_Time_In_Seconds/T_Low/g
+s/Max_Requests_Per_Second/RPS_Max/g
+s/Req_Sent_Per_Sec_Low/RPS_Max_Low/g
+s/Req_Sent_Per_Sec_High/RPS_Max_High/g
