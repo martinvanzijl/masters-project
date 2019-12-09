@@ -1,8 +1,8 @@
 # Run WATERS tests for my thesis.
 
 # Constants.
-#MODEL=~/Desktop/github/models/model-2-01Z-nginx-final.wmod
-MODEL=~/Desktop/github/models/model-2-02Z-nodejs-final.wmod
+MODEL=~/Desktop/github/models/model-2-01Z-nginx-final.wmod
+#MODEL=~/Desktop/github/models/model-2-02Z-nodejs-final.wmod
 OUTPUT_FILE=~/Desktop/github/results/waters-results.txt
 
 # Change to "wcheck" directory.
@@ -53,35 +53,35 @@ do
         #echo "Testing: $rps_low|$rps_high|$high_duration|$low_duration|$app_processing_time|$min_pods|$max_pods|$initial_pods|$scale_cpu"
 
         # NGINX
-        app_processing_time=6 # hard code response time
-        rps_high=$rps
-        rps_low=$rps
-        high_duration=1
-        low_duration=1
+        app_processing_time=8 # hard code response time
+        #rps_high=$rps
+        #rps_low=$rps
+        #high_duration=1
+        #low_duration=1
 
         # NGINX
-        #./wcheck -bdd -lang -q -stats \
-                                        #-DRPS_Max_Actual=$rps \
-                                        #-DPod_Min=$min_pods \
-                                        #-DPod_Max=$max_pods \
-                                        #-DProcessing_Time_Per_Req_In_Ms=$app_processing_time \
-                                        #-DScale_CPU_Threshold=$scale_cpu \
-                                        #$MODEL \
-                                        #>> $OUTPUT_FILE
-
-        # Node.js
         ./wcheck -bdd -lang -q -stats \
-                                        -DRPS_Max_High=$rps_high \
-                                        -DRPS_Max_Low=$rps_low \
-                                        -DT_High=$high_duration \
-                                        -DT_Low=$low_duration \
-                                        -DPods_Initially_On=$initial_pods \
+                                        -DRPS_Max_Actual=$rps \
                                         -DPod_Min=$min_pods \
                                         -DPod_Max=$max_pods \
-                                        -DScale_CPU_Threshold=$scale_cpu \
                                         -DProcessing_Time_Per_Req_In_Ms=$app_processing_time \
+                                        -DScale_CPU_Threshold=$scale_cpu \
                                         $MODEL \
                                         >> $OUTPUT_FILE
+
+        # Node.js
+        #./wcheck -bdd -lang -q -stats \
+                                        #-DRPS_Max_High=$rps_high \
+                                        #-DRPS_Max_Low=$rps_low \
+                                        #-DT_High=$high_duration \
+                                        #-DT_Low=$low_duration \
+                                        #-DPods_Initially_On=$initial_pods \
+                                        #-DPod_Min=$min_pods \
+                                        #-DPod_Max=$max_pods \
+                                        #-DScale_CPU_Threshold=$scale_cpu \
+                                        #-DProcessing_Time_Per_Req_In_Ms=$app_processing_time \
+                                        #$MODEL \
+                                        #>> $OUTPUT_FILE
 
         # I could use this to get the total time (verification + compilation):
         # /usr/bin/time ... --append --format='TOTAL_TIME:%E' --output=$OUTPUT_FILE
