@@ -49,3 +49,8 @@ s/Low_Load_Time_In_Seconds/T_Low/g
 s/Max_Requests_Per_Second/RPS_Max/g
 s/Req_Sent_Per_Sec_Low/RPS_Max_Low/g
 s/Req_Sent_Per_Sec_High/RPS_Max_High/g
+
+# To shorten the the names so that the diagrams fit on the page.
+s/Scale_Down_Threshold_First_Pod/Scale_Down_Threshold/g
+s/Scale_Threshold_Last_Pod/Scale_Up_Threshold/g
+
