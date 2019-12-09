@@ -103,7 +103,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <ConstantAliasExpression><IntConstant Value="80"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Scale_Down_Threshold_First_Pod">
+<ConstantAlias Name="Scale_Down_Threshold">
 <ConstantAliasExpression><BinaryExpression Operator="/">
 <BinaryExpression Operator="*">
 <SimpleIdentifier Name="QL_Max"/>
@@ -113,7 +113,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Scale_Threshold_Last_Pod">
+<ConstantAlias Name="Scale_Up_Threshold">
 <ConstantAliasExpression><BinaryExpression Operator="/">
 <BinaryExpression Operator="*">
 <SimpleIdentifier Name="QL_Max"/>
@@ -366,15 +366,15 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&gt;=" Text="QL[Pods_On] &gt;= Scale_Threshold_Last_Pod">
+<BinaryExpression Operator="&gt;=" Text="QL[Pods_On] &gt;= Scale_Up_Threshold">
 <IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pods_On"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Threshold_Last_Pod"/>
+<SimpleIdentifier Name="Scale_Up_Threshold"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-282" Y="-21"/>
+<Point X="-239" Y="-22"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -420,11 +420,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;" Text="QL[Pods_On] &lt; Scale_Threshold_Last_Pod">
+<BinaryExpression Operator="&lt;" Text="QL[Pods_On] &lt; Scale_Up_Threshold">
 <IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pods_On"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Threshold_Last_Pod"/>
+<SimpleIdentifier Name="Scale_Up_Threshold"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
@@ -444,15 +444,15 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&gt;" Text="QL[1] &gt; Scale_Down_Threshold_First_Pod">
+<BinaryExpression Operator="&gt;" Text="QL[1] &gt; Scale_Down_Threshold">
 <IndexedIdentifier Name="QL">
 <IntConstant Value="1"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Down_Threshold_First_Pod"/>
+<SimpleIdentifier Name="Scale_Down_Threshold"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="13" Y="-53"/>
+<Point X="16" Y="-35"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -468,11 +468,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="QL[1] &lt;= Scale_Down_Threshold_First_Pod">
+<BinaryExpression Operator="&lt;=" Text="QL[1] &lt;= Scale_Down_Threshold">
 <IndexedIdentifier Name="QL">
 <IntConstant Value="1"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Down_Threshold_First_Pod"/>
+<SimpleIdentifier Name="Scale_Down_Threshold"/>
 </BinaryExpression>
 </Guards>
 <Actions>
@@ -488,7 +488,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-277" Y="-53"/>
+<Point X="-244" Y="-53"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>

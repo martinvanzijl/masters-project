@@ -12,7 +12,7 @@ This checks that, after a pod is scaled down (i.e. deleted), its queue length go
 
 It turns out this is met because the event "pods_handle_requests" always occurs in the "pod" automaton, even if the pod is "off". So the queue length is always decreasing. It hits zero before we can "scale up" to the pod again.
 
-This could be enforced even more strictly by explicitly setting "Pod_Queue_Length[Pods_Currently_On]" to zero within the transition in "pod_scheduler".
+This could be enforced even more strictly by explicitly setting "QL[Pods_On]" to zero within the transition in "pod_scheduler".
 </B:Comment>
 <ConstantAliasList>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_Check_Interval">
@@ -113,7 +113,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 <ConstantAliasExpression><IntConstant Value="80"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Scale_Down_Threshold_First_Pod">
+<ConstantAlias Name="Scale_Down_Threshold">
 <ConstantAliasExpression><BinaryExpression Operator="/">
 <BinaryExpression Operator="*">
 <SimpleIdentifier Name="QL_Max"/>
@@ -123,7 +123,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </BinaryExpression>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Name="Scale_Threshold_Last_Pod">
+<ConstantAlias Name="Scale_Up_Threshold">
 <ConstantAliasExpression><BinaryExpression Operator="/">
 <BinaryExpression Operator="*">
 <SimpleIdentifier Name="QL_Max"/>
@@ -380,15 +380,15 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&gt;=" Text="QL[Pods_On] &gt;= Scale_Threshold_Last_Pod">
+<BinaryExpression Operator="&gt;=" Text="QL[Pods_On] &gt;= Scale_Up_Threshold">
 <IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pods_On"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Threshold_Last_Pod"/>
+<SimpleIdentifier Name="Scale_Up_Threshold"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-282" Y="-21"/>
+<Point X="-239" Y="-22"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -434,11 +434,11 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;" Text="QL[Pods_On] &lt; Scale_Threshold_Last_Pod">
+<BinaryExpression Operator="&lt;" Text="QL[Pods_On] &lt; Scale_Up_Threshold">
 <IndexedIdentifier Name="QL">
 <SimpleIdentifier Name="Pods_On"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Threshold_Last_Pod"/>
+<SimpleIdentifier Name="Scale_Up_Threshold"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
@@ -458,15 +458,15 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&gt;" Text="QL[1] &gt; Scale_Down_Threshold_First_Pod">
+<BinaryExpression Operator="&gt;" Text="QL[1] &gt; Scale_Down_Threshold">
 <IndexedIdentifier Name="QL">
 <IntConstant Value="1"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Down_Threshold_First_Pod"/>
+<SimpleIdentifier Name="Scale_Down_Threshold"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="13" Y="-53"/>
+<Point X="16" Y="-35"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -482,11 +482,11 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="QL[1] &lt;= Scale_Down_Threshold_First_Pod">
+<BinaryExpression Operator="&lt;=" Text="QL[1] &lt;= Scale_Down_Threshold">
 <IndexedIdentifier Name="QL">
 <IntConstant Value="1"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Down_Threshold_First_Pod"/>
+<SimpleIdentifier Name="Scale_Down_Threshold"/>
 </BinaryExpression>
 </Guards>
 <Actions>
@@ -502,7 +502,7 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-277" Y="-53"/>
+<Point X="-244" Y="-53"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -962,11 +962,11 @@ This could be enforced even more strictly by explicitly setting "Pod_Queue_Lengt
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
-<BinaryExpression Operator="&lt;=" Text="QL[1] &lt;= Scale_Down_Threshold_First_Pod">
+<BinaryExpression Operator="&lt;=" Text="QL[1] &lt;= Scale_Down_Threshold">
 <IndexedIdentifier Name="QL">
 <IntConstant Value="1"/>
 </IndexedIdentifier>
-<SimpleIdentifier Name="Scale_Down_Threshold_First_Pod"/>
+<SimpleIdentifier Name="Scale_Down_Threshold"/>
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
