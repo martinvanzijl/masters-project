@@ -53,7 +53,8 @@ do
         #echo "Testing: $rps_low|$rps_high|$high_duration|$low_duration|$app_processing_time|$min_pods|$max_pods|$initial_pods|$scale_cpu"
 
         # NGINX
-        app_processing_time=8 # hard code response time
+        app_processing_time=6 # hard code response time
+        ql_max_limit=400 # test limiting parameter
         #rps_high=$rps
         #rps_low=$rps
         #high_duration=1
@@ -66,6 +67,7 @@ do
                                         -DPod_Max=$max_pods \
                                         -DProcessing_Time_Per_Req_In_Ms=$app_processing_time \
                                         -DScale_CPU_Threshold=$scale_cpu \
+                                        -DQL_Max_Limit=$ql_max_limit \
                                         $MODEL \
                                         >> $OUTPUT_FILE
 
