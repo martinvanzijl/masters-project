@@ -6,7 +6,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </B:Comment>
 <ConstantAliasList>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_Check_Interval">
-<ConstantAliasExpression><IntConstant Value="3"/>
+<ConstantAliasExpression><IntConstant Value="15"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_CPU_Per_Pod_In_MilliCPUs">
@@ -60,7 +60,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Pod_Startup_Time">
-<ConstantAliasExpression><IntConstant Value="1"/>
+<ConstantAliasExpression><IntConstant Value="5"/>
 </ConstantAliasExpression>
 </ConstantAlias>
 <ConstantAlias Name="Limiting_Divisor">
