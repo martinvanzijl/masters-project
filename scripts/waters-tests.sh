@@ -53,8 +53,8 @@ do
         #echo "Testing: $rps_low|$rps_high|$high_duration|$low_duration|$app_processing_time|$min_pods|$max_pods|$initial_pods|$scale_cpu"
 
         # NGINX
-        app_processing_time=6 # hard code response time
-        ql_max_limit=1 # test limiting parameter
+        app_processing_time=9 # hard code response time
+        #ql_max_limit=1 # test limiting parameter
         #rps_high=$rps
         #rps_low=$rps
         #high_duration=1
@@ -67,9 +67,10 @@ do
                                         -DPod_Max=$max_pods \
                                         -DProcessing_Time_Per_Req_In_Ms=$app_processing_time \
                                         -DScale_CPU_Threshold=$scale_cpu \
-                                        -DQL_Max_Limit=$ql_max_limit \
                                         $MODEL \
                                         >> $OUTPUT_FILE
+
+                                        #-DQL_Max_Limit=$ql_max_limit \
         # Node.js
         #./wcheck -bdd -lang -q -stats \
                                         #-DRPS_Max_High=$rps_high \
