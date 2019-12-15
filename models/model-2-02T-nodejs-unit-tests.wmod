@@ -2,11 +2,7 @@
 <Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-2-02T-nodejs-unit-tests">
 <B:Comment>=== Description ===
 
-This is the final model of the Node.js cloud, for use in my thesis. Based on "2-01Z".
-
-Since the queue capacity is high, there is no need for the limiting divisor.
-
-The load is also in square shape form, not a constant maximum.
+Unit tests for Node.JS final model.
 </B:Comment>
 <ConstantAliasList>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_Check_Interval">
@@ -1612,7 +1608,7 @@ The load is also in square shape form, not a constant maximum.
 <SimpleIdentifier Name=":accepting"/>
 </EventList>
 <PointGeometry>
-<Point X="912" Y="752"/>
+<Point X="320" Y="768"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="18" Y="-14"/>
@@ -1622,55 +1618,13 @@ The load is also in square shape form, not a constant maximum.
 <EdgeList>
 <Edge Source="working" Target="working">
 <LabelBlock>
-<SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
-<LabelGeometry Anchor="NW">
-<Point X="14" Y="-1"/>
-</LabelGeometry>
-</LabelBlock>
-<SplineGeometry>
-<Point X="1009" Y="725"/>
-</SplineGeometry>
-<EndPointGeometry>
-<Point X="1216" Y="704"/>
-</EndPointGeometry>
-<GuardActionBlock>
-<Guards>
-<BinaryExpression Operator="&amp;" Text="Pod_Index &gt;= Next_Pod &amp; Pod_Index &lt; Next_Pod + Remainder">
-<BinaryExpression Operator="&gt;=">
-<SimpleIdentifier Name="Pod_Index"/>
-<SimpleIdentifier Name="Next_Pod"/>
-</BinaryExpression>
-<BinaryExpression Operator="&lt;">
-<SimpleIdentifier Name="Pod_Index"/>
-<BinaryExpression Operator="+">
-<SimpleIdentifier Name="Next_Pod"/>
-<SimpleIdentifier Name="Remainder"/>
-</BinaryExpression>
-</BinaryExpression>
-</BinaryExpression>
-</Guards>
-<Actions>
-<BinaryExpression Operator="+=" Text="QL[Pod_Index] += 1">
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-<IntConstant Value="1"/>
-</BinaryExpression>
-</Actions>
-<LabelGeometry Anchor="NW">
-<Point X="13" Y="-45"/>
-</LabelGeometry>
-</GuardActionBlock>
-</Edge>
-<Edge Source="working" Target="working">
-<LabelBlock>
 <SimpleIdentifier Name="allocate_req_to_pods_main"/>
 <LabelGeometry Anchor="NW">
-<Point X="-87" Y="-70"/>
+<Point X="-87" Y="-66"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="916" Y="654"/>
+<Point X="325" Y="672"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -1702,7 +1656,103 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-210" Y="-45"/>
+<Point X="-89" Y="-47"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<SimpleIdentifier Name="allocate_req_to_pods_main"/>
+<LabelGeometry Anchor="NW">
+<Point X="-73" Y="51"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="318" Y="867"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&gt;" Text="Pod_Index &gt; Pods_On">
+<SimpleIdentifier Name="Pod_Index"/>
+<SimpleIdentifier Name="Pods_On"/>
+</BinaryExpression>
+</Guards>
+<Actions>
+<BinaryExpression Operator="=" Text="QL[Pod_Index] = QL[Pod_Index]">
+<IndexedIdentifier Name="QL">
+<SimpleIdentifier Name="Pod_Index"/>
+</IndexedIdentifier>
+<IndexedIdentifier Name="QL">
+<SimpleIdentifier Name="Pod_Index"/>
+</IndexedIdentifier>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-72" Y="14"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT">
+<IndexedIdentifier Name="pod_queue_remainder">
+<SimpleIdentifier Name="Pod_Index"/>
+</IndexedIdentifier>
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="working">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="192" Y="208"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-70" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-1"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="253" Y="253"/>
+</SplineGeometry>
+<EndPointGeometry>
+<Point X="816" Y="480"/>
+</EndPointGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&amp;" Text="Pod_Index &gt;= Next_Pod &amp; Pod_Index &lt; Next_Pod + Remainder">
+<BinaryExpression Operator="&gt;=">
+<SimpleIdentifier Name="Pod_Index"/>
+<SimpleIdentifier Name="Next_Pod"/>
+</BinaryExpression>
+<BinaryExpression Operator="&lt;">
+<SimpleIdentifier Name="Pod_Index"/>
+<BinaryExpression Operator="+">
+<SimpleIdentifier Name="Next_Pod"/>
+<SimpleIdentifier Name="Remainder"/>
+</BinaryExpression>
+</BinaryExpression>
+</BinaryExpression>
+</Guards>
+<Actions>
+<BinaryExpression Operator="+=" Text="QL[Pod_Index] += 1">
+<IndexedIdentifier Name="QL">
+<SimpleIdentifier Name="Pod_Index"/>
+</IndexedIdentifier>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-37"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1710,11 +1760,11 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
 <LabelGeometry Anchor="NW">
-<Point X="36" Y="-5"/>
+<Point X="-12" Y="53"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="976" Y="849"/>
+<Point X="167" Y="281"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -1743,7 +1793,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="36" Y="-44"/>
+<Point X="-13" Y="11"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1751,11 +1801,11 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
 <LabelGeometry Anchor="NW">
-<Point X="-211" Y="7"/>
+<Point X="16" Y="18"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="815" Y="717"/>
+<Point X="257" Y="163"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -1785,7 +1835,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-450" Y="-36"/>
+<Point X="13" Y="-18"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1793,11 +1843,11 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
 <LabelGeometry Anchor="NW">
-<Point X="-229" Y="-3"/>
+<Point X="-26" Y="-29"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="837" Y="846"/>
+<Point X="168" Y="130"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -1829,39 +1879,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-477" Y="-42"/>
-</LabelGeometry>
-</GuardActionBlock>
-</Edge>
-<Edge Source="working" Target="working">
-<LabelBlock>
-<SimpleIdentifier Name="allocate_req_to_pods_main"/>
-<LabelGeometry Anchor="NW">
-<Point X="-73" Y="59"/>
-</LabelGeometry>
-</LabelBlock>
-<SplineGeometry>
-<Point X="908" Y="901"/>
-</SplineGeometry>
-<GuardActionBlock>
-<Guards>
-<BinaryExpression Operator="&gt;" Text="Pod_Index &gt; Pods_On">
-<SimpleIdentifier Name="Pod_Index"/>
-<SimpleIdentifier Name="Pods_On"/>
-</BinaryExpression>
-</Guards>
-<Actions>
-<BinaryExpression Operator="=" Text="QL[Pod_Index] = QL[Pod_Index]">
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-</BinaryExpression>
-</Actions>
-<LabelGeometry Anchor="NW">
-<Point X="-85" Y="14"/>
+<Point X="-23" Y="-65"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
