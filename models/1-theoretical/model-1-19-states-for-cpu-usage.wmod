@@ -1,206 +1,207 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Module Name="model-1-19-states-for-cpu-usage" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
-    <EventDeclList>
-        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="drop_request"/>
-    </EventDeclList>
-    <ComponentList>
-        <SimpleComponent Kind="PLANT" Name="node">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="using_0_percent_cpu">
-                        <PointGeometry>
-                            <Point X="112" Y="112"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="17" Y="-8"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="using_20_percent_cpu">
-                        <PointGeometry>
-                            <Point X="112" Y="176"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="18" Y="-7"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="using_40_percent_cpu">
-                        <PointGeometry>
-                            <Point X="112" Y="240"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="17" Y="-8"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="using_60_percent_cpu">
-                        <PointGeometry>
-                            <Point X="112" Y="304"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="18" Y="-8"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="using_80_percent_cpu">
-                        <PointGeometry>
-                            <Point X="112" Y="368"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="17" Y="-7"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="using_100_percent_cpu">
-                        <PointGeometry>
-                            <Point X="112" Y="432"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="17" Y="-7"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="saturated">
-                        <PointGeometry>
-                            <Point X="112" Y="496"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="22" Y="-7"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="using_0_percent_cpu" Target="using_20_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="11" Y="-10"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="144"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_20_percent_cpu" Target="using_0_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="send_reply"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-79" Y="-11"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="144"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_20_percent_cpu" Target="using_40_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="13" Y="-8"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="208"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_40_percent_cpu" Target="using_60_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="13" Y="-9"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="272"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_60_percent_cpu" Target="using_80_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="15" Y="-8"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="336"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_80_percent_cpu" Target="using_100_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="14" Y="-9"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="400"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_100_percent_cpu" Target="using_80_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="send_reply"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-84" Y="-9"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="400"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_80_percent_cpu" Target="using_60_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="send_reply"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-84" Y="-12"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="336"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_60_percent_cpu" Target="using_40_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="send_reply"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-83" Y="-11"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="272"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_40_percent_cpu" Target="using_20_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="send_reply"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-83" Y="-10"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="208"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_100_percent_cpu" Target="saturated">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="14" Y="-9"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="464"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="saturated" Target="using_100_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-94" Y="-11"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="464"/>
-                        </SplineGeometry>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-    </ComponentList>
+<?xml version="1.0" encoding="UTF-8"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-1-19-states-for-cpu-usage">
+<B:Comment>An early model using states to represent CPU usage.</B:Comment>
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="drop_request"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="PLANT" Name="node">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="using_0_percent_cpu">
+<PointGeometry>
+<Point X="112" Y="112"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="using_20_percent_cpu">
+<PointGeometry>
+<Point X="112" Y="176"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="using_40_percent_cpu">
+<PointGeometry>
+<Point X="112" Y="240"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="using_60_percent_cpu">
+<PointGeometry>
+<Point X="112" Y="304"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="using_80_percent_cpu">
+<PointGeometry>
+<Point X="112" Y="368"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="using_100_percent_cpu">
+<PointGeometry>
+<Point X="112" Y="432"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="saturated">
+<PointGeometry>
+<Point X="112" Y="496"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="22" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="using_0_percent_cpu" Target="using_20_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="11" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="144"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_20_percent_cpu" Target="using_0_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="send_reply"/>
+<LabelGeometry Anchor="NW">
+<Point X="-79" Y="-11"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="144"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_20_percent_cpu" Target="using_40_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="208"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_40_percent_cpu" Target="using_60_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="272"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_60_percent_cpu" Target="using_80_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="336"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_80_percent_cpu" Target="using_100_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="400"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_100_percent_cpu" Target="using_80_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="send_reply"/>
+<LabelGeometry Anchor="NW">
+<Point X="-84" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="400"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_80_percent_cpu" Target="using_60_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="send_reply"/>
+<LabelGeometry Anchor="NW">
+<Point X="-84" Y="-12"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="336"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_60_percent_cpu" Target="using_40_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="send_reply"/>
+<LabelGeometry Anchor="NW">
+<Point X="-83" Y="-11"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="272"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_40_percent_cpu" Target="using_20_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="send_reply"/>
+<LabelGeometry Anchor="NW">
+<Point X="-83" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="208"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_100_percent_cpu" Target="saturated">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="464"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="saturated" Target="using_100_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="drop_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="-94" Y="-11"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="464"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
 </Module>

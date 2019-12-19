@@ -1,178 +1,175 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Module Name="encryption-vs-performance" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
-    <ConstantAliasList>
-        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="SECURITY_LEVEL">
-            <ConstantAliasExpression>
-                <IntConstant Value="1"/>
-            </ConstantAliasExpression>
-        </ConstantAlias>
-        <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_DELAY">
-            <ConstantAliasExpression>
-                <IntConstant Value="100"/>
-            </ConstantAliasExpression>
-        </ConstantAlias>
-    </ConstantAliasList>
-    <EventDeclList>
-        <EventDecl Kind="UNCONTROLLABLE" Name="receive_string"/>
-        <EventDecl Kind="CONTROLLABLE" Name="handle_request"/>
-        <EventDecl Kind="CONTROLLABLE" Name="send_reply"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="slo_check"/>
-        <EventDecl Kind="PROPOSITION" Name=":accepting"/>
-    </EventDeclList>
-    <ComponentList>
-        <SimpleComponent Kind="PLANT" Name="pod">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="idle">
-                        <EventList>
-                            <SimpleIdentifier Name=":accepting"/>
-                        </EventList>
-                        <PointGeometry>
-                            <Point X="272" Y="128"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="16" Y="-6"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="encrypted">
-                        <PointGeometry>
-                            <Point X="368" Y="272"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="16" Y="-10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="encrypting">
-                        <PointGeometry>
-                            <Point X="176" Y="272"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="-89" Y="-8"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="idle" Target="encrypting">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive_string"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-100" Y="-15"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <EndPointGeometry>
-                            <Point X="176" Y="272"/>
-                        </EndPointGeometry>
-                    </Edge>
-                    <Edge Source="encrypted" Target="idle">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="send_reply"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="29" Y="-22"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <GuardActionBlock>
-                            <Actions>
-                                <BinaryExpression Operator="=" Text="ELAPSED_TIME = 0">
-                                    <SimpleIdentifier Name="ELAPSED_TIME"/>
-                                    <IntConstant Value="0"/>
-                                </BinaryExpression>
-                            </Actions>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="27" Y="-3"/>
-                            </LabelGeometry>
-                        </GuardActionBlock>
-                    </Edge>
-                    <Edge Source="encrypting" Target="encrypted">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="handle_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-44" Y="11"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="276" Y="360"/>
-                        </SplineGeometry>
-                        <GuardActionBlock>
-                            <Actions>
-                                <BinaryExpression Operator="=" Text="ELAPSED_TIME = \min(ELAPSED_TIME + SECURITY_LEVEL * 10, MAX_DELAY+1)">
-                                    <SimpleIdentifier Name="ELAPSED_TIME"/>
-                                    <FunctionCallExpression FunctionName="\min">
-                                        <BinaryExpression Operator="+">
-                                            <SimpleIdentifier Name="ELAPSED_TIME"/>
-                                            <BinaryExpression Operator="*">
-                                                <SimpleIdentifier Name="SECURITY_LEVEL"/>
-                                                <IntConstant Value="10"/>
-                                            </BinaryExpression>
-                                        </BinaryExpression>
-                                        <BinaryExpression Operator="+">
-                                            <SimpleIdentifier Name="MAX_DELAY"/>
-                                            <IntConstant Value="1"/>
-                                        </BinaryExpression>
-                                    </FunctionCallExpression>
-                                </BinaryExpression>
-                            </Actions>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-220" Y="36"/>
-                            </LabelGeometry>
-                        </GuardActionBlock>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-        <VariableComponent Name="ELAPSED_TIME">
-            <VariableRange>
-                <BinaryExpression Operator="..">
-                    <IntConstant Value="0"/>
-                    <BinaryExpression Operator="+">
-                        <SimpleIdentifier Name="MAX_DELAY"/>
-                        <IntConstant Value="1"/>
-                    </BinaryExpression>
-                </BinaryExpression>
-            </VariableRange>
-            <VariableInitial>
-                <BinaryExpression Operator="==" Text="ELAPSED_TIME == 0">
-                    <SimpleIdentifier Name="ELAPSED_TIME"/>
-                    <IntConstant Value="0"/>
-                </BinaryExpression>
-            </VariableInitial>
-        </VariableComponent>
-        <SimpleComponent Kind="PROPERTY" Name="max_response_time_slo">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="checking">
-                        <PointGeometry>
-                            <Point X="112" Y="96"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="18" Y="-8"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="checking" Target="checking">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="slo_check"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-32" Y="10"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="112" Y="185"/>
-                        </SplineGeometry>
-                        <GuardActionBlock>
-                            <Guards>
-                                <BinaryExpression Operator="&lt;=" Text="ELAPSED_TIME &lt;= MAX_DELAY">
-                                    <SimpleIdentifier Name="ELAPSED_TIME"/>
-                                    <SimpleIdentifier Name="MAX_DELAY"/>
-                                </BinaryExpression>
-                            </Guards>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-78" Y="28"/>
-                            </LabelGeometry>
-                        </GuardActionBlock>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-    </ComponentList>
+<?xml version="1.0" encoding="UTF-8"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="encryption-vs-performance">
+<B:Comment>An early model for encryption vs. performance. The idea was to have the application include a parameter for encryption level (e.g. 0 to 5). The higher the encryption level, the longer the processing time, and thus the slower the performance.</B:Comment>
+<ConstantAliasList>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="SECURITY_LEVEL">
+<ConstantAliasExpression><IntConstant Value="1"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="MAX_DELAY">
+<ConstantAliasExpression><IntConstant Value="100"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+</ConstantAliasList>
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="receive_string"/>
+<EventDecl Kind="CONTROLLABLE" Name="handle_request"/>
+<EventDecl Kind="CONTROLLABLE" Name="send_reply"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="slo_check"/>
+<EventDecl Kind="PROPOSITION" Name=":accepting"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="PLANT" Name="pod">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<EventList>
+<SimpleIdentifier Name=":accepting"/>
+</EventList>
+<PointGeometry>
+<Point X="272" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="encrypted">
+<PointGeometry>
+<Point X="368" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="encrypting">
+<PointGeometry>
+<Point X="176" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-89" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="encrypting">
+<LabelBlock>
+<SimpleIdentifier Name="receive_string"/>
+<LabelGeometry Anchor="NW">
+<Point X="-100" Y="-15"/>
+</LabelGeometry>
+</LabelBlock>
+<EndPointGeometry>
+<Point X="176" Y="272"/>
+</EndPointGeometry>
+</Edge>
+<Edge Source="encrypted" Target="idle">
+<LabelBlock>
+<SimpleIdentifier Name="send_reply"/>
+<LabelGeometry Anchor="NW">
+<Point X="29" Y="-22"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="ELAPSED_TIME = 0">
+<SimpleIdentifier Name="ELAPSED_TIME"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="27" Y="-3"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="encrypting" Target="encrypted">
+<LabelBlock>
+<SimpleIdentifier Name="handle_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="-44" Y="11"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="276" Y="360"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="ELAPSED_TIME = \min(ELAPSED_TIME + SECURITY_LEVEL * 10, MAX_DELAY+1)">
+<SimpleIdentifier Name="ELAPSED_TIME"/>
+<FunctionCallExpression FunctionName="\min">
+<BinaryExpression Operator="+">
+<SimpleIdentifier Name="ELAPSED_TIME"/>
+<BinaryExpression Operator="*">
+<SimpleIdentifier Name="SECURITY_LEVEL"/>
+<IntConstant Value="10"/>
+</BinaryExpression>
+</BinaryExpression>
+<BinaryExpression Operator="+">
+<SimpleIdentifier Name="MAX_DELAY"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</FunctionCallExpression>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-220" Y="36"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<VariableComponent Name="ELAPSED_TIME">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<BinaryExpression Operator="+">
+<SimpleIdentifier Name="MAX_DELAY"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="ELAPSED_TIME == 0">
+<SimpleIdentifier Name="ELAPSED_TIME"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<SimpleComponent Kind="PROPERTY" Name="max_response_time_slo">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="checking">
+<PointGeometry>
+<Point X="112" Y="96"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="checking" Target="checking">
+<LabelBlock>
+<SimpleIdentifier Name="slo_check"/>
+<LabelGeometry Anchor="NW">
+<Point X="-32" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="112" Y="185"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&lt;=" Text="ELAPSED_TIME &lt;= MAX_DELAY">
+<SimpleIdentifier Name="ELAPSED_TIME"/>
+<SimpleIdentifier Name="MAX_DELAY"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-78" Y="28"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
 </Module>

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Module Name="model-1-4-failure-rate" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
-    <ns2:Comment>This is a module for checking the FAILURE RATE QA.
+<?xml version="1.0" encoding="UTF-8"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-1-4-failure-rate">
+<B:Comment>This is a module for checking the FAILURE RATE QA.
 
 I have used the following abbreviations:
 
@@ -8,246 +8,244 @@ I have used the following abbreviations:
 "receive" - Receive a packet.
 "drop" - Drop a packet.
 
-The problem here is that it does not capture the "moving average". That is, what happens when the 6th packet arrives? Where is the loop back?
-
-In any case, I must connect this to a plant-based model to </ns2:Comment>
-    <EventDeclList>
-        <EventDecl Kind="UNCONTROLLABLE" Name="receive"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="drop"/>
-    </EventDeclList>
-    <ComponentList>
-        <SimpleComponent Kind="PROPERTY" Name="failure_rate_max_40_percent">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="r0d0">
-                        <PointGeometry>
-                            <Point X="5536" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r1d0">
-                        <PointGeometry>
-                            <Point X="5648" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r2d0">
-                        <PointGeometry>
-                            <Point X="5760" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r3d0">
-                        <PointGeometry>
-                            <Point X="5872" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r4d0">
-                        <PointGeometry>
-                            <Point X="5984" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r5d0">
-                        <PointGeometry>
-                            <Point X="6096" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r0d1">
-                        <PointGeometry>
-                            <Point X="5536" Y="128"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r0d2">
-                        <PointGeometry>
-                            <Point X="5536" Y="208"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r1d1">
-                        <PointGeometry>
-                            <Point X="5648" Y="128"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r2d1">
-                        <PointGeometry>
-                            <Point X="5760" Y="128"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r3d1">
-                        <PointGeometry>
-                            <Point X="5872" Y="128"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r4d1">
-                        <PointGeometry>
-                            <Point X="5984" Y="128"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r2d2">
-                        <PointGeometry>
-                            <Point X="5760" Y="208"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r3d2">
-                        <PointGeometry>
-                            <Point X="5872" Y="208"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="r1d2">
-                        <PointGeometry>
-                            <Point X="5648" Y="208"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="r0d0" Target="r1d0">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r1d0" Target="r2d0">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r2d0" Target="r3d0">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r3d0" Target="r4d0">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r4d0" Target="r5d0">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r0d0" Target="r0d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r0d1" Target="r0d2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r0d1" Target="r1d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r1d1" Target="r2d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r1d0" Target="r1d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r2d0" Target="r2d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r2d1" Target="r3d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r3d1" Target="r4d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r3d0" Target="r3d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r4d0" Target="r4d1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r0d2" Target="r1d2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r1d2" Target="r2d2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r2d2" Target="r3d2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="receive"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r1d1" Target="r1d2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r2d1" Target="r2d2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="r3d1" Target="r3d2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="drop"/>
-                        </LabelBlock>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-    </ComponentList>
+The problem here is that it does not capture the "moving average". That is, what happens when the 6th packet arrives? Where is the loop back?</B:Comment>
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="receive"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="drop"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="PROPERTY" Name="failure_rate_max_40_percent">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="r0d0">
+<PointGeometry>
+<Point X="5536" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r1d0">
+<PointGeometry>
+<Point X="5648" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r2d0">
+<PointGeometry>
+<Point X="5760" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r3d0">
+<PointGeometry>
+<Point X="5872" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r4d0">
+<PointGeometry>
+<Point X="5984" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r5d0">
+<PointGeometry>
+<Point X="6096" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r0d1">
+<PointGeometry>
+<Point X="5536" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r0d2">
+<PointGeometry>
+<Point X="5536" Y="208"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r1d1">
+<PointGeometry>
+<Point X="5648" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r2d1">
+<PointGeometry>
+<Point X="5760" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r3d1">
+<PointGeometry>
+<Point X="5872" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r4d1">
+<PointGeometry>
+<Point X="5984" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r2d2">
+<PointGeometry>
+<Point X="5760" Y="208"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r3d2">
+<PointGeometry>
+<Point X="5872" Y="208"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="r1d2">
+<PointGeometry>
+<Point X="5648" Y="208"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="r0d0" Target="r1d0">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r1d0" Target="r2d0">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r2d0" Target="r3d0">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r3d0" Target="r4d0">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r4d0" Target="r5d0">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r0d0" Target="r0d1">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r0d1" Target="r0d2">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r0d1" Target="r1d1">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r1d1" Target="r2d1">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r1d0" Target="r1d1">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r2d0" Target="r2d1">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r2d1" Target="r3d1">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r3d1" Target="r4d1">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r3d0" Target="r3d1">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r4d0" Target="r4d1">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r0d2" Target="r1d2">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r1d2" Target="r2d2">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r2d2" Target="r3d2">
+<LabelBlock>
+<SimpleIdentifier Name="receive"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r1d1" Target="r1d2">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r2d1" Target="r2d2">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+<Edge Source="r3d1" Target="r3d2">
+<LabelBlock>
+<SimpleIdentifier Name="drop"/>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
 </Module>

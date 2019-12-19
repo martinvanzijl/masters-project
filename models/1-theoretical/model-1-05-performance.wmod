@@ -1,253 +1,254 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Module Name="model-1-5-performance" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
-    <EventDeclList>
-        <EventDecl Kind="UNCONTROLLABLE" Name="tick"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="finished"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
-    </EventDeclList>
-    <ComponentList>
-        <SimpleComponent Kind="PROPERTY" Name="performance_ok">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="waiting">
-                        <PointGeometry>
-                            <Point X="64" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="s1">
-                        <PointGeometry>
-                            <Point X="160" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="s2">
-                        <PointGeometry>
-                            <Point X="160" Y="112"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="s3">
-                        <PointGeometry>
-                            <Point X="160" Y="176"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="waiting" Target="s1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="tick"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="112" Y="32"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="s1" Target="s2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="tick"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="s2" Target="s3">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="tick"/>
-                        </LabelBlock>
-                    </Edge>
-                    <Edge Source="s1" Target="waiting">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="finished"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="112" Y="64"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="s2" Target="waiting">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="finished"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="92" Y="116"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="s3" Target="waiting">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="finished"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="60" Y="145"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="waiting" Target="waiting">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="finished"/>
-                        </LabelBlock>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-        <SimpleComponent Kind="PLANT" Name="server">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="waiting">
-                        <PointGeometry>
-                            <Point X="58" Y="57"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="processing">
-                        <PointGeometry>
-                            <Point X="144" Y="81"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="done_processing">
-                        <PointGeometry>
-                            <Point X="82" Y="144"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="processing" Target="done_processing">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="tick"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="118" Y="118"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="waiting" Target="processing">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-39" Y="-29"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="103" Y="61"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="done_processing" Target="waiting">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="finished"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="63" Y="103"/>
-                        </SplineGeometry>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-        <SimpleComponent Kind="PLANT" Name="inbox">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="empty">
-                        <PointGeometry>
-                            <Point X="48" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="pending_1">
-                        <PointGeometry>
-                            <Point X="144" Y="48"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="pending_2">
-                        <PointGeometry>
-                            <Point X="144" Y="128"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="pending_3">
-                        <PointGeometry>
-                            <Point X="144" Y="208"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="0" Y="10"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="empty" Target="pending_1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="32"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="pending_1" Target="pending_2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="160" Y="88"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="pending_2" Target="pending_3">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="160" Y="168"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="pending_1" Target="empty">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="finished"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-28" Y="3"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="64"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="pending_2" Target="pending_1">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="finished"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-58" Y="5"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="88"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="pending_3" Target="pending_2">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="finished"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-52" Y="-12"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="168"/>
-                        </SplineGeometry>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-    </ComponentList>
+<?xml version="1.0" encoding="UTF-8"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-1-5-performance">
+<B:Comment>A very early model for performance, where requests come to a inbox, then are processed by the server.</B:Comment>
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="tick"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="finished"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="PROPERTY" Name="performance_ok">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="waiting">
+<PointGeometry>
+<Point X="64" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="s1">
+<PointGeometry>
+<Point X="160" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="s2">
+<PointGeometry>
+<Point X="160" Y="112"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="s3">
+<PointGeometry>
+<Point X="160" Y="176"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="waiting" Target="s1">
+<LabelBlock>
+<SimpleIdentifier Name="tick"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="112" Y="32"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="s1" Target="s2">
+<LabelBlock>
+<SimpleIdentifier Name="tick"/>
+</LabelBlock>
+</Edge>
+<Edge Source="s2" Target="s3">
+<LabelBlock>
+<SimpleIdentifier Name="tick"/>
+</LabelBlock>
+</Edge>
+<Edge Source="s1" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="finished"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="112" Y="64"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="s2" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="finished"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="92" Y="116"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="s3" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="finished"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="60" Y="145"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="waiting" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="finished"/>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="server">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="waiting">
+<PointGeometry>
+<Point X="58" Y="57"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="processing">
+<PointGeometry>
+<Point X="144" Y="81"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="done_processing">
+<PointGeometry>
+<Point X="82" Y="144"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="processing" Target="done_processing">
+<LabelBlock>
+<SimpleIdentifier Name="tick"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="118" Y="118"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="waiting" Target="processing">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="-39" Y="-29"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="103" Y="61"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="done_processing" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="finished"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="63" Y="103"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="inbox">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="empty">
+<PointGeometry>
+<Point X="48" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="pending_1">
+<PointGeometry>
+<Point X="144" Y="48"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="pending_2">
+<PointGeometry>
+<Point X="144" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="pending_3">
+<PointGeometry>
+<Point X="144" Y="208"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="0" Y="10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="empty" Target="pending_1">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="32"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="pending_1" Target="pending_2">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="160" Y="88"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="pending_2" Target="pending_3">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+</LabelBlock>
+<SplineGeometry>
+<Point X="160" Y="168"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="pending_1" Target="empty">
+<LabelBlock>
+<SimpleIdentifier Name="finished"/>
+<LabelGeometry Anchor="NW">
+<Point X="-28" Y="3"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="64"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="pending_2" Target="pending_1">
+<LabelBlock>
+<SimpleIdentifier Name="finished"/>
+<LabelGeometry Anchor="NW">
+<Point X="-58" Y="5"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="88"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="pending_3" Target="pending_2">
+<LabelBlock>
+<SimpleIdentifier Name="finished"/>
+<LabelGeometry Anchor="NW">
+<Point X="-52" Y="-12"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="168"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
 </Module>

@@ -7,7 +7,7 @@ A model for data deletion as per GDRP (See https://gdpr-info.eu/art-17-gdpr/.). 
 
 There are two nodes in the cloud, and each one may have a copy of the data stored on them.
 
-1) What if a node containing a copy of the data goes down? Then we must delete it from that node as soon as it is started again!
+What if a node containing a copy of the data goes down? Then we must delete it from that node as soon as it is started again!
 
 A good test for this would be a modified version of Guestbook: https://github.com/kubernetes/examples/blob/master/guestbook/all-in-one/guestbook-all-in-one.yaml. A data deletion trigger could be built in. That is, if the user requests deletion of their data, it will be deleted within a given time period (say 3 minutes). To check whether this works, the database could be queried after that time to see whether the row can be read.</B:Comment>
 <ConstantAliasList>

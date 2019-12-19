@@ -1,55 +1,56 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Module Name="model-1-22-no-failures-allowed" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
-    <EventDeclList>
-        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
-    </EventDeclList>
-    <ComponentList>
-        <SimpleComponent Kind="PROPERTY" Name="no_failures">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="idle">
-                        <PointGeometry>
-                            <Point X="112" Y="96"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="10" Y="-11"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="request_received">
-                        <PointGeometry>
-                            <Point X="112" Y="176"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="15" Y="-6"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="idle" Target="request_received">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="13" Y="-8"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="136"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="request_received" Target="idle">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="send_reply"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-83" Y="-8"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="136"/>
-                        </SplineGeometry>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-    </ComponentList>
+<?xml version="1.0" encoding="UTF-8"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-1-22-no-failures-allowed">
+<B:Comment>Early model to demonstrate a property where no "dropped requests" are allowed.</B:Comment>
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="PROPERTY" Name="no_failures">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<PointGeometry>
+<Point X="112" Y="96"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="10" Y="-11"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="request_received">
+<PointGeometry>
+<Point X="112" Y="176"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="request_received">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="136"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="request_received" Target="idle">
+<LabelBlock>
+<SimpleIdentifier Name="send_reply"/>
+<LabelGeometry Anchor="NW">
+<Point X="-83" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="136"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
 </Module>

@@ -1,68 +1,69 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Module Name="model-1-20-signal-loop" xmlns="http://waters.sourceforge.net/xsd/module" xmlns:ns2="http://waters.sourceforge.net/xsd/base" xmlns:ns3="http://waters.sourceforge.net/xsd/des">
-    <EventDeclList>
-        <EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="drop_request"/>
-        <EventDecl Kind="UNCONTROLLABLE" Name="threshold_signal"/>
-    </EventDeclList>
-    <ComponentList>
-        <SimpleComponent Kind="PLANT" Name="node">
-            <Graph>
-                <NodeList>
-                    <SimpleNode Initial="true" Name="using_0_percent_cpu">
-                        <PointGeometry>
-                            <Point X="112" Y="112"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="17" Y="-8"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                    <SimpleNode Name="using_80_percent_cpu">
-                        <PointGeometry>
-                            <Point X="112" Y="176"/>
-                        </PointGeometry>
-                        <LabelGeometry Anchor="NW">
-                            <Point X="18" Y="-7"/>
-                        </LabelGeometry>
-                    </SimpleNode>
-                </NodeList>
-                <EdgeList>
-                    <Edge Source="using_0_percent_cpu" Target="using_80_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="user_request"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="11" Y="-10"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="128" Y="144"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_80_percent_cpu" Target="using_0_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="send_reply"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-79" Y="-11"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="96" Y="144"/>
-                        </SplineGeometry>
-                    </Edge>
-                    <Edge Source="using_80_percent_cpu" Target="using_80_percent_cpu">
-                        <LabelBlock>
-                            <SimpleIdentifier Name="threshold_signal"/>
-                            <LabelGeometry Anchor="NW">
-                                <Point X="-48" Y="7"/>
-                            </LabelGeometry>
-                        </LabelBlock>
-                        <SplineGeometry>
-                            <Point X="109" Y="239"/>
-                        </SplineGeometry>
-                    </Edge>
-                </EdgeList>
-            </Graph>
-        </SimpleComponent>
-    </ComponentList>
+<?xml version="1.0" encoding="UTF-8"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-1-20-signal-loop">
+<B:Comment>An early model trying to add a signal from a worker node to the master.</B:Comment>
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="user_request"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="send_reply"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="drop_request"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="threshold_signal"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="PLANT" Name="node">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="using_0_percent_cpu">
+<PointGeometry>
+<Point X="112" Y="112"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="using_80_percent_cpu">
+<PointGeometry>
+<Point X="112" Y="176"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="using_0_percent_cpu" Target="using_80_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="user_request"/>
+<LabelGeometry Anchor="NW">
+<Point X="11" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="128" Y="144"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_80_percent_cpu" Target="using_0_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="send_reply"/>
+<LabelGeometry Anchor="NW">
+<Point X="-79" Y="-11"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="96" Y="144"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="using_80_percent_cpu" Target="using_80_percent_cpu">
+<LabelBlock>
+<SimpleIdentifier Name="threshold_signal"/>
+<LabelGeometry Anchor="NW">
+<Point X="-48" Y="7"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="109" Y="239"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
 </Module>
