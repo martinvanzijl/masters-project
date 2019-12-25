@@ -1,0 +1,1333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="gdpr-patent-eg">
+<B:Comment>Description
+=======
+
+This is based on a patent for GDPR data deletion I found on the Web. It could make a very interesting future Masters or PhD project.
+
+For now I have modelled the first items in the patent. 
+
+This is the company who seems to have written the patent: https://schibsted.com/about/
+
+We will probably have to ask permission from them to model this. It could make a nice collaboration. The patent mentions a program for this. Perhaps this could be modelled and checked against the patent specification in WATERS.</B:Comment>
+<ConstantAliasList>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="ARCHIVE_AGE_MAX">
+<ConstantAliasExpression><IntConstant Value="10"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="COLLECTION_AGE_MAX">
+<ConstantAliasExpression><IntConstant Value="5"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="DELETION_DEADLINE_DATE">
+<ConstantAliasExpression><IntConstant Value="20"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="DELETION_RETRIES_MAX">
+<ConstantAliasExpression><IntConstant Value="5"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="NUM_SUBSCRIBERS">
+<ConstantAliasExpression><IntConstant Value="2"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="NUM_BROKER_WORKERS">
+<ConstantAliasExpression><IntConstant Value="2"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="SECURE_LINK_EXPIRY_TIME">
+<ConstantAliasExpression><IntConstant Value="5"/>
+</ConstantAliasExpression>
+</ConstantAlias>
+</ConstantAliasList>
+<EventDeclList>
+<EventDecl Kind="UNCONTROLLABLE" Name="deletion_request_from_user"/>
+<EventDecl Kind="CONTROLLABLE" Name="prepare_for_deletion_message">
+<RangeList>
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</RangeList>
+</EventDecl>
+<EventDecl Kind="UNCONTROLLABLE" Name="delete_step_1">
+<RangeList>
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</RangeList>
+</EventDecl>
+<EventDecl Kind="UNCONTROLLABLE" Name="delete_step_2">
+<RangeList>
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</RangeList>
+</EventDecl>
+<EventDecl Kind="UNCONTROLLABLE" Name="ready_for_deletion_message">
+<RangeList>
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</RangeList>
+</EventDecl>
+<EventDecl Kind="CONTROLLABLE" Name="deletion_message">
+<RangeList>
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</RangeList>
+</EventDecl>
+<EventDecl Kind="CONTROLLABLE" Name="notify_user_that_data_is_deleted"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="one_day"/>
+<EventDecl Kind="CONTROLLABLE" Name="failure_event">
+<RangeList>
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</RangeList>
+</EventDecl>
+<EventDecl Kind="UNCONTROLLABLE" Name="worker_request"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="gather_required_data">
+<RangeList>
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</RangeList>
+</EventDecl>
+<EventDecl Kind="UNCONTROLLABLE" Name="data_takeout_request_from_user"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="upload_data">
+<RangeList>
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</RangeList>
+</EventDecl>
+<EventDecl Kind="CONTROLLABLE" Name="send_secure_download_link_to_user"/>
+<EventDecl Kind="UNCONTROLLABLE" Name="user_accesses_secure_download_link"/>
+<EventDecl Kind="CONTROLLABLE" Name="archive_data"/>
+<EventDecl Kind="CONTROLLABLE" Name="delete_from_archive_database"/>
+<EventDecl Kind="CONTROLLABLE" Name="delete_from_collection_database"/>
+<EventDecl Kind="CONTROLLABLE" Name="store_privacy_event"/>
+</EventDeclList>
+<ComponentList>
+<SimpleComponent Kind="PLANT" Name="clock">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="working">
+<PointGeometry>
+<Point X="144" Y="112"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-9"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<SimpleIdentifier Name="one_day"/>
+<LabelGeometry Anchor="NW">
+<Point X="-29" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="145" Y="199"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="+=" Text="CURRENT_DATE += 1">
+<SimpleIdentifier Name="CURRENT_DATE"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="-62" Y="31"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="data_upload_database">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="working">
+<PointGeometry>
+<Point X="528" Y="64"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="data_uploaded">
+<PointGeometry>
+<Point X="528" Y="256"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-9"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="accessed_successfully">
+<PointGeometry>
+<Point X="656" Y="592"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="access_denied">
+<PointGeometry>
+<Point X="432" Y="576"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-105" Y="-2"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="stored_in_archive_db">
+<PointGeometry>
+<Point X="752" Y="256"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-9"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="working" Target="data_uploaded">
+<LabelBlock>
+<SimpleIdentifier Name="upload_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+<EndPointGeometry>
+<Point X="528" Y="256"/>
+</EndPointGeometry>
+</Edge>
+<Edge Source="data_uploaded" Target="accessed_successfully">
+<LabelBlock>
+<SimpleIdentifier Name="user_accesses_secure_download_link"/>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-7"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&lt;" Text="LINK_AGE &lt; SECURE_LINK_EXPIRY_TIME">
+<SimpleIdentifier Name="LINK_AGE"/>
+<SimpleIdentifier Name="SECURE_LINK_EXPIRY_TIME"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-23"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="data_uploaded" Target="access_denied">
+<LabelBlock>
+<SimpleIdentifier Name="user_accesses_secure_download_link"/>
+<LabelGeometry Anchor="NW">
+<Point X="-253" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="==" Text="LINK_AGE == SECURE_LINK_EXPIRY_TIME">
+<SimpleIdentifier Name="LINK_AGE"/>
+<SimpleIdentifier Name="SECURE_LINK_EXPIRY_TIME"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-264" Y="-28"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="data_uploaded" Target="stored_in_archive_db">
+<LabelBlock>
+<SimpleIdentifier Name="archive_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="-36" Y="-28"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="637" Y="204"/>
+</SplineGeometry>
+<EndPointGeometry>
+<Point X="752" Y="256"/>
+</EndPointGeometry>
+</Edge>
+<Edge Source="stored_in_archive_db" Target="data_uploaded">
+<LabelBlock>
+<SimpleIdentifier Name="delete_from_collection_database"/>
+<LabelGeometry Anchor="NW">
+<Point X="-64" Y="12"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="636" Y="308"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="data_uploaded" Target="data_uploaded">
+<LabelBlock>
+<SimpleIdentifier Name="delete_from_collection_database"/>
+<LabelGeometry Anchor="NW">
+<Point X="-213" Y="6"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="397" Y="255"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="==" Text="COLLECTION_DATA_AGE == COLLECTION_AGE_MAX">
+<SimpleIdentifier Name="COLLECTION_DATA_AGE"/>
+<SimpleIdentifier Name="COLLECTION_AGE_MAX"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-329" Y="-16"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="broker_database">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="waiting">
+<PointGeometry>
+<Point X="224" Y="144"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="event_received">
+<PointGeometry>
+<Point X="224" Y="256"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-5"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="waiting" Target="event_received">
+<LabelBlock>
+<SimpleIdentifier Name="data_takeout_request_from_user"/>
+<SimpleIdentifier Name="deletion_request_from_user"/>
+<LabelGeometry Anchor="NW">
+<Point X="11" Y="-12"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="240" Y="200"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="event_received" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="store_privacy_event"/>
+<LabelGeometry Anchor="NW">
+<Point X="-138" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="208" Y="200"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="broker_master">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="working">
+<PointGeometry>
+<Point X="144" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<SimpleIdentifier Name="send_secure_download_link_to_user"/>
+<LabelGeometry Anchor="NW">
+<Point X="-97" Y="13"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="144" Y="218"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<SimpleIdentifier Name="upload_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="11" Y="-13"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="236" Y="130"/>
+</SplineGeometry>
+<EndPointGeometry>
+<Point X="144" Y="128"/>
+</EndPointGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="UPLOAD_DONE_BY_FIRST_ENTITY = 1">
+<SimpleIdentifier Name="UPLOAD_DONE_BY_FIRST_ENTITY"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="12" Y="4"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="user">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="working">
+<PointGeometry>
+<Point X="144" Y="208"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="link_received">
+<PointGeometry>
+<Point X="144" Y="368"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<SimpleIdentifier Name="data_takeout_request_from_user"/>
+<SimpleIdentifier Name="deletion_request_from_user"/>
+<SimpleIdentifier Name="notify_user_that_data_is_deleted"/>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-30"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="265" Y="216"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="working" Target="link_received">
+<LabelBlock>
+<SimpleIdentifier Name="send_secure_download_link_to_user"/>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="link_received" Target="link_received">
+<LabelBlock>
+<SimpleIdentifier Name="user_accesses_secure_download_link"/>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="269" Y="375"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="user_archive_database">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="waiting">
+<PointGeometry>
+<Point X="208" Y="224"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="uploaded">
+<PointGeometry>
+<Point X="208" Y="336"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="waiting" Target="uploaded">
+<LabelBlock>
+<SimpleIdentifier Name="upload_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-6"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="224" Y="280"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="uploaded" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="archive_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="-96" Y="-7"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="192" Y="280"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="waiting" Target="waiting">
+<LabelBlock>
+<SimpleIdentifier Name="delete_from_archive_database"/>
+<LabelGeometry Anchor="NW">
+<Point X="-83" Y="-26"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="210" Y="147"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&gt;=" Text="ARCHIVED_DATA_AGE &gt;= ARCHIVE_AGE_MAX">
+<SimpleIdentifier Name="ARCHIVED_DATA_AGE"/>
+<SimpleIdentifier Name="ARCHIVE_AGE_MAX"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="-118" Y="-47"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT" Name="user_notification_module">
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="waiting">
+<PointGeometry>
+<Point X="128" Y="112"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="14" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="completely_deleted">
+<PointGeometry>
+<Point X="128" Y="208"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="notified">
+<PointGeometry>
+<Point X="128" Y="304"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="waiting" Target="completely_deleted">
+<LabelBlock>
+<SimpleIdentifier Name="delete_step_2"/>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="0"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="==" Text="STEP_2_FINISHED_COUNT' == NUM_SUBSCRIBERS">
+<UnaryExpression Operator="'">
+<SimpleIdentifier Name="STEP_2_FINISHED_COUNT"/>
+</UnaryExpression>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-22"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="completely_deleted" Target="notified">
+<LabelBlock>
+<SimpleIdentifier Name="notify_user_that_data_is_deleted"/>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<VariableComponent Name="ARCHIVED_DATA_AGE">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="ARCHIVE_AGE_MAX"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="ARCHIVED_DATA_AGE == 0">
+<SimpleIdentifier Name="ARCHIVED_DATA_AGE"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="COLLECTION_DATA_AGE">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="COLLECTION_AGE_MAX"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="COLLECTION_DATA_AGE == 0">
+<SimpleIdentifier Name="COLLECTION_DATA_AGE"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="CURRENT_DATE">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="DELETION_DEADLINE_DATE"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="CURRENT_DATE == 0">
+<SimpleIdentifier Name="CURRENT_DATE"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="LINK_AGE">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="SECURE_LINK_EXPIRY_TIME"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="LINK_AGE == 0">
+<SimpleIdentifier Name="LINK_AGE"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="NUM_SUBSCRIBERS_READY">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="NUM_SUBSCRIBERS_READY == 0">
+<SimpleIdentifier Name="NUM_SUBSCRIBERS_READY"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="STEP_1_FINISHED_COUNT">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="STEP_1_FINISHED_COUNT == 0">
+<SimpleIdentifier Name="STEP_1_FINISHED_COUNT"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="STEP_2_FINISHED_COUNT">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="STEP_2_FINISHED_COUNT == 0">
+<SimpleIdentifier Name="STEP_2_FINISHED_COUNT"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent Name="UPLOAD_DONE_BY_FIRST_ENTITY">
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="UPLOAD_DONE_BY_FIRST_ENTITY == 0">
+<SimpleIdentifier Name="UPLOAD_DONE_BY_FIRST_ENTITY"/>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<ForeachComponent Name="INDEX">
+<BinaryExpression Operator="..">
+<IntConstant Value="1"/>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+<ComponentList>
+<SimpleComponent Kind="PLANT">
+<IndexedIdentifier Name="broker_database">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<PointGeometry>
+<Point X="160" Y="160"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="12" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="delete_step_1_received">
+<PointGeometry>
+<Point X="160" Y="304"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="22" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="delete_step_2_received">
+<PointGeometry>
+<Point X="160" Y="432"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="23" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="delete_step_1_received">
+<LabelBlock>
+<IndexedIdentifier Name="ready_for_deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="21" Y="-12"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="160" Y="160"/>
+</StartPointGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="STEP_1_DONE[INDEX] = 1">
+<IndexedIdentifier Name="STEP_1_DONE">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="1"/>
+</BinaryExpression>
+<BinaryExpression Operator="+=" Text="STEP_1_FINISHED_COUNT += 1">
+<SimpleIdentifier Name="STEP_1_FINISHED_COUNT"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="22" Y="8"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="delete_step_1_received" Target="delete_step_2_received">
+<LabelBlock>
+<IndexedIdentifier Name="delete_step_2">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="28" Y="-20"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="160" Y="304"/>
+</StartPointGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="STEP_2_DONE[INDEX] = 1">
+<IndexedIdentifier Name="STEP_2_DONE">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="1"/>
+</BinaryExpression>
+<BinaryExpression Operator="+=" Text="STEP_2_FINISHED_COUNT += 1">
+<SimpleIdentifier Name="STEP_2_FINISHED_COUNT"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="28" Y="-3"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT">
+<IndexedIdentifier Name="compliance_monitor">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="waiting">
+<PointGeometry>
+<Point X="400" Y="464"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-5"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="waiting_for_ready">
+<PointGeometry>
+<Point X="400" Y="656"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="-140" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="failure_event_sent">
+<PointGeometry>
+<Point X="400" Y="816"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="21" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="waiting" Target="waiting_for_ready">
+<LabelBlock>
+<IndexedIdentifier Name="prepare_for_deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="10" Y="-34"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="432" Y="560"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Actions>
+<BinaryExpression Operator="=" Text="DELETION_RETRY_COUNT[INDEX] =  0">
+<IndexedIdentifier Name="DELETION_RETRY_COUNT">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="11" Y="-13"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="waiting_for_ready" Target="waiting">
+<LabelBlock>
+<IndexedIdentifier Name="ready_for_deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="-244" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="368" Y="560"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="waiting_for_ready" Target="waiting_for_ready">
+<LabelBlock>
+<IndexedIdentifier Name="prepare_for_deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="15"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="545" Y="653"/>
+</SplineGeometry>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&amp;" Text="CURRENT_DATE &gt;= DELETION_DEADLINE_DATE &amp; DELETION_RETRY_COUNT[INDEX] &lt; DELETION_RETRIES_MAX">
+<BinaryExpression Operator="&gt;=">
+<SimpleIdentifier Name="CURRENT_DATE"/>
+<SimpleIdentifier Name="DELETION_DEADLINE_DATE"/>
+</BinaryExpression>
+<BinaryExpression Operator="&lt;">
+<IndexedIdentifier Name="DELETION_RETRY_COUNT">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<SimpleIdentifier Name="DELETION_RETRIES_MAX"/>
+</BinaryExpression>
+</BinaryExpression>
+</Guards>
+<Actions>
+<BinaryExpression Operator="+=" Text="DELETION_RETRY_COUNT[INDEX] += 1">
+<IndexedIdentifier Name="DELETION_RETRY_COUNT">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-20"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="waiting_for_ready" Target="failure_event_sent">
+<LabelBlock>
+<IndexedIdentifier Name="failure_event">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="13" Y="29"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="&gt;=" Text="DELETION_RETRY_COUNT[INDEX] &gt;= DELETION_RETRIES_MAX">
+<IndexedIdentifier Name="DELETION_RETRY_COUNT">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<SimpleIdentifier Name="DELETION_RETRIES_MAX"/>
+</BinaryExpression>
+</Guards>
+<Actions>
+<BinaryExpression Operator="=" Text="FAILED[INDEX] = 1">
+<IndexedIdentifier Name="FAILED">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</Actions>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-7"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PROPERTY">
+<IndexedIdentifier Name="deleted_only_when_ready">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="start">
+<PointGeometry>
+<Point X="128" Y="112"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="ready_message_sent">
+<PointGeometry>
+<Point X="128" Y="192"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-4"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="delete_message_received">
+<PointGeometry>
+<Point X="128" Y="272"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="21" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="start" Target="ready_message_sent">
+<LabelBlock>
+<IndexedIdentifier Name="ready_for_deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-6"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="ready_message_sent" Target="delete_message_received">
+<LabelBlock>
+<IndexedIdentifier Name="deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-13"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT">
+<IndexedIdentifier Name="service">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="working">
+<PointGeometry>
+<Point X="144" Y="128"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="12" Y="-10"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<IndexedIdentifier Name="failure_event">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="-35" Y="10"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="146" Y="214"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<SimpleComponent Kind="PLANT">
+<IndexedIdentifier Name="subscriber">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="working">
+<PointGeometry>
+<Point X="416" Y="288"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="21" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="step_1_done">
+<PointGeometry>
+<Point X="416" Y="448"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="done">
+<PointGeometry>
+<Point X="416" Y="688"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="23" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="prepare_message_received">
+<PointGeometry>
+<Point X="416" Y="368"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="ready_message_sent">
+<PointGeometry>
+<Point X="416" Y="528"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="deletion_message_received">
+<PointGeometry>
+<Point X="416" Y="608"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-4"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="prepare_message_received" Target="step_1_done">
+<LabelBlock>
+<IndexedIdentifier Name="delete_step_1">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-9"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="416" Y="368"/>
+</StartPointGeometry>
+</Edge>
+<Edge Source="deletion_message_received" Target="done">
+<LabelBlock>
+<IndexedIdentifier Name="delete_step_2">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+<StartPointGeometry>
+<Point X="416" Y="608"/>
+</StartPointGeometry>
+</Edge>
+<Edge Source="working" Target="prepare_message_received">
+<LabelBlock>
+<IndexedIdentifier Name="prepare_for_deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="step_1_done" Target="ready_message_sent">
+<LabelBlock>
+<IndexedIdentifier Name="ready_for_deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="18" Y="-8"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="ready_message_sent" Target="deletion_message_received">
+<LabelBlock>
+<IndexedIdentifier Name="deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-7"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="prepare_message_received" Target="prepare_message_received">
+<LabelBlock>
+<IndexedIdentifier Name="prepare_for_deletion_message">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<SimpleIdentifier Name="gather_required_data"/>
+<LabelGeometry Anchor="NW">
+<Point X="-250" Y="-17"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="336" Y="373"/>
+</SplineGeometry>
+</Edge>
+<Edge Source="working" Target="working">
+<LabelBlock>
+<IndexedIdentifier Name="upload_data">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<LabelGeometry Anchor="NW">
+<Point X="-36" Y="-29"/>
+</LabelGeometry>
+</LabelBlock>
+<SplineGeometry>
+<Point X="415" Y="200"/>
+</SplineGeometry>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+<VariableComponent>
+<IndexedIdentifier Name="DELETION_RETRY_COUNT">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="DELETION_RETRIES_MAX"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="DELETION_RETRY_COUNT[INDEX] == 0">
+<IndexedIdentifier Name="DELETION_RETRY_COUNT">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent>
+<IndexedIdentifier Name="FAILED">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="FAILED[INDEX] == 0">
+<IndexedIdentifier Name="FAILED">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent>
+<IndexedIdentifier Name="STEP_1_DONE">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="STEP_1_DONE[INDEX] == 0">
+<IndexedIdentifier Name="STEP_1_DONE">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+<VariableComponent>
+<IndexedIdentifier Name="STEP_2_DONE">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<VariableRange><BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<IntConstant Value="1"/>
+</BinaryExpression>
+</VariableRange>
+<VariableInitial><BinaryExpression Operator="==" Text="STEP_2_DONE[INDEX] == 0">
+<IndexedIdentifier Name="STEP_2_DONE">
+<SimpleIdentifier Name="INDEX"/>
+</IndexedIdentifier>
+<IntConstant Value="0"/>
+</BinaryExpression>
+</VariableInitial>
+</VariableComponent>
+</ComponentList>
+</ForeachComponent>
+<ForeachComponent Name="BW_INDEX">
+<BinaryExpression Operator="..">
+<IntConstant Value="0"/>
+<SimpleIdentifier Name="NUM_BROKER_WORKERS"/>
+</BinaryExpression>
+<ComponentList>
+<SimpleComponent Kind="PLANT">
+<IndexedIdentifier Name="broker_worker">
+<SimpleIdentifier Name="BW_INDEX"/>
+</IndexedIdentifier>
+<Graph>
+<NodeList>
+<SimpleNode Initial="true" Name="idle">
+<PointGeometry>
+<Point X="160" Y="96"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="11" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="received">
+<PointGeometry>
+<Point X="160" Y="192"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="-7"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="waiting_for_ready_message">
+<PointGeometry>
+<Point X="160" Y="304"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="17" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="all_subscribers_ready">
+<PointGeometry>
+<Point X="160" Y="400"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-8"/>
+</LabelGeometry>
+</SimpleNode>
+<SimpleNode Name="delete_message_sent">
+<PointGeometry>
+<Point X="160" Y="512"/>
+</PointGeometry>
+<LabelGeometry Anchor="NW">
+<Point X="25" Y="-6"/>
+</LabelGeometry>
+</SimpleNode>
+</NodeList>
+<EdgeList>
+<Edge Source="idle" Target="received">
+<LabelBlock>
+<SimpleIdentifier Name="deletion_request_from_user"/>
+<LabelGeometry Anchor="NW">
+<Point X="15" Y="-11"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="received" Target="waiting_for_ready_message">
+<LabelBlock>
+<SimpleIdentifier Name="prepare_for_deletion_message"/>
+<LabelGeometry Anchor="NW">
+<Point X="16" Y="-7"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+<Edge Source="waiting_for_ready_message" Target="all_subscribers_ready">
+<LabelBlock>
+<SimpleIdentifier Name="ready_for_deletion_message"/>
+<LabelGeometry Anchor="NW">
+<Point X="19" Y="-3"/>
+</LabelGeometry>
+</LabelBlock>
+<GuardActionBlock>
+<Guards>
+<BinaryExpression Operator="==" Text="STEP_1_FINISHED_COUNT' == NUM_SUBSCRIBERS">
+<UnaryExpression Operator="'">
+<SimpleIdentifier Name="STEP_1_FINISHED_COUNT"/>
+</UnaryExpression>
+<SimpleIdentifier Name="NUM_SUBSCRIBERS"/>
+</BinaryExpression>
+</Guards>
+<LabelGeometry Anchor="NW">
+<Point X="20" Y="-23"/>
+</LabelGeometry>
+</GuardActionBlock>
+</Edge>
+<Edge Source="all_subscribers_ready" Target="delete_message_sent">
+<LabelBlock>
+<SimpleIdentifier Name="deletion_message"/>
+<LabelGeometry Anchor="NW">
+<Point X="21" Y="-10"/>
+</LabelGeometry>
+</LabelBlock>
+</Edge>
+</EdgeList>
+</Graph>
+</SimpleComponent>
+</ComponentList>
+</ForeachComponent>
+</ComponentList>
+</Module>
