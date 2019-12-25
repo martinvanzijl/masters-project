@@ -2,7 +2,7 @@
 <Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-2-02T-nodejs-unit-tests">
 <B:Comment>=== Description ===
 
-Unit tests for Node.JS final model.
+Unit tests for Node.js final model.
 </B:Comment>
 <ConstantAliasList>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_Check_Interval">
