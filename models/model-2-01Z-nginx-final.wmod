@@ -352,7 +352,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="scale_up"/>
 <LabelGeometry Anchor="NW">
-<Point X="-76" Y="1"/>
+<Point X="-70" Y="0"/>
 </LabelGeometry>
 </LabelBlock>
 <StartPointGeometry>
