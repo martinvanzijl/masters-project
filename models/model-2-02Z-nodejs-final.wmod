@@ -13,14 +13,6 @@ The load is also in square shape form, not a constant maximum.
 <ConstantAliasExpression><IntConstant Value="15"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_CPU_Per_Pod_In_MilliCPUs">
-<ConstantAliasExpression><IntConstant Value="40"/>
-</ConstantAliasExpression>
-</ConstantAlias>
-<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_Ram_Per_Pod_In_MB">
-<ConstantAliasExpression><IntConstant Value="50"/>
-</ConstantAliasExpression>
-</ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_Response_Time_In_Ms">
 <ConstantAliasExpression><IntConstant Value="10000"/>
 </ConstantAliasExpression>

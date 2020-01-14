@@ -19,14 +19,6 @@ This could be enforced even more strictly by explicitly setting "QL[Pods_On]" to
 <ConstantAliasExpression><IntConstant Value="3"/>
 </ConstantAliasExpression>
 </ConstantAlias>
-<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_CPU_Per_Pod_In_MilliCPUs">
-<ConstantAliasExpression><IntConstant Value="40"/>
-</ConstantAliasExpression>
-</ConstantAlias>
-<ConstantAlias Scope="OPTIONAL_PARAMETER" Name="Max_RAM_Per_Pod_In_MB">
-<ConstantAliasExpression><IntConstant Value="50"/>
-</ConstantAliasExpression>
-</ConstantAlias>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="RPS_Max_Actual">
 <ConstantAliasExpression><IntConstant Value="400"/>
 </ConstantAliasExpression>
