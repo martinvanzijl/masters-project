@@ -10,6 +10,3 @@ is here: models/model-2-02Z-nodejs-final.wmod
 To view these, click on the link for the model, then click on the "Raw" button, then use "Save As..." to save to your computer. Then open the ".wmod" file in WATERS.
 
 To download WATERS, go to https://www.cs.waikato.ac.nz/~robi/download_waters/.
-
-For a full overview of the project, please see:
-https://orca-wiki.cms.waikato.ac.nz/index.php/User:MartinVanZijl
