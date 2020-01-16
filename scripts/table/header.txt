@@ -1,0 +1,8 @@
+\begin{table}[!htpb]
+\caption{Results from testing the Node.js application, part NUMBER.}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|r|r|r|r|r|r|r|r|r|r|c|c|c|r|}
+\hline
+\textbf{RPS} & \textbf{RPS} & \textbf{High} & \textbf{Low} & \textbf{Max.} & \textbf{Min.} & \textbf{Max.} & \textbf{Initial} & \textbf{Scale} & \textbf{Prop.} & \textbf{Meets} & \textbf{WATERS} & \textbf{Accurate} & \textbf{Ver.} \\
+\textbf{(low)} & \textbf{(high)} & \textbf{Dur.} & \textbf{Dur.} & \textbf{RT} & \textbf{Pods} & \textbf{Pods} & \textbf{Pods} & \textbf{CPU} & \textbf{Meeting} & \textbf{SLA} & \textbf{Pred.} &  & \textbf{Time} \\
+ &  & \textbf{(s)} & \textbf{(s)} & \textbf{(ms)} &  &  &  &  &  &  &  &  & \textbf{(s)} \\ \hline
