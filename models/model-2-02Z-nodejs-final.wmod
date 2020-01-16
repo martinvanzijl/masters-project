@@ -658,7 +658,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-211" Y="39"/>
+<Point X="-191" Y="36"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -684,13 +684,9 @@ The load is also in square shape form, not a constant maximum.
 <SimpleIdentifier Name="PS_Seconds_Elapsed"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
-<BinaryExpression Operator="=" Text="Pods_On = Pods_On">
-<SimpleIdentifier Name="Pods_On"/>
-<SimpleIdentifier Name="Pods_On"/>
-</BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-101" Y="-87"/>
+<Point X="-102" Y="-68"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -698,27 +694,12 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
-<Point X="-95" Y="-33"/>
+<Point X="-23" Y="-53"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
 <Point X="24" Y="224"/>
 </SplineGeometry>
-<GuardActionBlock>
-<Actions>
-<BinaryExpression Operator="=" Text="PS_Seconds_Elapsed = PS_Seconds_Elapsed">
-<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
-<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
-</BinaryExpression>
-<BinaryExpression Operator="=" Text="Pods_On = Pods_On">
-<SimpleIdentifier Name="Pods_On"/>
-<SimpleIdentifier Name="Pods_On"/>
-</BinaryExpression>
-</Actions>
-<LabelGeometry Anchor="NW">
-<Point X="-288" Y="-12"/>
-</LabelGeometry>
-</GuardActionBlock>
 </Edge>
 <Edge Source="container_creating" Target="container_creating">
 <LabelBlock>
@@ -918,7 +899,7 @@ The load is also in square shape form, not a constant maximum.
 <SimpleIdentifier Name=":accepting"/>
 </EventList>
 <PointGeometry>
-<Point X="784" Y="320"/>
+<Point X="608" Y="496"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="16" Y="-8"/>
@@ -930,11 +911,11 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
-<Point X="-38" Y="-31"/>
+<Point X="14" Y="10"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="695" Y="255"/>
+<Point X="668" Y="411"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -954,7 +935,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-78" Y="-81"/>
+<Point X="11" Y="-48"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -962,11 +943,11 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
-<Point X="-29" Y="16"/>
+<Point X="-91" Y="12"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="700" Y="379"/>
+<Point X="549" Y="412"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -986,7 +967,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-80" Y="37"/>
+<Point X="-200" Y="-44"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -994,11 +975,11 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
-<Point X="22" Y="-12"/>
+<Point X="-33" Y="9"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="887" Y="323"/>
+<Point X="606" Y="592"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -1012,13 +993,9 @@ The load is also in square shape form, not a constant maximum.
 <SimpleIdentifier Name="W_Seconds_Elapsed"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
-<BinaryExpression Operator="=" Text="RPS_Max = RPS_Max">
-<SimpleIdentifier Name="RPS_Max"/>
-<SimpleIdentifier Name="RPS_Max"/>
-</BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="23" Y="6"/>
+<Point X="-73" Y="34"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1026,11 +1003,11 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
-<Point X="-93" Y="-11"/>
+<Point X="-40" Y="-29"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="502" Y="320"/>
+<Point X="611" Y="225"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -1044,13 +1021,9 @@ The load is also in square shape form, not a constant maximum.
 <SimpleIdentifier Name="W_Seconds_Elapsed"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
-<BinaryExpression Operator="=" Text="RPS_Max = RPS_Max">
-<SimpleIdentifier Name="RPS_Max"/>
-<SimpleIdentifier Name="RPS_Max"/>
-</BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-203" Y="10"/>
+<Point X="-95" Y="-67"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1267,7 +1240,7 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="pods_handle_requests"/>
 <LabelGeometry Anchor="NW">
-<Point X="-478" Y="20"/>
+<Point X="-158" Y="12"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -1291,7 +1264,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-722" Y="-9"/>
+<Point X="-469" Y="-14"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1376,7 +1349,7 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_req_to_pods_main"/>
 <LabelGeometry Anchor="NW">
-<Point X="-73" Y="51"/>
+<Point X="-81" Y="37"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -1389,16 +1362,6 @@ The load is also in square shape form, not a constant maximum.
 <SimpleIdentifier Name="Pods_On"/>
 </BinaryExpression>
 </Guards>
-<Actions>
-<BinaryExpression Operator="=" Text="QL[Pod_Index] = QL[Pod_Index]">
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-</BinaryExpression>
-</Actions>
 <LabelGeometry Anchor="NW">
 <Point X="-72" Y="14"/>
 </LabelGeometry>
@@ -1472,7 +1435,7 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_req_to_pods_remainder"/>
 <LabelGeometry Anchor="NW">
-<Point X="-12" Y="53"/>
+<Point X="-13" Y="34"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -1494,16 +1457,6 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </BinaryExpression>
 </Guards>
-<Actions>
-<BinaryExpression Operator="=" Text="QL[Pod_Index] = QL[Pod_Index]">
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-</BinaryExpression>
-</Actions>
 <LabelGeometry Anchor="NW">
 <Point X="-13" Y="11"/>
 </LabelGeometry>
@@ -1580,18 +1533,8 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </BinaryExpression>
 </Guards>
-<Actions>
-<BinaryExpression Operator="=" Text="QL[Pod_Index] = QL[Pod_Index]">
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-</BinaryExpression>
-</Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-23" Y="-65"/>
+<Point X="-22" Y="-51"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>

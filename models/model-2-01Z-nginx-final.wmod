@@ -699,13 +699,9 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <SimpleIdentifier Name="PS_Seconds_Elapsed"/>
 <IntConstant Value="1"/>
 </BinaryExpression>
-<BinaryExpression Operator="=" Text="Pods_On = Pods_On">
-<SimpleIdentifier Name="Pods_On"/>
-<SimpleIdentifier Name="Pods_On"/>
-</BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-305" Y="-50"/>
+<Point X="-321" Y="-30"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -713,27 +709,12 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
-<Point X="-108" Y="4"/>
+<Point X="-11" Y="-53"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
 <Point X="24" Y="224"/>
 </SplineGeometry>
-<GuardActionBlock>
-<Actions>
-<BinaryExpression Operator="=" Text="PS_Seconds_Elapsed = PS_Seconds_Elapsed">
-<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
-<SimpleIdentifier Name="PS_Seconds_Elapsed"/>
-</BinaryExpression>
-<BinaryExpression Operator="=" Text="Pods_On = Pods_On">
-<SimpleIdentifier Name="Pods_On"/>
-<SimpleIdentifier Name="Pods_On"/>
-</BinaryExpression>
-</Actions>
-<LabelGeometry Anchor="NW">
-<Point X="-108" Y="28"/>
-</LabelGeometry>
-</GuardActionBlock>
 </Edge>
 <Edge Source="creating_pod" Target="creating_pod">
 <LabelBlock>
@@ -1117,7 +1098,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_requests_to_pods"/>
 <LabelGeometry Anchor="NW">
-<Point X="-92" Y="15"/>
+<Point X="-75" Y="16"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -1130,18 +1111,8 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <SimpleIdentifier Name="Pod_Index"/>
 </BinaryExpression>
 </Guards>
-<Actions>
-<BinaryExpression Operator="=" Text="QL[Pod_Index] = QL[Pod_Index]">
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-<IndexedIdentifier Name="QL">
-<SimpleIdentifier Name="Pod_Index"/>
-</IndexedIdentifier>
-</BinaryExpression>
-</Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-88" Y="39"/>
+<Point X="-61" Y="37"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
