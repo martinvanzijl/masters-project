@@ -214,7 +214,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
-<Point X="8" Y="-9"/>
+<Point X="-92" Y="-6"/>
 </LabelGeometry>
 </LabelBlock>
 <StartPointGeometry>
@@ -344,7 +344,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="scale_up"/>
 <LabelGeometry Anchor="NW">
-<Point X="-70" Y="0"/>
+<Point X="-61" Y="-2"/>
 </LabelGeometry>
 </LabelBlock>
 <StartPointGeometry>
@@ -366,7 +366,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-239" Y="-22"/>
+<Point X="-230" Y="-21"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -374,7 +374,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="scaling_start"/>
 <LabelGeometry Anchor="NW">
-<Point X="-99" Y="-3"/>
+<Point X="-89" Y="-3"/>
 </LabelGeometry>
 </LabelBlock>
 <GuardActionBlock>
@@ -385,7 +385,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-301" Y="-26"/>
+<Point X="-290" Y="-24"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -404,7 +404,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="no_scale_up"/>
 <LabelGeometry Anchor="NW">
-<Point X="6" Y="18"/>
+<Point X="4" Y="19"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -420,7 +420,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="9" Y="-2"/>
+<Point X="3" Y="-1"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -428,7 +428,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="no_scale_down"/>
 <LabelGeometry Anchor="NW">
-<Point X="10" Y="-4"/>
+<Point X="5" Y="-4"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -444,7 +444,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="11" Y="-28"/>
+<Point X="7" Y="-25"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -452,7 +452,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="scale_down"/>
 <LabelGeometry Anchor="NW">
-<Point X="-92" Y="-14"/>
+<Point X="-80" Y="-15"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
@@ -480,7 +480,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-244" Y="-53"/>
+<Point X="-231" Y="-48"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -492,14 +492,14 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="55574" Y="-249"/>
+<Point X="55560" Y="-239"/>
 </SplineGeometry>
 </Edge>
 <Edge Source="idle" Target="no_check">
 <LabelBlock>
 <SimpleIdentifier Name="scaling_start"/>
 <LabelGeometry Anchor="NW">
-<Point X="-100" Y="0"/>
+<Point X="-92" Y="0"/>
 </LabelGeometry>
 </LabelBlock>
 <GuardActionBlock>
@@ -510,7 +510,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-286" Y="-21"/>
+<Point X="-281" Y="-20"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -551,6 +551,9 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <PointGeometry>
 <Point X="160" Y="176"/>
 </PointGeometry>
+<InitialArrowGeometry>
+<Point X="-16" Y="-1"/>
+</InitialArrowGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="24" Y="-8"/>
 </LabelGeometry>
@@ -565,7 +568,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="162" Y="112"/>
+<Point X="162" Y="127"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Actions>
@@ -587,7 +590,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="158" Y="250"/>
+<Point X="160" Y="227"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Actions>
@@ -612,15 +615,18 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <SimpleIdentifier Name=":accepting"/>
 </EventList>
 <PointGeometry>
-<Point X="96" Y="224"/>
+<Point X="144" Y="224"/>
 </PointGeometry>
+<InitialArrowGeometry>
+<Point X="0" Y="-17"/>
+</InitialArrowGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="0" Y="10"/>
 </LabelGeometry>
 </SimpleNode>
 <SimpleNode Name="creating_pod">
 <PointGeometry>
-<Point X="480" Y="224"/>
+<Point X="464" Y="224"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="18" Y="-10"/>
@@ -636,7 +642,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="288" Y="186"/>
+<Point X="304" Y="192"/>
 </SplineGeometry>
 </Edge>
 <Edge Source="creating_pod" Target="idle">
@@ -647,7 +653,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="288" Y="262"/>
+<Point X="304" Y="256"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -685,7 +691,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="482" Y="148"/>
+<Point X="466" Y="148"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -701,7 +707,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-321" Y="-30"/>
+<Point X="-302" Y="-23"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -713,7 +719,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="24" Y="224"/>
+<Point X="72" Y="224"/>
 </SplineGeometry>
 </Edge>
 <Edge Source="creating_pod" Target="creating_pod">
@@ -724,7 +730,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="480" Y="297"/>
+<Point X="464" Y="297"/>
 </SplineGeometry>
 </Edge>
 </EdgeList>
@@ -969,7 +975,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <NodeList>
 <SimpleNode Initial="true" Name="idle">
 <PointGeometry>
-<Point X="-80" Y="224"/>
+<Point X="-16" Y="224"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="32" Y="-8"/>
@@ -977,7 +983,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </SimpleNode>
 <SimpleNode Name="working">
 <PointGeometry>
-<Point X="320" Y="224"/>
+<Point X="256" Y="224"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="-79" Y="-8"/>
@@ -989,11 +995,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="pods_handle_requests"/>
 <LabelGeometry Anchor="NW">
-<Point X="-76" Y="37"/>
+<Point X="-70" Y="40"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="130" Y="269"/>
+<Point X="127" Y="255"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Actions>
@@ -1013,7 +1019,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-227" Y="13"/>
+<Point X="-230" Y="13"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1025,7 +1031,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="130" Y="178"/>
+<Point X="127" Y="193"/>
 </SplineGeometry>
 </Edge>
 </EdgeList>
@@ -1042,8 +1048,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <SimpleIdentifier Name=":accepting"/>
 </EventList>
 <PointGeometry>
-<Point X="736" Y="544"/>
+<Point X="816" Y="544"/>
 </PointGeometry>
+<InitialArrowGeometry>
+<Point X="-19" Y="0"/>
+</InitialArrowGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="19" Y="-10"/>
 </LabelGeometry>
@@ -1054,11 +1063,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_requests_to_pods"/>
 <LabelGeometry Anchor="NW">
-<Point X="-95" Y="-65"/>
+<Point X="-169" Y="-76"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="739" Y="450"/>
+<Point X="818" Y="473"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -1090,7 +1099,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-95" Y="-44"/>
+<Point X="-168" Y="-53"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -1098,11 +1107,11 @@ This is the final model of the NGINX cloud, for use in my thesis.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_requests_to_pods"/>
 <LabelGeometry Anchor="NW">
-<Point X="-75" Y="16"/>
+<Point X="-71" Y="13"/>
 </LabelGeometry>
 </LabelBlock>
 <SplineGeometry>
-<Point X="734" Y="650"/>
+<Point X="816" Y="616"/>
 </SplineGeometry>
 <GuardActionBlock>
 <Guards>
@@ -1112,7 +1121,7 @@ This is the final model of the NGINX cloud, for use in my thesis.
 </BinaryExpression>
 </Guards>
 <LabelGeometry Anchor="NW">
-<Point X="-61" Y="37"/>
+<Point X="-56" Y="35"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
