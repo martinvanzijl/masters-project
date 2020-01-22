@@ -723,7 +723,7 @@ The load is also in square shape form, not a constant maximum.
 <SimpleIdentifier Name=":accepting"/>
 </EventList>
 <PointGeometry>
-<Point X="64" Y="464"/>
+<Point X="-64" Y="480"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="20" Y="-22"/>
@@ -731,7 +731,7 @@ The load is also in square shape form, not a constant maximum.
 </SimpleNode>
 <SimpleNode Name="submitting">
 <PointGeometry>
-<Point X="64" Y="560"/>
+<Point X="32" Y="576"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="25" Y="-8"/>
@@ -739,7 +739,7 @@ The load is also in square shape form, not a constant maximum.
 </SimpleNode>
 <SimpleNode Name="waiting">
 <PointGeometry>
-<Point X="-192" Y="560"/>
+<Point X="-160" Y="576"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="-61" Y="-8"/>
@@ -747,7 +747,7 @@ The load is also in square shape form, not a constant maximum.
 </SimpleNode>
 <SimpleNode Name="main_requests_allocated">
 <PointGeometry>
-<Point X="64" Y="848"/>
+<Point X="32" Y="720"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="24" Y="-6"/>
@@ -755,7 +755,7 @@ The load is also in square shape form, not a constant maximum.
 </SimpleNode>
 <SimpleNode Name="requests_all_allocated">
 <PointGeometry>
-<Point X="-192" Y="848"/>
+<Point X="-160" Y="720"/>
 </PointGeometry>
 <LabelGeometry Anchor="NW">
 <Point X="-157" Y="-6"/>
@@ -771,7 +771,7 @@ The load is also in square shape form, not a constant maximum.
 </LabelGeometry>
 </LabelBlock>
 <EndPointGeometry>
-<Point X="-48" Y="192"/>
+<Point X="-80" Y="208"/>
 </EndPointGeometry>
 <GuardActionBlock>
 <Guards>
@@ -791,11 +791,11 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="allocate_req_to_pods_main"/>
 <LabelGeometry Anchor="NW">
-<Point X="17" Y="-41"/>
+<Point X="15" Y="-24"/>
 </LabelGeometry>
 </LabelBlock>
 <EndPointGeometry>
-<Point X="-48" Y="480"/>
+<Point X="-80" Y="352"/>
 </EndPointGeometry>
 <GuardActionBlock>
 <Actions>
@@ -808,7 +808,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="17" Y="-22"/>
+<Point X="16" Y="2"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -816,22 +816,22 @@ The load is also in square shape form, not a constant maximum.
 <LabelBlock>
 <SimpleIdentifier Name="one_second"/>
 <LabelGeometry Anchor="NW">
-<Point X="-73" Y="-27"/>
+<Point X="-89" Y="-18"/>
 </LabelGeometry>
 </LabelBlock>
 <StartPointGeometry>
-<Point X="-304" Y="192"/>
+<Point X="-272" Y="208"/>
 </StartPointGeometry>
 </Edge>
 <Edge Source="requests_all_allocated" Target="waiting">
 <LabelBlock>
 <SimpleIdentifier Name="user_finished"/>
 <LabelGeometry Anchor="NW">
-<Point X="-106" Y="-11"/>
+<Point X="-106" Y="-26"/>
 </LabelGeometry>
 </LabelBlock>
 <StartPointGeometry>
-<Point X="-304" Y="480"/>
+<Point X="-272" Y="352"/>
 </StartPointGeometry>
 <GuardActionBlock>
 <Actions>
@@ -848,7 +848,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-229" Y="12"/>
+<Point X="-215" Y="-4"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
@@ -876,7 +876,7 @@ The load is also in square shape form, not a constant maximum.
 </BinaryExpression>
 </Actions>
 <LabelGeometry Anchor="NW">
-<Point X="-94" Y="45"/>
+<Point X="-166" Y="44"/>
 </LabelGeometry>
 </GuardActionBlock>
 </Edge>
