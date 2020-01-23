@@ -20,8 +20,8 @@ OVERALL_RESULTS_FILE="/home/mv22/Desktop/results/overall-results.csv"
 PYTHON_SCRIPT="/home/mv22/Desktop/github/scripts/analyse-jmeter-results.py"
 
 # Parameter limits.
-CPU_SCALE_THRESHOLD_MIN=25
-CPU_SCALE_THRESHOLD_MAX=100
+CPU_SCALE_THRESHOLD_MIN=80
+CPU_SCALE_THRESHOLD_MAX=80
 CPU_SCALE_THRESHOLD_INC=25
 
 MAX_RPS_MIN=400
