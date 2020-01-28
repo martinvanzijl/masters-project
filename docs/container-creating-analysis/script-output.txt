@@ -1,0 +1,366 @@
+mv22@humpback:~/Desktop/github/scripts$ ./jmeter-tests.sh 
+~/Desktop/apache-jmeter-5.1.1/bin ~/Desktop/github/scripts
+resourcequota/nginx-quota configured
+service/nginx unchanged
+deployment.apps/nginx-deployment unchanged
+horizontalpodautoscaler.autoscaling/nginx-deployment configured
+Running test case #1/4: users=1000, cpu=80, max_replicas=1, rps=400...
+About 24.0 minutes to go...
+Running trial number #1/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-2zgd2" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-747fdf9846-l9w7b   1/1     Running   0          12s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 09:40:33 NZDT 2020 (1579812033968)
+Waiting for possible shutdown message on port 4445
+summary +      1 in   0.3s =    3.4/s Avg:   137 Min:   137 Max:   137 Err:     0 (0.00%) Active: 173 Started: 173 Finished: 0
+summary +   4498 in    26s =  175.1/s Avg:  4508 Min:    50 Max: 11047 Err:   714 (15.87%) Active: 1000 Started: 1000 Finished: 0
+summary =   4499 in    26s =  173.1/s Avg:  4507 Min:    50 Max: 11047 Err:   714 (15.87%)
+summary +   6393 in    30s =  213.1/s Avg:  4524 Min:   324 Max: 10012 Err:   830 (12.98%) Active: 1000 Started: 1000 Finished: 0
+summary =  10892 in    56s =  194.6/s Avg:  4517 Min:    50 Max: 11047 Err:  1544 (14.18%)
+summary +   6376 in    30s =  212.5/s Avg:  4301 Min:   341 Max: 10012 Err:   639 (10.02%) Active: 1000 Started: 1000 Finished: 0
+summary =  17268 in    86s =  200.8/s Avg:  4437 Min:    50 Max: 11047 Err:  2183 (12.64%)
+summary +   6339 in    30s =  211.3/s Avg:  4297 Min:   289 Max: 10012 Err:   681 (10.74%) Active: 1000 Started: 1000 Finished: 0
+summary =  23607 in   116s =  203.5/s Avg:  4400 Min:    50 Max: 11047 Err:  2864 (12.13%)
+summary +   1997 in    10s =  200.3/s Avg:  4540 Min:   438 Max: 10012 Err:   140 (7.01%) Active: 0 Started: 1000 Finished: 1000
+summary =  25604 in   126s =  203.3/s Avg:  4410 Min:    50 Max: 11047 Err:  3004 (11.73%)
+Tidying up ...    @ Fri Jan 24 09:42:39 NZDT 2020 (1579812159977)
+... end of run
+*** Meets SLA?: False ***
+Running trial number #2/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-l9w7b" deleted
+Pods killed...
+Waiting for cluster to be ready...
+No resources found.
+No resources found.
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-747fdf9846-lllgs   1/1     Running   0          16s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 09:43:16 NZDT 2020 (1579812196034)
+Waiting for possible shutdown message on port 4445
+summary +   2422 in    14s =  173.9/s Avg:  3780 Min:   145 Max: 11052 Err:   235 (9.70%) Active: 1000 Started: 1000 Finished: 0
+summary +   6362 in    30s =  212.1/s Avg:  4369 Min:   274 Max: 10017 Err:   624 (9.81%) Active: 1000 Started: 1000 Finished: 0
+summary =   8784 in    44s =  200.0/s Avg:  4207 Min:   145 Max: 11052 Err:   859 (9.78%)
+summary +   6706 in    30s =  223.5/s Avg:  4058 Min:   288 Max: 10015 Err:   600 (8.95%) Active: 1000 Started: 1000 Finished: 0
+summary =  15490 in    74s =  209.5/s Avg:  4143 Min:   145 Max: 11052 Err:  1459 (9.42%)
+summary +   6703 in    30s =  223.4/s Avg:  4146 Min:   217 Max: 10012 Err:   564 (8.41%) Active: 1000 Started: 1000 Finished: 0
+summary =  22193 in   104s =  213.6/s Avg:  4143 Min:   145 Max: 11052 Err:  2023 (9.12%)
+summary +   4414 in  24.3s =  181.6/s Avg:  4648 Min:   261 Max: 10021 Err:   474 (10.74%) Active: 0 Started: 1000 Finished: 1000
+summary =  26607 in   128s =  207.5/s Avg:  4227 Min:   145 Max: 11052 Err:  2497 (9.38%)
+Tidying up ...    @ Fri Jan 24 09:45:24 NZDT 2020 (1579812324312)
+... end of run
+*** Meets SLA?: False ***
+Running trial number #3/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-lllgs" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-747fdf9846-wvldb   1/1     Running   0          8s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 09:45:38 NZDT 2020 (1579812338970)
+Waiting for possible shutdown message on port 4445
+summary +   3850 in    21s =  183.5/s Avg:  3844 Min:    83 Max: 11053 Err:   397 (10.31%) Active: 1000 Started: 1000 Finished: 0
+summary +   5786 in    30s =  192.9/s Avg:  5005 Min:   500 Max: 10013 Err:   889 (15.36%) Active: 1000 Started: 1000 Finished: 0
+summary =   9636 in    51s =  189.0/s Avg:  4541 Min:    83 Max: 11053 Err:  1286 (13.35%)
+summary +   6238 in    30s =  208.0/s Avg:  4517 Min:   354 Max: 10012 Err:   775 (12.42%) Active: 1000 Started: 1000 Finished: 0
+summary =  15874 in    81s =  196.0/s Avg:  4531 Min:    83 Max: 11053 Err:  2061 (12.98%)
+summary +   5906 in    30s =  196.8/s Avg:  4710 Min:   298 Max: 10019 Err:   736 (12.46%) Active: 1000 Started: 1000 Finished: 0
+summary =  21780 in   111s =  196.2/s Avg:  4580 Min:    83 Max: 11053 Err:  2797 (12.84%)
+summary +   2866 in    14s =  205.3/s Avg:  4984 Min:   327 Max: 10012 Err:   346 (12.07%) Active: 0 Started: 1000 Finished: 1000
+summary =  24646 in   125s =  197.3/s Avg:  4627 Min:    83 Max: 11053 Err:  3143 (12.75%)
+Tidying up ...    @ Fri Jan 24 09:47:43 NZDT 2020 (1579812463970)
+... end of run
+*** Meets SLA?: False ***
+resourcequota/nginx-quota configured
+service/nginx unchanged
+deployment.apps/nginx-deployment unchanged
+horizontalpodautoscaler.autoscaling/nginx-deployment configured
+Running test case #2/4: users=1000, cpu=80, max_replicas=2, rps=400...
+About 18.0 minutes to go...
+Running trial number #1/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-2fkf9" deleted
+pod "nginx-deployment-747fdf9846-wvldb" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS              RESTARTS   AGE
+nginx-deployment-747fdf9846-nq9vb   0/1     ContainerCreating   0          3s
+nginx-deployment-747fdf9846-qjqm6   1/1     Running             0          7s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 09:48:03 NZDT 2020 (1579812483198)
+Waiting for possible shutdown message on port 4445
+summary +      1 in     1s =    1.8/s Avg:   325 Min:   325 Max:   325 Err:     0 (0.00%) Active: 312 Started: 312 Finished: 0
+summary +   7569 in  26.3s =  287.4/s Avg:  2650 Min:    78 Max: 11038 Err:    77 (1.02%) Active: 1000 Started: 1000 Finished: 0
+summary =   7570 in    27s =  281.6/s Avg:  2649 Min:    78 Max: 11038 Err:    77 (1.02%)
+summary +   8639 in    30s =  289.2/s Avg:  2902 Min:    81 Max: 10015 Err:   114 (1.32%) Active: 1000 Started: 1000 Finished: 0
+summary =  16209 in    57s =  285.6/s Avg:  2784 Min:    78 Max: 11038 Err:   191 (1.18%)
+summary +   8287 in    30s =  276.2/s Avg:  3009 Min:    26 Max: 10011 Err:   110 (1.33%) Active: 1000 Started: 1000 Finished: 0
+summary =  24496 in    87s =  282.4/s Avg:  2860 Min:    26 Max: 11038 Err:   301 (1.23%)
+summary +   8537 in    30s =  284.6/s Avg:  3021 Min:    30 Max: 10011 Err:   152 (1.78%) Active: 1000 Started: 1000 Finished: 0
+summary =  33033 in   117s =  282.9/s Avg:  2902 Min:    26 Max: 11038 Err:   453 (1.37%)
+summary +   1987 in     8s =  247.8/s Avg:  2919 Min:   112 Max: 10011 Err:    12 (0.60%) Active: 0 Started: 1000 Finished: 1000
+summary =  35020 in   125s =  280.7/s Avg:  2903 Min:    26 Max: 11038 Err:   465 (1.33%)
+Tidying up ...    @ Fri Jan 24 09:50:08 NZDT 2020 (1579812608026)
+... end of run
+*** Meets SLA?: False ***
+Running trial number #2/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-nq9vb" deleted
+pod "nginx-deployment-747fdf9846-qjqm6" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS              RESTARTS   AGE
+nginx-deployment-747fdf9846-hb5t8   0/1     ContainerCreating   0          9s
+nginx-deployment-747fdf9846-zmzxr   1/1     Running             0          13s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 09:50:30 NZDT 2020 (1579812630018)
+Waiting for possible shutdown message on port 4445
+summary +      1 in   0.5s =    2.0/s Avg:   327 Min:   327 Max:   327 Err:     0 (0.00%) Active: 338 Started: 338 Finished: 0
+summary +   8213 in  29.4s =  279.0/s Avg:  2788 Min:    38 Max: 11073 Err:    93 (1.13%) Active: 1000 Started: 1000 Finished: 0
+summary =   8214 in    30s =  274.4/s Avg:  2788 Min:    38 Max: 11073 Err:    93 (1.13%)
+summary +   9155 in    30s =  305.2/s Avg:  2581 Min:    30 Max: 10011 Err:    57 (0.62%) Active: 1000 Started: 1000 Finished: 0
+summary =  17369 in    60s =  289.8/s Avg:  2679 Min:    30 Max: 11073 Err:   150 (0.86%)
+summary +   9235 in    30s =  307.9/s Avg:  2643 Min:    36 Max: 10011 Err:    80 (0.87%) Active: 1000 Started: 1000 Finished: 0
+summary =  26604 in    90s =  295.8/s Avg:  2667 Min:    30 Max: 11073 Err:   230 (0.86%)
+summary +   8643 in    30s =  288.1/s Avg:  2745 Min:    29 Max: 10011 Err:    82 (0.95%) Active: 1000 Started: 1000 Finished: 0
+summary =  35247 in   120s =  293.9/s Avg:  2686 Min:    29 Max: 11073 Err:   312 (0.89%)
+summary +   1024 in     4s =  280.7/s Avg:  3617 Min:   103 Max: 10011 Err:    10 (0.98%) Active: 0 Started: 1000 Finished: 1000
+summary =  36271 in   124s =  293.5/s Avg:  2712 Min:    29 Max: 11073 Err:   322 (0.89%)
+Tidying up ...    @ Fri Jan 24 09:52:33 NZDT 2020 (1579812753654)
+... end of run
+*** Meets SLA?: True ***
+Running trial number #3/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-hb5t8" deleted
+pod "nginx-deployment-747fdf9846-zmzxr" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-747fdf9846-7mtx7   1/1     Running   0          12s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 09:52:55 NZDT 2020 (1579812775796)
+Waiting for possible shutdown message on port 4445
+summary +    576 in   4.2s =  138.6/s Avg:  1210 Min:   139 Max:  3833 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary +   6297 in    30s =  209.9/s Avg:  4232 Min:   214 Max: 11041 Err:   547 (8.69%) Active: 1000 Started: 1000 Finished: 0
+summary =   6873 in  34.2s =  201.2/s Avg:  3979 Min:   139 Max: 11041 Err:   547 (7.96%)
+summary +   7491 in    30s =  249.6/s Avg:  3753 Min:    89 Max: 10012 Err:   536 (7.16%) Active: 1000 Started: 1000 Finished: 0
+summary =  14364 in  64.2s =  223.9/s Avg:  3861 Min:    89 Max: 11041 Err:  1083 (7.54%)
+summary +   9517 in    30s =  317.3/s Avg:  2416 Min:    38 Max: 10011 Err:    49 (0.51%) Active: 1000 Started: 1000 Finished: 0
+summary =  23881 in  94.2s =  253.6/s Avg:  3285 Min:    38 Max: 11041 Err:  1132 (4.74%)
+summary +   8662 in    30s =  290.5/s Avg:  2769 Min:    93 Max: 10011 Err:    76 (0.88%) Active: 0 Started: 1000 Finished: 1000
+summary =  32543 in   124s =  262.5/s Avg:  3148 Min:    38 Max: 11041 Err:  1208 (3.71%)
+Tidying up ...    @ Fri Jan 24 09:54:59 NZDT 2020 (1579812899826)
+... end of run
+*** Meets SLA?: False ***
+resourcequota/nginx-quota configured
+service/nginx unchanged
+deployment.apps/nginx-deployment configured
+horizontalpodautoscaler.autoscaling/nginx-deployment configured
+Running test case #3/4: users=1000, cpu=80, max_replicas=3, rps=400...
+About 12.0 minutes to go...
+Running trial number #1/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-6tfkr" deleted
+pod "nginx-deployment-747fdf9846-7mtx7" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS              RESTARTS   AGE
+nginx-deployment-747fdf9846-8ltj7   1/1     Running             0          15s
+nginx-deployment-747fdf9846-lmknr   0/1     ContainerCreating   0          4s
+nginx-deployment-747fdf9846-tvnck   0/1     ContainerCreating   0          4s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 09:55:21 NZDT 2020 (1579812921517)
+Waiting for possible shutdown message on port 4445
+summary +   2160 in   8.4s =  256.9/s Avg:  2305 Min:    20 Max:  8223 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary +  11980 in    30s =  399.3/s Avg:  1321 Min:    53 Max: 10030 Err:     3 (0.03%) Active: 1000 Started: 1000 Finished: 0
+summary =  14140 in  38.4s =  368.1/s Avg:  1471 Min:    20 Max: 10030 Err:     3 (0.02%)
+summary +  12110 in    30s =  403.4/s Avg:   740 Min:    12 Max:  5739 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  26250 in  68.4s =  383.6/s Avg:  1134 Min:    12 Max: 10030 Err:     3 (0.01%)
+summary +  11903 in    30s =  397.0/s Avg:   591 Min:    30 Max:  2168 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  38153 in  98.4s =  387.7/s Avg:   964 Min:    12 Max: 10030 Err:     3 (0.01%)
+summary +   9845 in    25s =  401.5/s Avg:   621 Min:    10 Max:  4629 Err:     0 (0.00%) Active: 0 Started: 1000 Finished: 1000
+summary =  47998 in   123s =  390.4/s Avg:   894 Min:    10 Max: 10030 Err:     3 (0.01%)
+Tidying up ...    @ Fri Jan 24 09:57:24 NZDT 2020 (1579813044527)
+... end of run
+*** Meets SLA?: True ***
+Running trial number #2/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-8ltj7" deleted
+pod "nginx-deployment-747fdf9846-lmknr" deleted
+pod "nginx-deployment-747fdf9846-tvnck" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS              RESTARTS   AGE
+nginx-deployment-747fdf9846-4hnjs   0/1     ContainerCreating   0          9s
+nginx-deployment-747fdf9846-ft7t2   1/1     Running             0          9s
+nginx-deployment-747fdf9846-gjvmz   1/1     Running             0          9s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 09:57:49 NZDT 2020 (1579813069050)
+Waiting for possible shutdown message on port 4445
+summary +   3914 in    11s =  359.0/s Avg:  1528 Min:    70 Max:  7945 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary +  10812 in    30s =  360.4/s Avg:  1854 Min:    87 Max: 10017 Err:     8 (0.07%) Active: 1000 Started: 1000 Finished: 0
+summary =  14726 in    41s =  360.0/s Avg:  1768 Min:    70 Max: 10017 Err:     8 (0.05%)
+summary +  12237 in    30s =  407.8/s Avg:   884 Min:    29 Max:  7497 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  26963 in    71s =  380.3/s Avg:  1367 Min:    29 Max: 10017 Err:     8 (0.03%)
+summary +  11489 in    30s =  382.9/s Avg:  1117 Min:    39 Max:  6668 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  38452 in   101s =  381.0/s Avg:  1292 Min:    29 Max: 10017 Err:     8 (0.02%)
+summary +   8309 in  22.3s =  373.2/s Avg:  1585 Min:    70 Max: 10010 Err:     3 (0.04%) Active: 0 Started: 1000 Finished: 1000
+summary =  46761 in   123s =  379.6/s Avg:  1344 Min:    29 Max: 10017 Err:    11 (0.02%)
+Tidying up ...    @ Fri Jan 24 09:59:52 NZDT 2020 (1579813192282)
+... end of run
+*** Meets SLA?: True ***
+Running trial number #3/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-4hnjs" deleted
+pod "nginx-deployment-747fdf9846-ft7t2" deleted
+pod "nginx-deployment-747fdf9846-gjvmz" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS              RESTARTS   AGE
+nginx-deployment-747fdf9846-ldtn6   1/1     Running             0          25s
+nginx-deployment-747fdf9846-w5kvd   1/1     Running             0          25s
+nginx-deployment-747fdf9846-wqks5   0/1     ContainerCreating   0          2s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 10:00:25 NZDT 2020 (1579813225034)
+Waiting for possible shutdown message on port 4445
+summary +   1245 in     5s =  252.9/s Avg:  1553 Min:    24 Max:  4402 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary +  11151 in    30s =  371.7/s Avg:  1822 Min:    57 Max: 10012 Err:     2 (0.02%) Active: 1000 Started: 1000 Finished: 0
+summary =  12396 in    35s =  355.0/s Avg:  1795 Min:    24 Max: 10012 Err:     2 (0.02%)
+summary +  11445 in    30s =  381.6/s Avg:  1504 Min:    54 Max:  8121 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  23841 in    65s =  367.2/s Avg:  1656 Min:    24 Max: 10012 Err:     2 (0.01%)
+summary +  11320 in    30s =  377.4/s Avg:  1621 Min:    29 Max:  9721 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  35161 in    95s =  370.4/s Avg:  1644 Min:    24 Max: 10012 Err:     2 (0.01%)
+summary +  10838 in    29s =  375.9/s Avg:  1430 Min:    92 Max:  8215 Err:     0 (0.00%) Active: 0 Started: 1000 Finished: 1000
+summary =  45999 in   124s =  371.7/s Avg:  1594 Min:    24 Max: 10012 Err:     2 (0.00%)
+Tidying up ...    @ Fri Jan 24 10:02:28 NZDT 2020 (1579813348830)
+... end of run
+*** Meets SLA?: True ***
+resourcequota/nginx-quota configured
+service/nginx unchanged
+deployment.apps/nginx-deployment configured
+horizontalpodautoscaler.autoscaling/nginx-deployment configured
+Running test case #4/4: users=1000, cpu=80, max_replicas=4, rps=400...
+About 6.0 minutes to go...
+Running trial number #1/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-ldtn6" deleted
+pod "nginx-deployment-747fdf9846-t4g8p" deleted
+pod "nginx-deployment-747fdf9846-w5kvd" deleted
+pod "nginx-deployment-747fdf9846-wqks5" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS              RESTARTS   AGE
+nginx-deployment-747fdf9846-2ccwp   0/1     ContainerCreating   0          15s
+nginx-deployment-747fdf9846-2wjmm   1/1     Running             0          9s
+nginx-deployment-747fdf9846-5nrwv   1/1     Running             0          23s
+nginx-deployment-747fdf9846-gb4kb   0/1     ContainerCreating   0          4s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 10:02:59 NZDT 2020 (1579813379684)
+Waiting for possible shutdown message on port 4445
+summary +      1 in   0.5s =    2.2/s Avg:   179 Min:   179 Max:   179 Err:     0 (0.00%) Active: 299 Started: 299 Finished: 0
+summary +  10143 in    30s =  340.3/s Avg:  2088 Min:   103 Max: 10011 Err:    51 (0.50%) Active: 1000 Started: 1000 Finished: 0
+summary =  10144 in  30.3s =  335.1/s Avg:  2088 Min:   103 Max: 10011 Err:    51 (0.50%)
+summary +  12321 in    30s =  410.7/s Avg:   561 Min:     7 Max:  3883 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  22465 in  60.3s =  372.8/s Avg:  1250 Min:     7 Max: 10011 Err:    51 (0.23%)
+summary +  11985 in    30s =  399.5/s Avg:   228 Min:     6 Max:   976 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  34450 in  90.3s =  381.6/s Avg:   895 Min:     6 Max: 10011 Err:    51 (0.15%)
+summary +  11985 in    30s =  399.4/s Avg:   203 Min:     8 Max:   909 Err:     0 (0.00%) Active: 866 Started: 1000 Finished: 134
+summary =  46435 in   120s =  386.1/s Avg:   716 Min:     6 Max: 10011 Err:    51 (0.11%)
+summary +    865 in   2.3s =  383.9/s Avg:   150 Min:     7 Max:   403 Err:     0 (0.00%) Active: 0 Started: 1000 Finished: 1000
+summary =  47300 in   123s =  386.0/s Avg:   706 Min:     6 Max: 10011 Err:    51 (0.11%)
+Tidying up ...    @ Fri Jan 24 10:05:02 NZDT 2020 (1579813502264)
+... end of run
+*** Meets SLA?: True ***
+Running trial number #2/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-2ccwp" deleted
+pod "nginx-deployment-747fdf9846-2wjmm" deleted
+pod "nginx-deployment-747fdf9846-5nrwv" deleted
+pod "nginx-deployment-747fdf9846-gb4kb" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-747fdf9846-sw9xk   1/1     Running   0          14s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 10:05:23 NZDT 2020 (1579813523482)
+Waiting for possible shutdown message on port 4445
+summary +    673 in   6.5s =  104.0/s Avg:  2166 Min:   102 Max:  6153 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary +   6653 in    30s =  221.7/s Avg:  4590 Min:    53 Max: 11082 Err:   868 (13.05%) Active: 1000 Started: 1000 Finished: 0
+summary =   7326 in  36.5s =  200.8/s Avg:  4367 Min:    53 Max: 11082 Err:   868 (11.85%)
+summary +  12354 in    30s =  412.0/s Avg:   908 Min:     7 Max: 10011 Err:     8 (0.06%) Active: 1000 Started: 1000 Finished: 0
+summary =  19680 in  66.5s =  296.1/s Avg:  2196 Min:     7 Max: 11082 Err:   876 (4.45%)
+summary +  11931 in    30s =  397.7/s Avg:   169 Min:     7 Max:   892 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  31611 in  96.5s =  327.7/s Avg:  1431 Min:     7 Max: 11082 Err:   876 (2.77%)
+summary +  10391 in  26.5s =  392.8/s Avg:   430 Min:    27 Max:  1489 Err:     0 (0.00%) Active: 0 Started: 1000 Finished: 1000
+summary =  42002 in   123s =  341.7/s Avg:  1183 Min:     7 Max: 11082 Err:   876 (2.09%)
+Tidying up ...    @ Fri Jan 24 10:07:26 NZDT 2020 (1579813646456)
+... end of run
+*** Meets SLA?: False ***
+Running trial number #3/3...
+Killing existing pods...
+pod "nginx-deployment-747fdf9846-gg954" deleted
+pod "nginx-deployment-747fdf9846-nq24n" deleted
+pod "nginx-deployment-747fdf9846-sw9xk" deleted
+pod "nginx-deployment-747fdf9846-wkhjt" deleted
+Pods killed...
+Waiting for cluster to be ready...
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-747fdf9846-dmtdl   1/1     Running   0          13s
+Cluster is ready...
+Security framework of XStream not initialized, XStream is probably vulnerable.
+Creating summariser <summary>
+Created the tree successfully using /home/mv22/Desktop/github/jmeter/test-plan.jmx
+Starting the test @ Fri Jan 24 10:07:53 NZDT 2020 (1579813673296)
+Waiting for possible shutdown message on port 4445
+summary +   1021 in     7s =  154.2/s Avg:  2617 Min:   334 Max:  5966 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary +   6488 in    30s =  216.3/s Avg:  4332 Min:   290 Max: 11081 Err:   591 (9.11%) Active: 1000 Started: 1000 Finished: 0
+summary =   7509 in    37s =  205.1/s Avg:  4098 Min:   290 Max: 11081 Err:   591 (7.87%)
+summary +  12169 in    30s =  405.7/s Avg:  1205 Min:     8 Max: 10011 Err:    52 (0.43%) Active: 1000 Started: 1000 Finished: 0
+summary =  19678 in    67s =  295.4/s Avg:  2309 Min:     8 Max: 11081 Err:   643 (3.27%)
+summary +  11967 in    30s =  398.9/s Avg:   190 Min:     7 Max:  1020 Err:     0 (0.00%) Active: 1000 Started: 1000 Finished: 0
+summary =  31645 in    97s =  327.5/s Avg:  1508 Min:     7 Max: 11081 Err:   643 (2.03%)
+summary +  10337 in    26s =  400.2/s Avg:   243 Min:     8 Max:   922 Err:     0 (0.00%) Active: 0 Started: 1000 Finished: 1000
+summary =  41982 in   122s =  342.9/s Avg:  1197 Min:     7 Max: 11081 Err:   643 (1.53%)
+Tidying up ...    @ Fri Jan 24 10:09:55 NZDT 2020 (1579813795834)
+... end of run
+*** Meets SLA?: False ***
+~/Desktop/github/scripts
+mv22@humpback:~/Desktop/github/scripts$
