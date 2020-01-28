@@ -1,0 +1,8 @@
+\begin{table}[!htpb]
+\caption{Raw results from testing the NGINX application for RPS = <RPS>.}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|r|r|r|r|r|r|c|c|c|r|}
+\hline
+\textbf{RPS} & \textbf{Min} & \textbf{Max} & \textbf{Initial} & \textbf{Scale} & \textbf{Prop.} & \textbf{WATERS} & \textbf{Accuracy} & \textbf{Ver.} \\ %\hline
+ & \textbf{Pods} & \textbf{Pods} & \textbf{Pods} & \textbf{CPU} & \textbf{Meeting} & \textbf{Pred.} &  & \textbf{Time} \\ %\hline
+ &  &  &  &  &  &  &  & \textbf{(s)} \\ \hline
