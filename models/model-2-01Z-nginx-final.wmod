@@ -2,7 +2,23 @@
 <Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-2-01Z-nginx-final">
 <B:Comment>=== Description ===
 
-This is the final model of the NGINX cloud, for use in my thesis.
+This is the final model of the NGINX cloud, for use in my Masters thesis: "Model Checking for Cloud Autoscaling using WATERS".
+
+=== Cloud ====
+
+The cloud system consists of a set of pods, each with its own queue of requests to process. This is represented by the "FOR" loop at the bottom of the components.
+
+=== SLA ===
+
+The SLA is defined as a single SLO for maximum response time. This is done by the "max_response_time" automaton.
+
+=== Workload ===
+
+The workload is sent as a number of requests per second (up to the maximum RPS_Max), done by the user automaton.
+
+=== Horizontal Pod Autoscaler ===
+
+The horizontal_pod_autoscaler scales in or out by one pod when the queue lengths reach certain thresholds. This is done only at certain intervals.
 </B:Comment>
 <ConstantAliasList>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_Check_Interval">

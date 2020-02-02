@@ -2,11 +2,16 @@
 <Module xmlns="http://waters.sourceforge.net/xsd/module" xmlns:B="http://waters.sourceforge.net/xsd/base" Name="model-2-02Z-nodejs-final">
 <B:Comment>=== Description ===
 
-This is the final model of the Node.js cloud, for use in my thesis. Based on "2-01Z".
+This is the final model of the Node.js cloud, for use in my Masters Thesis: "Model Checking for Cloud Autoscaling using WATERS".
 
-Since the queue capacity is high, there is no need for the limiting divisor.
+This is similar to the NGINX model, apart from the following differences:
 
-The load is also in square shape form, not a constant maximum.
+1) The "remainder" of requests is not discarded, but is divided among the queues. This is done by the "pod_queue_remainder" automaton.
+
+2) Since the queue capacity is high, there is no need for the limiting divisor.
+
+3) The load is also in square shape form, not a constant maximum. The square wave form is shapred by the "workload_shape" plant.
+
 </B:Comment>
 <ConstantAliasList>
 <ConstantAlias Scope="OPTIONAL_PARAMETER" Name="HPA_Check_Interval">
